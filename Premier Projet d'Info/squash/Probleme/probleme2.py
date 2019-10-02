@@ -60,7 +60,7 @@ BONUS_DONNE = False
 
 MAX_VIES = 3
 
-# --- Définitions de fonctions
+# --- Definitions de fonctions
 def deplace_raquette(sens):
     raquette_position[H] += RAQUETTE_DEPLACEMENT * sens
     test_touche_gauche(raquette_position, 0, MUR_EPAISSEUR)
@@ -150,7 +150,7 @@ def anime():
         change_vitesse(V, -vitesse_direction[V])
 
     if (score-ancien_score) >= SCORE_BONUS and not BONUS_DONNE:
-        RAQUETTE_LARGEUR * BONUS
+        RAQUETTE_LARGEUR *= BONUS
         BONUS_DONNE = True
 
     test_collision((raquette_position, (RAQUETTE_LARGEUR, RAQUETTE_HAUTEUR)))
@@ -165,20 +165,25 @@ def anime():
 
 
 def dessine_court():
+
     fenetre.fill(BLEU_CLAIR)
     marquoir = police.render(str(score), True, BLEU)
     fenetre.blit(marquoir, (5 * FENETRE_LARGEUR // 8, FENETRE_HAUTEUR // 10))
     pygame.draw.rect(fenetre, BLANC, ((0, 0), (MUR_EPAISSEUR, FENETRE_HAUTEUR)))
     pygame.draw.rect(fenetre, BLANC, ((MUR_EPAISSEUR, 0), (FENETRE_LARGEUR - 2 * MUR_EPAISSEUR, MUR_EPAISSEUR)))
     pygame.draw.rect(fenetre, BLANC, ((FENETRE_LARGEUR - MUR_EPAISSEUR, 0), (MUR_EPAISSEUR, FENETRE_HAUTEUR)))
+
     for vies in range(vies_restantes - 1):
         pygame.draw.circle(fenetre, BLEU, (3 * FENETRE_LARGEUR // 8 + vies * MUR_EPAISSEUR + 2, MUR_EPAISSEUR // 2 ), (MUR_EPAISSEUR - 2) // 2)
+
     pygame.draw.circle(fenetre, JAUNE, balle_position, BALLE_RAYON)
     pygame.draw.rect(fenetre, ROUGE, (raquette_position, (RAQUETTE_LARGEUR, RAQUETTE_HAUTEUR)))
+
     if vies_restantes == 0:
         message = police.render("Au revoir...", True, JAUNE)
         message_largeur, message_hauteur = police.size("Au revoir...",)
         fenetre.blit(message, ((FENETRE_LARGEUR - message_largeur) // 2, 4 * FENETRE_HAUTEUR // 5))
+
     if pause:
         pygame.draw.rect(fenetre, BLANC, ((FENETRE_LARGEUR//2 - 35, FENETRE_HAUTEUR//2 - 25), (30, 50)))
         pygame.draw.rect(fenetre, BLANC, ((FENETRE_LARGEUR//2 + 5, FENETRE_HAUTEUR//2 - 25), (30, 50)))
@@ -263,7 +268,7 @@ def test_collision(rect):
             if distance2(balle_position, (rect[0][H] + rect[1][H], rect[0][V] + rect[1][V])) <= rayon2:
                 collision_coin_bas_droite(rect)
         else:
-            # Cas final: CENTRE. On fait l'hypothèse que l'amplitude de la vitesse ne dépasse jamais la taille du rayon.
+            # Cas final: CENTRE. On fait l'hypothese que l'amplitude de la vitesse ne depasse jamais la taille du rayon.
             # Il faudra s'assurer que cette condition est toujours vraie.
             # Eviter un recouvrement lorsque raquette et balle bougent l'une vers l'autre:
             delta_g = abs(balle_position[H] - rect[0][H])
@@ -391,7 +396,7 @@ while joue:
         delai = False
 
         while not fini:
-            # --- Traiter entrées joueur
+            # --- Traiter entrees joueur
             traite_entrees()
 
             # --- Logique du jeu
@@ -406,10 +411,10 @@ while joue:
                 if delai and not auto_pause:
                     fini = True
 
-            # --- Dessiner l'écran
+            # --- Dessiner l'ecran
             dessine_court()
 
-            # --- Afficher (rafraîchir) l'écran
+            # --- Afficher (rafraichir) l'ecran
             pygame.display.flip()
 
             # --- 50 images par seconde

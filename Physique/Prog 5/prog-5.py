@@ -1,8 +1,8 @@
 # ------------------------------------------------------------------------
-# Laboratoires de programmation mathÃ©matique et physique 1                
+# Laboratoires de programmation mathematique et physique 1                
 # ------------------------------------------------------------------------
 # 
-# Programme 5: Vecteurs vitesse et accÃ©lÃ©ration, dÃ©tection de gestes.
+# Programme 5: Vecteurs vitesse et acceleration, detection de gestes.
 #
 # *** CONSIGNES ***: Ne modifier que les fonctions
 #                        deplacer_pol(),
@@ -186,7 +186,7 @@ def traiter_mouvement(position):
     ancienne_position = position        
     return
 
-### ParamÃ¨tre(s)
+### Parametre(s)
 
 dimensions_fenetre = (800, 600)  # en pixels
 images_par_seconde = 25
