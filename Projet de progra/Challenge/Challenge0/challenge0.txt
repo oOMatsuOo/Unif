@@ -1,0 +1,164 @@
+#
+/* 
+ Fichier de réponse pour le challenge 0
+ Auteur : S. Liénardy
+
+ 0. Introduction
+ ===============
+
+ 0.0 Remarque préliminaire
+ -------------------------
+ 
+ Ce fichier décrit l'unique façon de compléter le fichier de réponse aux 
+ challenges. Il n'y a pas d'autre manière de le faire. Si vous ne respectez pas
+ scrupuleusement les consignes, vous risquez de vous voir attribuer une note
+ nulle (désolé, les machines, c'est moins sympa que les humains...).
+ => Redoublez donc d'attention !
+
+ 0.1 Commentaires
+ ----------------
+
+ Il est possible d'écrire des commentaires dans le fichier de soumission. Il 
+ suffit pour cela d'utiliser les symboles de commentaires du langage C (C99). 
+ Pour rappel, il existe deux types de commentaires :
+  - les blocs de commentaires sont les symboles compris entre /* et * / 
+    (sans l'espace entre * et /)
+  - les commentaires en ligne commencent par les symboles // et finissent en fin
+    de ligne. 
+ Les commentaires seront automatiquement supprimés lors de la correction.
+  
+ L'ordinateur ne comprend pas le langage humain, inutile d'essayer d'entrer en 
+ communication avec lui. Personne n'ira lire vos commentaires. Vous pouvez en 
+ écrire si cela vous aide dans la réalisation de l'exercice.
+
+ 0.2 Réponses
+ ------------
+
+ Les lignes qui ne contiennent pas de commentaires contiennent vos réponses.
+ Par exemple, si la question posée est : 
+ Â« Quelle est la couleur du cheval blanc de Napoléon ? Â»,
+ il vous sera indiqué le numéro de la question et le format de la réponse
+ attendue, entre crochet :
+
+ 0.2 [1 mot composé de caractères en minuscule]
+*/
+
+blanc
+
+/* Indiquez ci-dessus la réponse à la question 0.2 (la réponse est blanc) */
+/* 
+ Il vous suffit d'écrire "blanc". Des lignes vides 
+ peuvent être ajoutées avant ou après la réponse si vous le désirez. Pour les 
+ distraits, une réponse donnée en majuscule vous donnera vraisemblablement des 
+ points mais ce n'est pas garanti.
+ 
+ Avez-vous remarqué que si vous activez la coloration syntaxique du langage C 
+ dans votre éditeur, vous verrez encore mieux ce qui sera considéré par 
+ l'ordinateur comme un commentaire ?  
+
+ 0.3 Séparer deux réponses
+ -------------------------
+ 
+ Chaque réponse est séparée de la suivante par le symbole '#'. Pour tous les 
+ challenges, un fichier squelette vous sera fourni. Les symboles # seront déjà 
+ positionnés dans celui-ci. Ne les effacez pas et n'en ajoutez pas. 
+ 
+ Pour ne pas répondre à une question, il suffit de ne rien écrire. Veillez à 
+ laisser un espace entre deux caractères # (par exemple, en laissant un retour à
+ la ligne entre les deux symboles).
+ 
+ Pour plus de facilité, les espaces devant accueillir des réponses seront rendus
+ suffisamment visibles dans le fichier de soumission, un commentaire rappelant 
+ le numéro de la question sera écrit au dessus de l'endroit où est attendu votre
+ réponse et un second commentaire indiquera où s'arrête la zone de réponse, vous
+  invitant à écrire cette dernière au-dessus.
+ */
+/*
+ 1 Multiplication à la Russe
+
+ Voici comment vous pouvez représenter une multiplication Â« à la russe Â».
+ Séparez les colonnes à l'aide du symbole '|'.
+ Séparez les lignes en passant simplement à la ligne.
+ 
+ Il y a 4 colonnes : multiplicande, multiplicateur, reste et somme partielle.
+ N'indiquez pas les titres des colonnes dans votre solution mais respectez cet
+ ordre. Dans chaque case du tableau, indiquez le nombre final qui doit s'y 
+ trouver (pas un calcul !).
+ 
+ Exemple pour 68 * 123 (voir syllabus de répétition). Voici ce qui est attendu
+ par le programme :
+ 
+  123 | 68 | 0 |    0
+  246 | 34 | 0 |    0
+  492 | 17 | 1 |  492
+  984 |  8 | 0 |  492
+ 1968 |  4 | 0 |  492
+ 3936 |  2 | 0 |  492
+ 7872 |  1 | 1 | 8364
+ 
+ Le résultat final de la multiplication peut être lu dans la case en bas à
+ droite.
+*/
+#
+/* 
+  1.1 Multiplication de 74 x 48 [Formaté comme expliqué ci-dessus]
+*/
+
+  48 | 74 | 0 |    0
+  96 | 37 | 1 |   96
+ 192 | 18 | 0 |   96
+ 384 |  9 | 1 |  480
+ 768 |  4 | 0 |  480
+1536 |  2 | 0 |  480
+3072 |  1 | 1 | 3552
+
+/* Écrivez ci-dessus la multiplication de 74 x 48 */
+#
+/*
+  1.2 Multiplication de 34 x 23 [Formaté comme expliqué ci-dessus]
+*/
+
+ 23 | 34 | 0 |   0
+ 46 | 17 | 1 |  46
+ 93 |  8 | 0 |  46
+184 |  4 | 0 |  46
+368 |  2 | 0 |  46
+736 |  1 | 1 | 782
+
+/* Écrivez ci-dessus la multiplication de 34 x 23 */
+#
+/*
+  2 Transformation en nombre binaire
+  2.1 Écriture de 842 en binaire [nombre composé de 0 et de 1, sur 16 bits]
+  exemple : 5 -> 101 (ne pas mettre d'espace entre les bits)
+*/
+
+842 -> 0000001101001010
+
+/* Écrivez ci-dessus la représentation binaire de 842*/
+#
+/*
+  2.1 Décomposition de 842 en somme de puissances de 2 [somme exprimée par des
+  nombres séparés par le symbole +]
+*/
+
+512+256+64+8+2
+
+/* Écrivez ci-dessus la décomposition de 842 en puissance de 2*/
+#
+/*
+  2.2 Écriture de 3242 en binaire [nombre composé de 0 et de 1, sur 16 bits]
+*/
+
+3242 -> 0000110010101010
+
+/* Écrivez ci-dessus la représentation binaire de 3242*/
+#
+/*
+  2.2 Décomposition de 3242 en somme de puissances de 2 [somme exprimée par des
+  nombres séparés par le symbole +]
+*/
+
+2048+1024+128+32+8+2
+
+/* Écrivez ci-dessus la décomposition de 3242 en puissance de 2*/

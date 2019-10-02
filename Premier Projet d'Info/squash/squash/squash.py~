@@ -1,0 +1,26 @@
+import pygame
+
+BLeu_CLAIR = ( 0, 191, 200)
+Jaune = ( 255, 255, 0)
+
+FENETRE_LARGEUR = 800
+FENETRE_HAUTEUR = 600
+
+BALLE_RAYON = 10
+
+pygame.init()
+
+fentre_taille = (FENETRE_LARGEUR, FENETRE_HAUTEUR)
+fentre = pygame.display.set_model(fenetre_taille)
+
+fenetre.fill(BLEU_CLAIR)
+
+balle_position = [10, 300]
+
+pygame.draw.circle(fenetre, JAUNE, balle_position, BALLE_RAYON)
+pygame.display.flip()
+
+pygame.time.wait(5000)
+
+pygame.display.quit()
+pygame.quit()

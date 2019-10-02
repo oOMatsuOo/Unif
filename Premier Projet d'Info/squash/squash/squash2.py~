@@ -1,0 +1,59 @@
+import pygame
+
+H = 0
+V =1
+
+BLEU_CLAIR = ( 0, 191, 200)
+JAUNE = (255, 255, 0)
+
+FENETRE_LARGEUR = 1280
+FENETRE_HAUTEUR = 720
+
+BALLE_RAYON = 10
+
+pygame.init()
+
+fenetre_taille = (FENETRE_LARGEUR, FENETRE_HAUTEUR)
+fenetre = pygame.display.set_mode(fenetre_taille)
+
+fenetre.fill(BLEU_CLAIR)
+
+balle_position = [10, 300]
+balle_vitesse = [5, 5]
+
+fini = False
+temps = pygame.time.Clock()
+
+while not fini:
+    for evenement in pygame.event.get():
+        if evenement.type == pygame.QUIT:
+            fini = True
+            
+    balle_position[H] = balle_position[H] + balle_vitesse[H]
+    balle_position[V] = balle_position[V] + balle_vitesse[V]
+
+    if balle_position[H] + BALLE_RAYON >= FENETRE_LARGEUR:
+        balle_position[H] = FENETRE_LARGEUR - BALLE_RAYON
+        balle_vitesse[H] = -balle_vitesse[H]
+    else:
+        if balle_position[H] < BALLE_RAYON:
+            balle_position[H] = BALLE_RAYON
+            balle_vitesse[H] = -balle_vitesse[H]
+            
+    if balle_position[V] + BALLE_RAYON >= FENETRE_HAUTEUR:
+        balle_position[V] = FENETRE_HAUTEUR - BALLE_RAYON
+        balle_position[V] = -balle_vitesse[V]
+    else:
+        if balle_position[V] + BALLE_RAYON >= FENETRE_HAUTEUR:
+            balle_position[V] = FENETRE_HAUTEUR - BALLE_RAYON
+            balle_vitesse[V] = -balle_vitesse[V]
+
+    fenetre.fill(BLEU_CLAIR)
+    pygame.draw.circle(fenetre, JAUNE, balle_position, BALLE_RAYON)
+
+    pygame.display.flip()
+
+    temps.tick(50)
+
+pygame.display.quit()
+pygame.quit()
