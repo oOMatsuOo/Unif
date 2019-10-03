@@ -1,0 +1,69 @@
+/*
+Challenge 1 : Instructions itératives
+
+Rappel des consignes générales de soumission :
+----------------------------------------------
+
+- Vous pouvez écrire des commentaires, comme vous le feriez dans un code C ;
+- Respectez scrupuleusement les consignes de soumissions pour ne pas recevoir 
+  une cote nulle ;
+- NE PAS TOUCHER AUX CARACTÃˆRES '#'. Ils sont placés aux bons endroits. Faites 
+  en sorte de ne pas les inclure dans un commentaire...
+
+Consignes spécifiques à ce Challenge :
+--------------------------------------
+
+Dans la suite, vous ne devez écrire QUE ce qui, selon vous, devrait remplacer 
+la ligne "votre code viendra ici (variables + instructions)" dans le squelette 
+mentionné dans l'énoncé.
+
+VOUS NE DEVEZ SURTOUT PAS : 
+- Ajouter une ligne "#include <stdio.h>" ;
+- Ã‰crire "int main(){" ni la '}' qui ferme celle ouverte après 'main' ;
+- Redéclarer population_alpha, population_beta ou annees. Ces variables sont DÃ‰JÃ€ déclarées. Si vous 
+  les redéclarez, la compilation et l'évaluation de votre code seront impossibles.
+- Utiliser une variable dont le nom commence par un underscore ('_').
+- Utiliser la fonction "printf" : le système de correction s'en charge à votre
+  place !
+  
+Comme demandé dans l'énoncé, vos programmes ne doivent rien afficher, le 
+résultat du calcul doit être placé dans la variable annees.
+
+Vous devez écrire trois version de votre programme :
+ - le premier extrait doit utiliser une boucle while ;
+ - le deuxième extrait doit utiliser une boucle for ;
+ - le troisième extrait doit comporter une boucle do...while ;
+ 
+Ne gaspillez pas une soumission en vous trompant de boucle...
+
+CONSEIL :
+Ouvrez ce fichier dans gedit, activez la coloration syntaxique du C, ainsi que
+la mise en évidence des parenthèses correspondantes pour ne pas vous tromper.
+*/
+/*
+Premier extrait de programme : calcul utilisant une boucle while.
+*/
+
+
+
+
+/* Indiquez ci-dessus votre premier extrait de code. */
+#
+/*
+Deuxième extrait de programme : calcul utilisant une boucle for.
+*/
+
+
+
+
+
+/* Indiquez ci-dessus votre deuxième extrait de code. */
+#
+/*
+Troisième extrait de programme : calcul utilisant une boucle do..while.
+*/
+
+
+
+
+/* Indiquez ci-dessus votre troisième extrait de code. */
