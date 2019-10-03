@@ -112,8 +112,8 @@ def calculer_vitesse_acceleration_2d(position, temps_maintenant):
 
     X, Y = position
 
-    Vx = (Position_X - X)/ (temps_maintenant - Temps_debut)
-    Vy = (Position_Y - Y)/ (temps_maintenant - Temps_debut)
+    Vx = -(Position_X - X)/ (temps_maintenant - Temps_debut)
+    Vy = -(Position_Y - Y)/ (temps_maintenant - Temps_debut)
     Ax = (Vx - Vitesse_X) / (temps_maintenant - Temps_debut)
     Ay = (Vy - Vitesse_Y) / (temps_maintenant - Temps_debut)
 
@@ -128,12 +128,30 @@ def calculer_vitesse_acceleration_2d(position, temps_maintenant):
 # *** A MODIFIER *********************************************************
 
 def detecter_geste(vitesse, acceleration):
-    return False
+
+    vx , vy = vitesse
+    ax , ay = acceleration
+
+    orientation = math.atan2(vy, vx)
+    pi = math.pi
+    marge_erreur = math.radians(10)
+    detect_gest = False
+
+    longueur_v = math.sqrt(math.pow(vx,2) + math.pow(vy,2))
+    longueur_a = math.sqrt(math.pow(ax,2) + math.pow(ay,2))
+
+    if(longueur_v < 0.2 and longueur_a > 0.002):
+        if( orientation < ((pi/2)+marge_erreur) and orientation > ((pi/2)-marge_erreur)):
+            detect_gest = True
+    else:
+        detect_gest = False
+
+    return (detect_gest)
 
 # ************************************************************************
 
 def afficher_compteur():
-    image = police.render(str(compteur), True, NOIR)
+    image = police.render(str(compteur), True, NOIR) 
     fenetre.blit(image, (50, 50))
     return
 

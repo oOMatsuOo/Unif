@@ -19,7 +19,7 @@ import sys
 JAUNEMIEL = (255, 192, 0)
 NOIR = (0, 0, 0)
 
-A = 4
+A = 10
 B = 10
 C = 40
 
@@ -52,8 +52,8 @@ def dessiner_vecteur(fenetre, couleur, origine, vecteur):
 
     if distance >= C:
         p4 = (Xp+Xv,Yp+Yv)
-        p1 = deplacer_pol(p, A, orientation+(pi/2))
-        p7 = deplacer_pol(p, A, orientation-(pi/2))
+        p1 = deplacer_pol(p, A, orientation-(pi/2))
+        p7 = deplacer_pol(p, A, orientation+(pi/2))
 
         Xp4, Yp4 = p4
         distancepp4 = math.sqrt(math.pow((Xp4-Xp),2)+ math.pow((Yp4-Yp),2))-C
