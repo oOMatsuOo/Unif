@@ -44,7 +44,15 @@ la mise en évidence des parenthèses correspondantes pour ne pas vous tromper.
 Premier extrait de programme : calcul utilisant une boucle while.
 */
 
+    annees = 0;
+    int augmentation_A = 500000;
+    float augmentation_B = 0.03;
 
+    while(population_beta < population_alpha){
+        population_alpha = population_alpha + augmentation_A;
+        population_beta = population_beta + (population_beta * augmentation_B);
+        annees ++;
+    };
 
 
 /* Indiquez ci-dessus votre premier extrait de code. */
@@ -53,8 +61,14 @@ Premier extrait de programme : calcul utilisant une boucle while.
 Deuxième extrait de programme : calcul utilisant une boucle for.
 */
 
+    annees = 0;
+    int augmentation_A = 500000;
+    float augmentation_B = 0.03;
 
-
+    for( ; population_beta < population_alpha; annees++){
+        population_alpha = population_alpha + augmentation_A;
+        population_beta = population_beta + (population_beta * augmentation_B);
+    };
 
 
 /* Indiquez ci-dessus votre deuxième extrait de code. */
@@ -63,7 +77,14 @@ Deuxième extrait de programme : calcul utilisant une boucle for.
 Troisième extrait de programme : calcul utilisant une boucle do..while.
 */
 
-
+    annees = 0;
+    int augmentation_A = 500000;
+    float augmentation_B = 0.03;
+    do{
+        population_alpha = population_alpha + augmentation_A;
+        population_beta = population_beta + (population_beta * augmentation_B);
+        annees ++;
+    }while(population_beta < population_alpha);
 
 
 /* Indiquez ci-dessus votre troisième extrait de code. */
