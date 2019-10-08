@@ -48,7 +48,7 @@ Premier extrait de programme : calcul utilisant une boucle while.
     int augmentation_A = 500000;
     float augmentation_B = 0.03;
 
-    while(population_beta < population_alpha){
+    while(population_beta <= population_alpha){
         population_alpha = population_alpha + augmentation_A;
         population_beta = population_beta + (population_beta * augmentation_B);
         annees ++;
@@ -65,7 +65,7 @@ Deuxième extrait de programme : calcul utilisant une boucle for.
     int augmentation_A = 500000;
     float augmentation_B = 0.03;
 
-    for( ; population_beta < population_alpha; annees++){
+    for( ; population_beta <= population_alpha; annees++){
         population_alpha = population_alpha + augmentation_A;
         population_beta = population_beta + (population_beta * augmentation_B);
     };
@@ -81,10 +81,12 @@ Troisième extrait de programme : calcul utilisant une boucle do..while.
     int augmentation_A = 500000;
     float augmentation_B = 0.03;
     do{
-        population_alpha = population_alpha + augmentation_A;
-        population_beta = population_beta + (population_beta * augmentation_B);
-        annees ++;
-    }while(population_beta < population_alpha);
+        if(population_beta <= population_alpha){
+            population_alpha = population_alpha + augmentation_A;
+            population_beta = population_beta + (population_beta * augmentation_B);
+            annees ++;
+        }
+    }while(population_beta <= population_alpha);
 
 
 /* Indiquez ci-dessus votre troisième extrait de code. */
