@@ -24,6 +24,9 @@ NUAGE_VITESSE_MAX = FENETRE_LARGEUR // 2
 
 INTERVALLE_NUAGES = 1000
 
+POWER_UP_LARGEUR = 127
+POWER_UP_HAUTEUR = 75
+
 ### Definition Mouvement ###
 
 def mouvement(nom, duree):
@@ -427,6 +430,9 @@ for nom_image, nom_fichier in (('AILE_HAUTE','bird_wing_up.png'),
 
 IMAGE_NUAGE = pygame.image.load('images/cloud.png').convert_alpha(fenetre)
 IMAGE_NUAGE = pygame.transform.scale(IMAGE_NUAGE, (NUAGE_LARGEUR, NUAGE_HAUTEUR))
+
+IMAGE_POWER_UP = pygame.image.load('images/item.png').convert_alpha(fenetre)
+IMAGE_POWER_UP = pygame.transform.scale(IMAGE_POWER_UP, (POWER_UP_LARGEUR, POWER_UP_HAUTEUR))
 
 animation = nouvelleAnimation()
 ajouteMouvement(animation, mouvement('AILE_HAUTE', 80))
