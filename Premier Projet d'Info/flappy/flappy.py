@@ -24,6 +24,9 @@ NUAGE_VITESSE_MAX = FENETRE_LARGEUR // 2
 
 INTERVALLE_NUAGES = 1000
 
+POWER_UP_VITESSE_MIN = FENETRE_LARGEUR // 10
+POWER_UP_VITESSE_MAX = FENETRE_HAUTEUR // 2
+
 POWER_UP_LARGEUR = 127
 POWER_UP_HAUTEUR = 75
 
@@ -311,6 +314,21 @@ def nouveauNuage(ciel, couloir, image):
     place(nuage, FENETRE_LARGEUR, y)
     return nuage
 
+def nouveauPowerUp(ciel, couloir, image):
+    powerUp = nouvelleEntite()
+    ajoutePose(powerUp, 'powerUp', image)
+    prendsPose(powerUp, 'powerUp')
+    rect = rectangle(powerUp)
+    debut = debutCouloir(ciel, couloir)
+    fin = debutCouloir(ciel, couloir + 1) - 1 if couloir < ciel['nombreCouloirs'] + 1 else FENETRE_HAUTEUR - 1
+
+    rect.top = random.randint(debut, fin - rect.height)
+    vitesse = (powerUp, vitesseVent(ciel, couloir), 0)
+
+    y = rect.top
+    place(powerUp, FENETRE_LARGEUR, y)
+    return powerUp
+
 def nouveauNuageHaut(ciel, image):
     return nouveauNuage(ciel, 0, image)
 
@@ -363,6 +381,23 @@ def faitNuage(bouilloire, maintenant):
 
 ### Fin Bouilloire ###
 
+### Définition Power Up ###
+
+def creationPowerUp():
+    return{
+        'couloir': random.randint(1, 5),
+        'distance': random.randint(FENETRE_LARGEUR, FENETRE_LARGEUR*2)
+    }
+
+def faitPowerUp(PW):
+    powerUp = nouveauPowerUp(ciel, PW[1], IMAGE_POWER_UP)
+    reveille(powerUp)
+    ajouteEntite(scene, powerUp)
+    return powerUp
+
+### Fin Power Up ###
+
+
 def traite_entrees():
     global fini, enJeu
     for evenement in pygame.event.get():
@@ -385,7 +420,10 @@ def traite_entrees():
 
 def enScene():
     for acteur in acteurs(scene):
-        if acteur != oiseau and rectangle(acteur).right < 0:
+        if acteur == bonus_entite:
+            creaPW = creationPowerUp()
+            faitPowerUp(creaPW)
+        elif acteur != oiseau and rectangle(acteur).right < 0:
             enleveEntite(scene, acteur)
 
 def traite_auto():
@@ -458,6 +496,9 @@ for coul in rangeCouloirs(ciel):
 
 bouilloire = nouvelleBouilloire(INTERVALLE_NUAGES)
 
+creaPW = creationPowerUp()
+bonus_entite = faitPowerUp()
+
 police_caracter = pygame.font.SysFont('monospace', 24, True)
 message = police_caracter.render("N'importe quelle touche pour commence/voler", True, ORANGE)
 messageLargeur, messageHauteur = police_caracter.size("N'importe quelle touche pour commencer/voler")
@@ -480,6 +521,7 @@ while not fini:
     if enJeu: 
         miseAJourScore(score, maintenant)
         faitNuage(bouilloire, maintenant)
+        faitPowerUp(creaPW)
     
     fenetre.fill(BLEU_CIEL)
 
