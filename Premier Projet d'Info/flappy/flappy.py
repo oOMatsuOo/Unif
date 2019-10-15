@@ -232,6 +232,8 @@ def miseAJour(scene, maitenant):
     maScene = acteurs(scene)
     for entite in maScene:
         deplace(entite, maintenant)
+        if entite == bonus_entite:
+            print(entite['position'],entite['vitesse'])
 
 def affiche(entites, ecran):
     entites = acteurs(scene)
@@ -323,7 +325,7 @@ def nouveauPowerUp(ciel, couloir, image):
     fin = debutCouloir(ciel, couloir + 1) - 1 if couloir < ciel['nombreCouloirs'] + 1 else FENETRE_HAUTEUR - 1
 
     rect.top = random.randint(debut, fin - rect.height)
-    vitesse = (powerUp, vitesseVent(ciel, couloir), 0)
+    vitesse(powerUp, vitesseVent(ciel, couloir), 0)
 
     y = rect.top
     place(powerUp, FENETRE_LARGEUR, y)
@@ -390,7 +392,7 @@ def creationPowerUp():
     }
 
 def faitPowerUp(PW):
-    powerUp = nouveauPowerUp(ciel, PW[1], IMAGE_POWER_UP)
+    powerUp = nouveauPowerUp(ciel, PW['couloir'], IMAGE_POWER_UP)
     reveille(powerUp)
     ajouteEntite(scene, powerUp)
     return powerUp
@@ -420,11 +422,11 @@ def traite_entrees():
 
 def enScene():
     for acteur in acteurs(scene):
-        if acteur == bonus_entite:
-            creaPW = creationPowerUp()
-            faitPowerUp(creaPW)
-        elif acteur != oiseau and rectangle(acteur).right < 0:
+        if acteur != oiseau and rectangle(acteur).right < 0:
             enleveEntite(scene, acteur)
+            if acteur == bonus_entite:
+                creaPW = creationPowerUp()
+                faitPowerUp(creaPW)
 
 def traite_auto():
     positionOiseau = position(oiseau)
@@ -497,7 +499,7 @@ for coul in rangeCouloirs(ciel):
 bouilloire = nouvelleBouilloire(INTERVALLE_NUAGES)
 
 creaPW = creationPowerUp()
-bonus_entite = faitPowerUp()
+bonus_entite 
 
 police_caracter = pygame.font.SysFont('monospace', 24, True)
 message = police_caracter.render("N'importe quelle touche pour commence/voler", True, ORANGE)
