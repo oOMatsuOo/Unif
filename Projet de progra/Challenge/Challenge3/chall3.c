@@ -17,4 +17,7 @@ int main(){
         val = brut[i];
         printf("%d", val);
     }
+
+    
+
 }
