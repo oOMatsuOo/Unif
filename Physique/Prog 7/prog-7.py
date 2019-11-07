@@ -13,7 +13,7 @@ ORANGE = (255,140,  0)
 # Paramètres
 
 dimensions_fenetre = (1300, 700)  # en pixels
-images_par_seconde = 40
+images_par_seconde = 25
 
 position_vaisseau = ([650, 350])
 rayon_vaisseau = 15
@@ -24,7 +24,7 @@ compteur_propulseur = 0
 masse = 1
 force_poussee = 0
 
-k = 0.05
+k = 0.01
 
 marge_ecran = 50
 
@@ -252,7 +252,7 @@ def gerer_touche(touche):
         orientation += pi / 20
     elif touche == pygame.K_UP:
         compteur_propulseur += 3
-        force_poussee = 0.0009
+        force_poussee = 0.001
 
 
 # Initialisation
