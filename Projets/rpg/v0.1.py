@@ -12,54 +12,87 @@ GREY    = (105,105,105)
 ORANGE  = (255,140,  0)
 BLUE    = ( 30,144,237)
 BROWN   = (188,143,143)
+SAND    = (230,184, 87)
+GREEN   = (106,230, 87)
 
 #Parameter
 
 game = True
 
-screen_size = (1000,1000)
-width = 21
+screen_size = (800,600)
+width = 31
 height= 0
 
-case_size = screen_size[0]//10
+case_size = screen_size[0]//20
 
-framerate = 120
+framerate = 60
 
 field = {}
 
-camera_position = [1100, 0]
+camera_position = [0, 0]
 
-deplacement = case_size // 4
+movement = case_size // 4
+
+player_position = [screen_size[0]//2,-screen_size[1]//2]
 
 
 #Function
 
 def stay_at_screen():
+    global player_position
+
+    if player_position[0] < 0:
+        player_position[0] = 0
+    
+    if player_position[1] > 0:
+        player_position[1] = 0
+    
+    if player_position[0] > width * case_size:
+        player_position[0] = width * case_size
+
+    if player_position[1] < -height * case_size:
+        player_position[1] = -height * case_size
+    
+    return
+
+def camera_position_calcul():
     global camera_position
 
-    if camera_position[0] < 0:
-        camera_position[0] = 0
-    
-    if camera_position[1] > 0:
-        camera_position[1] = 0
-    
-    if camera_position[0] > (((width) * case_size) - screen_size[0]):
-        camera_position[0] = (((width) * case_size) - screen_size[0])
+    Xc, Yc = camera_position
+    Xp, Yp = player_position
 
-    if camera_position[1] < (-((height) * case_size) + screen_size[1]):
-        camera_position[1] = (-((height) * case_size) + screen_size[1])
+    print("CAM    :" + str(camera_position))
+    print("PLAYER :" + str(player_position))
+
+    if Xp > screen_size[0] // 2 and Xp < width * case_size - screen_size[0] // 2:
+        Xc = Xp - screen_size[0] // 2
+    elif Xp < screen_size[0] // 2:
+        Xc = 0
+    elif Xp > width * case_size - screen_size[0] // 2:
+        Xc = width * case_size - screen_size[0] // 2
+    
+    if Yp > - screen_size[1] // 2 and Yp < (-((height) * case_size) + screen_size[1]):
+        Yc = Yp + screen_size[1]//2
+    elif Yp < -screen_size[1]//2:
+        Yc = 0
+    elif Yp > (-((height) * case_size) + screen_size[1]):
+        Yc = (-((height) * case_size) + screen_size[1])
+
+    camera_position = Xc, Yp
+
+    return
 
 def manage_keys(key):
-    global camera_position
+    global player_position
 
     if key == pygame.K_LEFT:
-        camera_position[0] -= deplacement
+        player_position[0] -= movement
     elif key == pygame.K_RIGHT:
-        camera_position[0] += deplacement
+        player_position[0] += movement
     elif key == pygame.K_UP:
-        camera_position[1] += deplacement
+        player_position[1] += movement
     elif key == pygame.K_DOWN:
-        camera_position[1] -= deplacement
+        player_position[1] -= movement
 
     return
 
@@ -81,11 +114,13 @@ def create_square(x, y):
 
 def define_type_case(type_case):
     if type_case == 0:
-        color = GREY
-    elif type_case == 1:
-        color = BROWN
-    elif type_case == 2:
         color = BLUE
+    elif type_case == 1:
+        color = SAND
+    elif type_case == 2:
+        color = GREEN
+    elif type_case == 3:
+        color = GREY
 
     return(color)
 
@@ -100,14 +135,12 @@ def create_case(case_type, x, y):
     pygame.draw.polygon(window, color, square)
     return
 
-def create_screen(camera_position):
+def create_screen():
     height_screen = screen_size[1]//case_size
     width_screen = screen_size[0]//case_size
 
     camY = -camera_position[1]//case_size
     camX = camera_position[0]//case_size
-
-    #print(str(camX) + "  " +  str(camY))
 
     i = camY
     i_prime = 0
@@ -138,7 +171,6 @@ def create_field(width):
             case = {}
 
             while case_count < width:
-                print(case_count)
                 case[case_count] = row[case_count]
                 case_count += 1
             
@@ -148,6 +180,14 @@ def create_field(width):
         print(f"Processed {case_count} cases")
 
         height = (line_count)
+
+    return
+
+def create_player():
+    square = create_square(player_position[0],player_position[1])
+    color = BLUE
+
+    pygame.draw.polygon(window, color, square)
 
     return
 
@@ -173,9 +213,13 @@ while game:
         elif evenement.type == pygame.KEYDOWN:
             manage_keys(evenement.key)
 
+    camera_position_calcul()
+
     stay_at_screen()
 
-    create_screen(camera_position)
+    create_screen()
+
+    create_player()
 
     pygame.display.flip()
 
