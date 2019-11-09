@@ -21,7 +21,7 @@ game = True
 
 screen_size = (800,600)
 
-width = 34
+width = 36
 height= 0
 
 case_size = screen_size[0]//20
@@ -96,28 +96,28 @@ def create_screen():
     height_screen = screen_size[1]//case_size
     width_screen = screen_size[0]//case_size
 
-    camY = -camera_position[1] // case_size
-    camX = camera_position[0] // case_size
+    camera_case_Y = -camera_position[1] // case_size
+    camera_case_X = camera_position[0] // case_size
 
-    i = camY
+    i = camera_case_Y
     i_prime = (camera_position[1]/case_size % 1)
-    borne_i = height_screen + camY
+    borne_i = height_screen + camera_case_Y
 
     j_first = (camera_position[0]/case_size % 1)
-    borne_j = width_screen + camX 
+    borne_j = width_screen + camera_case_X 
     
     if i_prime % 1 != 0:
         i_prime = -1 + i_prime
-        borne_i = height_screen + camY + 1
+        borne_i = height_screen + camera_case_Y + 1
 
 
     if j_first % 1 != 0:
         j_first = - j_first
-        borne_j = width_screen + camX + 1
+        borne_j = width_screen + camera_case_X + 1
 
 
     while i < borne_i :
-        j = camX
+        j = camera_case_X
         j_prime = j_first
         while j <  borne_j:
             create_case(field[i][j], j_prime, i_prime)
@@ -179,24 +179,57 @@ def stay_at_screen():
     
     return
 
-def player_collide():
-    global player_field_position, player_position
+def movement_up():
+    if camera_position[1] == 0 and player_position[0] >= -screen_size[1] // 2:
+        camera_position[1] = 0
+        player_position[1] += movement
 
-    player_case_position = [player_field_position[0] // case_size , player_field_position[1] // case_size]
+    elif camera_position[1] == (-((height) * case_size) + screen_size[1]) and player_position[1] <= -screen_size[1] // 2:
+        player_position[1] += movement
 
-    test_case_up = player_case_position[1] + 1  
-    test_case_left = player_case_position[0]
-    test_case_down = player_case_position[1] 
-    test_case_right = player_case_position[0] + 1
+    else:
+        camera_position[1] += movement
 
-    print("Test UP      : " + str(test_case_up))
-    print("Test LEFT    : " + str(test_case_left))
-    print("Test DOWN    : " + str(test_case_down))
-    print("Test RIGHT   : " + str(test_case_right))
+    return
 
-    if field[test_case_left][-test_case_up] in collide:
-        player_field_position[1] = ( test_case_up + 1 ) * case_size
+def movement_down():
+    if camera_position[1] == 0 and player_position[1] >= -screen_size[1] // 2:
+        camera_position[1] = 0
+        player_position[1] -= movement
 
+    elif camera_position[1] == (-((height) * case_size) + screen_size[1]) and player_position[1] <= screen_size[1] // 2:
+        camera_position[1] = (-((height) * case_size) + screen_size[1])
+        player_position[1] -= movement
+
+    else:
+        camera_position[1] -= movement
+
+    return
+
+def movement_left():
+    if camera_position[0] == 0 and player_position[0] <= screen_size[0] // 2:
+        camera_position[0] = 0
+        player_position[0] -= movement
+
+    elif camera_position[0] ==  (((width) * case_size) - screen_size[0]) and player_position[0] > screen_size[0] // 2:
+        player_position[0] -= movement
+
+    else:
+        camera_position[0] -= movement
+
+    return
+
+def movement_right():
+    if camera_position[0] == 0 and player_position[0] < screen_size[0] // 2:
+        camera_position[0] = 0
+        player_position[0] += movement
+
+    elif camera_position[0] >= (((width) * case_size) - screen_size[0]) and player_position[0] >= screen_size[0] // 2:
+        camera_position[0] = (((width) * case_size) - screen_size[0])
+        player_position[0] += movement
+
+    else:
+        camera_position[0] += movement
 
     return
 
@@ -207,56 +240,52 @@ def player_collide():
 def manage_keys(key):
     global player_position, camera_position
 
-    if key == pygame.K_LEFT:
-
-        if camera_position[0] == 0 and player_position[0] <= screen_size[0] // 2:
-            camera_position[0] = 0
-            player_position[0] -= movement
-
-        elif camera_position[0] ==  (((width) * case_size) - screen_size[0]) and player_position[0] > screen_size[0] // 2:
-            player_position[0] -= movement
-
+    if key == pygame.K_LEFT: 
+        if player_field_position[0] % case_size == 0:
+            if player_field_position[1] % case_size == 0:
+                if not field[-player_field_position[1] // case_size][player_field_position[0]//case_size - 1] in collide :
+                    movement_left()
+            else:
+                if not field[-player_field_position[1] // case_size][player_field_position[0]//case_size - 1] in collide and not field[-player_field_position[1] // case_size + 1][player_field_position[0]//case_size - 1] in collide:
+                    movement_left()
         else:
-            camera_position[0] -= movement
+            movement_left()
 
     elif key == pygame.K_RIGHT:
-
-        if camera_position[0] == 0 and player_position[0] < screen_size[0] // 2:
-            camera_position[0] = 0
-            player_position[0] += movement
-
-        elif camera_position[0] >= (((width) * case_size) - screen_size[0]) and player_position[0] >= screen_size[0] // 2:
-            camera_position[0] = (((width) * case_size) - screen_size[0])
-            player_position[0] += movement
-
+        if player_field_position[0] % case_size == 0:
+            if player_field_position[1] % case_size == 0:
+                if not field[-player_field_position[1] // case_size][player_field_position[0] // case_size + 1] in collide :
+                    movement_right()
+            else:
+                if not field[-player_field_position[1] // case_size][player_field_position[0] // case_size + 1] in collide and not field[-player_field_position[1] // case_size + 1][player_field_position[0] // case_size + 1] in collide:
+                    movement_right()
         else:
-            camera_position[0] += movement
+            movement_right()
+        
 
     elif key == pygame.K_UP:
-
-        if camera_position[1] == 0 and player_position[0] >= -screen_size[1] // 2:
-            camera_position[1] = 0
-            player_position[1] += movement
-
-        elif camera_position[1] == (-((height) * case_size) + screen_size[1]) and player_position[1] <= -screen_size[1] // 2:
-            player_position[1] += movement
-
+        if player_field_position[1] % case_size == 0:
+            if player_field_position[0] % case_size == 0:
+                if not field[-player_field_position[1] // case_size - 1][player_field_position[0] // case_size] in collide :
+                    movement_up()
+            else:
+                if not field[-player_field_position[1] // case_size - 1][player_field_position[0] // case_size] in collide and not field[-player_field_position[1] // case_size - 1][player_field_position[0] // case_size + 1] in collide :
+                    movement_up()
         else:
-            camera_position[1] += movement
+            movement_up()
+        
 
     elif key == pygame.K_DOWN:
-
-        if camera_position[1] == 0 and player_position[1] >= -screen_size[1] // 2:
-            camera_position[1] = 0
-            player_position[1] -= movement
-
-        elif camera_position[1] == (-((height) * case_size) + screen_size[1]) and player_position[1] <= screen_size[1] // 2:
-            camera_position[1] = (-((height) * case_size) + screen_size[1])
-            player_position[1] -= movement
-
+        if player_field_position[1] % case_size == 0:
+            if player_field_position[0] % case_size == 0:
+                if not field[-player_field_position[1] // case_size + 1][player_field_position[0] // case_size] in collide:
+                    movement_down()
+            else:
+                if not field[-player_field_position[1] // case_size + 1][player_field_position[0] // case_size] in collide and not field[-player_field_position[1] // case_size + 1][player_field_position[0] // case_size + 1] in collide:
+                    movement_down()
         else:
-            camera_position[1] -= movement
-
+            movement_down()
+          
     return
 
 
@@ -341,8 +370,6 @@ while game:
     stay_at_screen()
 
     calcul_player_field_position()
-
-    player_collide()
 
     impress()
 
