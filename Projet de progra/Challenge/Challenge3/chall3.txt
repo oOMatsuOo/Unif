@@ -1,0 +1,141 @@
+/*
+Devoir 3 : Tableaux et Invariants
+
+Rappel des consignes g‚n‚rales de soumission :
+----------------------------------------------
+
+- Vous pouvez ‚crire des commentaires, comme vous le feriez dans un code C ;
+- Respectez scrupuleusement les consignes de soumissions pour ne pas recevoir une 
+  cote nulle ;
+- NE PAS TOUCHER AUX CARACTERES '#'. Ils sont plac‚s aux bons endroits. 
+  Faites en sorte de ne pas les inclure dans un commentaire...
+
+Consignes sp‚cifiques ? ce devoir :
+-----------------------------------
+
+La mani?re exacte de sp‚cifier les ‚l‚ments compl‚tant l'invariant est d‚taill‚e
+dans l'‚nonc‚. Veuillez vous y reporter pour de plus amples informations.
+
+*/
+/*
+Invariant du Code.
+________________________________________________________________________________
+
+Indiquez apr?s ce commentaire vos trente choix, comme indiqu‚ dans l'‚nonc‚ 
+(num‚ro de colonne, suivi d'un point, suivi de la valeur num‚rique, variable,
+constante,... correspondant ? votre choix).
+ 
+Pour votre facilit‚, les trente num‚ros de boite et les points sont d‚j?
+indiqu‚s.
+Respectez l'ordre croissant des num‚ros de boite.
+*/
+1. brut
+2. 
+3. 0
+4. f
+5. 
+6. k
+7. 
+8. 
+9. MAX
+10. compress
+11. 
+12. 0
+13. j
+14. 
+15. j + 1
+16. 
+17. 0
+18. MAX
+19. 4
+20. 25
+21. 2
+22. compteur
+23. 6
+24. 
+25. 5
+26. compteur
+27. 7
+28. 
+29. 3
+30. 
+/* Encodez votre r‚ponse ?  l'invariant ci-dessus */
+#
+/*
+Fonction de terminaison
+________________________________________________________________________________
+
+Indiquez, apr?s ce commentaire, l'expressions C qui d‚crit la valeur que prend 
+votre fonction de terminaison 
+*/
+
+MAX - k
+
+/* Indiquez ci-dessus votre fonction de terminaison */
+#
+/*
+Code
+________________________________________________________________________________
+
+Indiquez apr?s ce commentaire votre code.
+
+Dans la suite, vous ne devez ‚crire QUE ce qui, selon vous, devrait remplacer la
+ ligne ?? votre code viendra ici (variables + instructions) ?? dans le squelette 
+ mentionn‚ dans l'‚nonc‚.
+
+VOUS NE DEVEZ SURTOUT PAS : 
+- Ajouter une ligne "#include <stdio.h>" ;
+- ‚crire "int main(){" ni la '}' qui ferme celle ouverte apr?s 'main' ;
+- Red‚clarer brut, compress et MAX. Ces variables et constante sont D‚J‚ 
+  d‚clar‚es. Si vous les red‚clarez, la compilation et l'‚valuation de votre 
+  code sera impossible (et votre cote nulle).
+- Utiliser une variable dont le nom commence par le symbole 
+  underscore (c.-? -d. : _)
+  
+CONSEIL :
+Ouvrez ce fichier dans gedit, activez la coloration syntaxique du C, ainsi que
+la mise en ‚vidence des parenth?ses correspondantes pour ne pas vous tromper.
+*/
+
+
+unsigned int f = 0, k = 0, j = 0, compteur = 1;
+
+    while(k < MAX){
+        if(brut[k] == -1 && k == 0){
+            compress[j] = brut[k];
+            k = MAX;
+        }else if (brut[k] == -1){
+            if(compteur == 1){
+                compress[j] = brut[f];
+                compress[j+1] = brut[k];
+                k = MAX;
+            }else{
+                compress[j] = compteur;
+                compress[j+1] = brut[f];
+                compress[j+2] = brut[k];
+                k = MAX;
+            }
+        }else{
+            k ++;
+        }
+
+        if(brut[k] != -1){
+            if(brut[f] == brut[k]){
+                compteur ++;
+                f ++;
+            }else if(compteur == 1){
+                compress[j] = brut[f];
+                j ++;
+                f ++;
+            }else{
+                compress[j] = compteur;
+                compress[j+1] = brut[f];
+                j += 2;
+                compteur = 1;
+                f ++;
+            }
+        }
+    }
+
+
+/* Indiquez ci-dessus votre extrait de code. */

@@ -20,7 +20,8 @@ GREEN   = (106,230, 87)
 game = True
 
 screen_size = (800,600)
-width = 31
+
+width = 32
 height= 0
 
 case_size = screen_size[0]//20
@@ -31,9 +32,9 @@ field = {}
 
 camera_position = [0, 0]
 
-movement = case_size // 4
+movement = case_size
 
-player_position = [screen_size[0]//2,-screen_size[1]//2]
+middle = 0
 
 
 #Function
@@ -41,58 +42,72 @@ player_position = [screen_size[0]//2,-screen_size[1]//2]
 def stay_at_screen():
     global player_position
 
-    if player_position[0] < 0:
+    if player_position[0] <= 0:
         player_position[0] = 0
     
-    if player_position[1] > 0:
+    if player_position[1] >= 0:
         player_position[1] = 0
     
-    if player_position[0] > width * case_size:
-        player_position[0] = width * case_size
+    if player_position[0] >= screen_size[0] - case_size:
+        player_position[0] = screen_size[0] - case_size
 
-    if player_position[1] < -height * case_size:
-        player_position[1] = -height * case_size
+    if player_position[1] <= -screen_size[1] + case_size:
+        player_position[1] = -screen_size[1] + case_size
     
-    return
-
-def camera_position_calcul():
-    global camera_position
-
-    Xc, Yc = camera_position
-    Xp, Yp = player_position
-
-    print("CAM    :" + str(camera_position))
-    print("PLAYER :" + str(player_position))
-
-    if Xp > screen_size[0] // 2 and Xp < width * case_size - screen_size[0] // 2:
-        Xc = Xp - screen_size[0] // 2
-    elif Xp < screen_size[0] // 2:
-        Xc = 0
-    elif Xp > width * case_size - screen_size[0] // 2:
-        Xc = width * case_size - screen_size[0] // 2
-    
-    if Yp > - screen_size[1] // 2 and Yp < (-((height) * case_size) + screen_size[1]):
-        Yc = Yp + screen_size[1]//2
-    elif Yp < -screen_size[1]//2:
-        Yc = 0
-    elif Yp > (-((height) * case_size) + screen_size[1]):
-        Yc = (-((height) * case_size) + screen_size[1])
-
-    camera_position = Xc, Yp
-
     return
 
 def manage_keys(key):
-    global player_position
+    global player_position, camera_position
 
     if key == pygame.K_LEFT:
-        player_position[0] -= movement
+
+        if camera_position[0] == 0 and player_position[0] <= screen_size[0] // 2:
+            camera_position[0] = 0
+            player_position[0] -= movement
+
+        elif camera_position[0] ==  (((width) * case_size) - screen_size[0]) and player_position[0] > screen_size[0] // 2:
+            player_position[0] -= movement
+
+        else:
+            camera_position[0] -= movement
+
     elif key == pygame.K_RIGHT:
-        player_position[0] += movement
+
+        if camera_position[0] == 0 and player_position[0] < screen_size[0] // 2:
+            camera_position[0] = 0
+            player_position[0] += movement
+
+        elif camera_position[0] >= (((width) * case_size) - screen_size[0]) and player_position[0] >= screen_size[0] // 2:
+            camera_position[0] = (((width) * case_size) - screen_size[0])
+            player_position[0] += movement
+
+        else:
+            camera_position[0] += movement
+
     elif key == pygame.K_UP:
-        player_position[1] += movement
+
+        if camera_position[1] == 0 and player_position[0] >= -screen_size[1] // 2:
+            camera_position[1] = 0
+            player_position[1] += movement
+
+        elif camera_position[1] == (-((height) * case_size) + screen_size[1]) and player_position[1] <= -screen_size[1] // 2:
+            player_position[1] += movement
+
+        else:
+            camera_position[1] += movement
+
     elif key == pygame.K_DOWN:
-        player_position[1] -= movement
+
+        if camera_position[1] == 0 and player_position[1] >= -screen_size[1] // 2:
+            camera_position[1] = 0
+            player_position[1] -= movement
+
+        elif camera_position[1] == (-((height) * case_size) + screen_size[1]) and player_position[1] <= screen_size[1] // 2:
+            camera_position[1] = (-((height) * case_size) + screen_size[1])
+            player_position[1] -= movement
+
+        else:
+            camera_position[1] -= movement
 
     return
 
@@ -101,6 +116,12 @@ def coordinates_to_pixel(coord):
     coord_px = coord * case_size
     
     return(coord_px)
+
+def pixel_to_coordinates(coord_px):
+
+    coord = coord_px // case_size
+
+    return(coord)
 
 def create_square(x, y):
 
@@ -162,7 +183,7 @@ def create_field(width):
 
     case = {}
 
-    with open("maps.csv") as csv_file:
+    with open("maps/map_1/maps.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
         line_count = 0
 
@@ -184,12 +205,38 @@ def create_field(width):
     return
 
 def create_player():
-    square = create_square(player_position[0],player_position[1])
-    color = BLUE
+    square = create_square(player_position[0],-player_position[1])
+    color = BLACK
 
     pygame.draw.polygon(window, color, square)
 
     return
+
+def calcul_player_field_position():
+    global player_field_position
+
+    player_field_position[0] = player_position[0] + camera_position[0] 
+    player_field_position[1] = player_position[1] + camera_position[1]
+
+    return
+
+def impress():
+    print("CAM          : " + str(camera_position))
+    print("PLAYER       : " + str(player_position))
+    print("Case         : " + str(case_size))
+    print("Player field : " + str(player_field_position))
+    print("Height       : " + str(height * case_size))
+    print("Width        : " + str(width * case_size))
+    print("Screen case  : " + str(screen_case_size))
+    print("")
+
+def player_collide():
+    global player_field_position; player_position
+
+    collision = []
+
+    return
+
 
 #Game
 
@@ -201,9 +248,13 @@ pygame.display.set_caption("First RPG")
 clock = pygame.time.Clock()
 background_color = RED
 
-pygame.key.set_repeat(10,10)
+pygame.key.set_repeat(50,50)
 
 create_field(width)
+
+screen_case_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(screen_size[1]))
+player_position = [pixel_to_coordinates((coordinates_to_pixel(screen_size[0])//2)),pixel_to_coordinates((coordinates_to_pixel(-screen_size[1])//2))]
+player_field_position = [player_position[0], player_position[1]]
 
 while game:
     for evenement in pygame.event.get():
@@ -213,9 +264,11 @@ while game:
         elif evenement.type == pygame.KEYDOWN:
             manage_keys(evenement.key)
 
-    camera_position_calcul()
-
     stay_at_screen()
+
+    calcul_player_field_position()
+
+    impress()
 
     create_screen()
 
