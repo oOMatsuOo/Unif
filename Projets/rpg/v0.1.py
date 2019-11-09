@@ -289,6 +289,55 @@ def manage_keys(key):
     return
 
 
+### Visual ###
+
+def add_position(entity,name,image):
+    entity[name] = image
+
+    return
+
+def create_player_sprite():
+    global sprite_player
+    sprite_player{
+            'front':{},
+            'back':{},
+            'right':{},
+            'left':{}
+            }
+
+    for name_image, name_file in (('front_right_foot','name.png'),
+                                ('front_left_foot','name.png'),
+                                ('front_standing', 'name.png'),
+    path = 'images/player/' + name_file
+    image = pygame.image.load(chemin).convert_alpha(window)
+    image = pygame.transform.scale(image, (case_size,case_size))
+    add_position(sprite_player['front'],name_image, image)
+
+    for name_image, name_file in (('back_right_foot','name.png'),
+                                ('back_left_foot','name.png'),
+                                ('back_standing', 'name.png'),
+    path = 'images/player/' + name_file
+    image = pygame.image.load(chemin).convert_alpha(window)
+    image = pygame.transform.scale(image, (case_size,case_size))
+    add_position(sprite_player['back'],name_image, image)
+
+    for name_image, name_file in (('left_right_foot','name.png'),
+                                ('left_left_foot','name.png'),
+                                ('left_standing', 'name.png'),
+    path = 'images/player/' + name_file
+    image = pygame.image.load(chemin).convert_alpha(window)
+    image = pygame.transform.scale(image, (case_size,case_size))
+    add_position(sprite_player['left'],name_image, image)
+
+    for name_image, name_file in (('right_right_foot','name.png'),
+                                ('right_left_foot','name.png'),
+                                ('right_standing', 'name.png'),
+    path = 'images/player/' + name_file
+    image = pygame.image.load(chemin).convert_alpha(window)
+    image = pygame.transform.scale(image, (case_size,case_size))
+    add_position(sprite_player['right'],name_image, image)
+
+    return
 
 ### Calcul ###
 
@@ -358,6 +407,7 @@ create_collide(properties_width)
 screen_case_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(screen_size[1]))
 player_position = [pixel_to_coordinates((coordinates_to_pixel(screen_size[0])//2)),pixel_to_coordinates((coordinates_to_pixel(-screen_size[1])//2))]
 player_field_position = [player_position[0], player_position[1]]
+
 
 while game:
     for evenement in pygame.event.get():
