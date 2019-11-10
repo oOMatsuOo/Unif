@@ -19,7 +19,7 @@ GREEN   = (106,230, 87)
 
 game = True
 
-screen_size = (1000,800)
+screen_size = (800,600)
 
 width = 36
 height= 0
