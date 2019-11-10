@@ -19,7 +19,7 @@ GREEN   = (106,230, 87)
 
 game = True
 
-screen_size = (800,600)
+screen_size = (1000,800)
 
 width = 36
 height= 0
@@ -32,13 +32,15 @@ field = {}
 
 camera_position = [0, 0]
 
-movement = case_size//2
+movement = case_size // 4
 
 middle = 0
 
 properties_width = 1
 
 collide = []
+
+orientation = "front"
 
 
 ### FUNCTION ###
@@ -180,6 +182,8 @@ def stay_at_screen():
     return
 
 def movement_up():
+    global orientation
+
     if camera_position[1] == 0 and player_position[0] >= -screen_size[1] // 2:
         camera_position[1] = 0
         player_position[1] += movement
@@ -189,10 +193,14 @@ def movement_up():
 
     else:
         camera_position[1] += movement
+    
+    orientation = "back"
 
     return
 
 def movement_down():
+    global orientation
+
     if camera_position[1] == 0 and player_position[1] >= -screen_size[1] // 2:
         camera_position[1] = 0
         player_position[1] -= movement
@@ -204,9 +212,13 @@ def movement_down():
     else:
         camera_position[1] -= movement
 
+    orientation = "front"
+
     return
 
 def movement_left():
+    global orientation
+
     if camera_position[0] == 0 and player_position[0] <= screen_size[0] // 2:
         camera_position[0] = 0
         player_position[0] -= movement
@@ -216,10 +228,14 @@ def movement_left():
 
     else:
         camera_position[0] -= movement
+    
+    orientation = "left"
 
     return
 
 def movement_right():
+    global orientation
+
     if camera_position[0] == 0 and player_position[0] < screen_size[0] // 2:
         camera_position[0] = 0
         player_position[0] += movement
@@ -230,6 +246,8 @@ def movement_right():
 
     else:
         camera_position[0] += movement
+    
+    orientation = "right"
 
     return
 
@@ -268,12 +286,13 @@ def manage_keys(key):
             if player_field_position[0] % case_size == 0:
                 if not field[-player_field_position[1] // case_size - 1][player_field_position[0] // case_size] in collide :
                     movement_up()
+                    
             else:
                 if not field[-player_field_position[1] // case_size - 1][player_field_position[0] // case_size] in collide and not field[-player_field_position[1] // case_size - 1][player_field_position[0] // case_size + 1] in collide :
                     movement_up()
+
         else:
             movement_up()
-        
 
     elif key == pygame.K_DOWN:
         if player_field_position[1] % case_size == 0:
@@ -291,6 +310,7 @@ def manage_keys(key):
 
 ### Visual ###
 
+
 def add_position(entity,name,image):
     entity[name] = image
 
@@ -298,46 +318,26 @@ def add_position(entity,name,image):
 
 def create_player_sprite():
     global sprite_player
-    sprite_player{
-            'front':{},
-            'back':{},
-            'right':{},
-            'left':{}
-            }
 
-    for name_image, name_file in (('front_right_foot','name.png'),
-                                ('front_left_foot','name.png'),
-                                ('front_standing', 'name.png'),
-    path = 'images/player/' + name_file
-    image = pygame.image.load(chemin).convert_alpha(window)
-    image = pygame.transform.scale(image, (case_size,case_size))
-    add_position(sprite_player['front'],name_image, image)
+    sprite_player = {}
 
-    for name_image, name_file in (('back_right_foot','name.png'),
-                                ('back_left_foot','name.png'),
-                                ('back_standing', 'name.png'),
-    path = 'images/player/' + name_file
-    image = pygame.image.load(chemin).convert_alpha(window)
-    image = pygame.transform.scale(image, (case_size,case_size))
-    add_position(sprite_player['back'],name_image, image)
+    for name_image , name_file in (('front', 'front_stand.png'),
+                                    ('back', 'back_stand.png'),
+                                    ('right', 'right_stand.png'),
+                                    ('left', 'left_stand.png')):
+        path = 'pictures/player/' + name_file
+        image = pygame.image.load(path).convert_alpha(window)
+        image = pygame.transform.scale(image, (case_size,case_size))
+        add_position(sprite_player,name_image,image)
 
-    for name_image, name_file in (('left_right_foot','name.png'),
-                                ('left_left_foot','name.png'),
-                                ('left_standing', 'name.png'),
-    path = 'images/player/' + name_file
-    image = pygame.image.load(chemin).convert_alpha(window)
-    image = pygame.transform.scale(image, (case_size,case_size))
-    add_position(sprite_player['left'],name_image, image)
+def display_player():
 
-    for name_image, name_file in (('right_right_foot','name.png'),
-                                ('right_left_foot','name.png'),
-                                ('right_standing', 'name.png'),
-    path = 'images/player/' + name_file
-    image = pygame.image.load(chemin).convert_alpha(window)
-    image = pygame.transform.scale(image, (case_size,case_size))
-    add_position(sprite_player['right'],name_image, image)
+    sprite = sprite_player[orientation]
+
+    window.blit(sprite,(player_position[0],-player_position[1]))
 
     return
+
 
 ### Calcul ###
 
@@ -383,6 +383,7 @@ def impress():
     print("Width        : " + str(width * case_size))
     print("Screen case  : " + str(screen_case_size))
     print("Collide      : " + str(collide))
+    print("Orientation  : " + str(orientation))
     print("")
 
     return
@@ -390,6 +391,7 @@ def impress():
 
 
 ### GAME ###
+
 
 pygame.init()
 
@@ -403,13 +405,17 @@ pygame.key.set_repeat(50,50)
 
 create_field(width)
 create_collide(properties_width)
+create_player_sprite()
 
 screen_case_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(screen_size[1]))
-player_position = [pixel_to_coordinates((coordinates_to_pixel(screen_size[0])//2)),pixel_to_coordinates((coordinates_to_pixel(-screen_size[1])//2))]
+player_position = [case_size * 10, -case_size * 9]
 player_field_position = [player_position[0], player_position[1]]
 
+create_player_sprite()
 
 while game:
+    now = pygame.time.get_ticks()
+
     for evenement in pygame.event.get():
         if evenement.type == pygame.QUIT:
             pygame.quit()
@@ -421,11 +427,11 @@ while game:
 
     calcul_player_field_position()
 
-    impress()
+    #impress()
 
     create_screen()
 
-    create_player()
+    display_player()
 
     pygame.display.flip()
 
