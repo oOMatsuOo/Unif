@@ -2,6 +2,7 @@ import csv
 import pygame
 import math
 import sys
+import subprocess
 
 ### CONSTANT ###
 
@@ -17,9 +18,15 @@ GREEN   = (106,230, 87)
 
 ### PARAMETER ###
 
-game = True
+open_game = True
 
-screen_size = (800,600)
+menu = True
+
+game = False
+
+option = False
+
+screen_size = (1000,800)
 
 width = 36
 height= 0
@@ -32,7 +39,7 @@ field = {}
 
 camera_position = [0, 0]
 
-movement = case_size // 4
+movement = case_size // 2
 
 middle = 0
 
@@ -94,51 +101,6 @@ def create_collide(properties_width):
             if not row[line_collide] in collide and row[line_collide] != "collide":
                 collide.append(row[line_collide])
 
-def create_screen():
-    height_screen = screen_size[1]//case_size
-    width_screen = screen_size[0]//case_size
-
-    camera_case_Y = -camera_position[1] // case_size
-    camera_case_X = camera_position[0] // case_size
-
-    i = camera_case_Y
-    i_prime = (camera_position[1]/case_size % 1)
-    borne_i = height_screen + camera_case_Y
-
-    j_first = (camera_position[0]/case_size % 1)
-    borne_j = width_screen + camera_case_X 
-    
-    if i_prime % 1 != 0:
-        i_prime = -1 + i_prime
-        borne_i = height_screen + camera_case_Y + 1
-
-
-    if j_first % 1 != 0:
-        j_first = - j_first
-        borne_j = width_screen + camera_case_X + 1
-
-
-    while i < borne_i :
-        j = camera_case_X
-        j_prime = j_first
-        while j <  borne_j:
-            create_case(field[i][j], j_prime, i_prime)
-            j += 1
-            j_prime += 1
-
-        i += 1
-        i_prime += 1
-
-    return
-
-def create_player():
-    square = create_square(player_position[0],-player_position[1])
-    color = BLACK
-
-    pygame.draw.polygon(window, color, square)
-
-    return
-
 def create_case(case_type, x, y):
     x_coord = coordinates_to_pixel(x)
     y_coord = coordinates_to_pixel(y)
@@ -182,7 +144,6 @@ def stay_at_screen():
     return
 
 def movement_up():
-    global orientation
 
     if camera_position[1] == 0 and player_position[0] >= -screen_size[1] // 2:
         camera_position[1] = 0
@@ -194,12 +155,10 @@ def movement_up():
     else:
         camera_position[1] += movement
     
-    orientation = "back"
 
     return
 
 def movement_down():
-    global orientation
 
     if camera_position[1] == 0 and player_position[1] >= -screen_size[1] // 2:
         camera_position[1] = 0
@@ -212,12 +171,10 @@ def movement_down():
     else:
         camera_position[1] -= movement
 
-    orientation = "front"
 
     return
 
 def movement_left():
-    global orientation
 
     if camera_position[0] == 0 and player_position[0] <= screen_size[0] // 2:
         camera_position[0] = 0
@@ -229,12 +186,10 @@ def movement_left():
     else:
         camera_position[0] -= movement
     
-    orientation = "left"
 
     return
 
 def movement_right():
-    global orientation
 
     if camera_position[0] == 0 and player_position[0] < screen_size[0] // 2:
         camera_position[0] = 0
@@ -246,8 +201,6 @@ def movement_right():
 
     else:
         camera_position[0] += movement
-    
-    orientation = "right"
 
     return
 
@@ -255,8 +208,8 @@ def movement_right():
 ### Action ###
 
 
-def manage_keys(key):
-    global player_position, camera_position
+def manage_game_keys(key):
+    global player_position, camera_position, orientation
 
     if key == pygame.K_LEFT: 
         if player_field_position[0] % case_size == 0:
@@ -268,6 +221,8 @@ def manage_keys(key):
                     movement_left()
         else:
             movement_left()
+        
+        orientation = "left"
 
     elif key == pygame.K_RIGHT:
         if player_field_position[0] % case_size == 0:
@@ -279,6 +234,8 @@ def manage_keys(key):
                     movement_right()
         else:
             movement_right()
+        
+        orientation = "right"
         
 
     elif key == pygame.K_UP:
@@ -293,6 +250,8 @@ def manage_keys(key):
 
         else:
             movement_up()
+        
+        orientation = "back"
 
     elif key == pygame.K_DOWN:
         if player_field_position[1] % case_size == 0:
@@ -304,9 +263,15 @@ def manage_keys(key):
                     movement_down()
         else:
             movement_down()
+        
+        orientation = "front"
           
     return
 
+def manage_menu_keys(key):
+    
+    
+    return
 
 ### Visual ###
 
@@ -337,6 +302,54 @@ def display_player():
     window.blit(sprite,(player_position[0],-player_position[1]))
 
     return
+
+def display_game_screen():
+    height_screen = screen_size[1]//case_size
+    width_screen = screen_size[0]//case_size
+
+    camera_case_Y = -camera_position[1] // case_size
+    camera_case_X = camera_position[0] // case_size
+
+    i = camera_case_Y
+    i_prime = (camera_position[1]/case_size % 1)
+    borne_i = height_screen + camera_case_Y
+
+    j_first = (camera_position[0]/case_size % 1)
+    borne_j = width_screen + camera_case_X 
+    
+    if i_prime % 1 != 0:
+        i_prime = -1 + i_prime
+        borne_i = height_screen + camera_case_Y + 1
+
+
+    if j_first % 1 != 0:
+        j_first = - j_first
+        borne_j = width_screen + camera_case_X + 1
+
+
+    while i < borne_i :
+        j = camera_case_X
+        j_prime = j_first
+        while j <  borne_j:
+            create_case(field[i][j], j_prime, i_prime)
+            j += 1
+            j_prime += 1
+
+        i += 1
+        i_prime += 1
+
+    return
+
+def display_menu_screen():
+    
+    character_font = pygame.font.SysFont("monospace", 24, True)
+
+    menu = character_font.render("MENU", True, ORANGE)
+
+    window.blit(menu, (100,100))
+
+    return
+
 
 
 ### Calcul ###
@@ -377,13 +390,14 @@ def calcul_player_field_position():
 def impress():
     print("CAM          : " + str(camera_position))
     print("PLAYER       : " + str(player_position))
-    print("Case         : " + str(case_size))
+    print("Case size    : " + str(case_size))
     print("Player field : " + str(player_field_position))
     print("Height       : " + str(height * case_size))
     print("Width        : " + str(width * case_size))
     print("Screen case  : " + str(screen_case_size))
     print("Collide      : " + str(collide))
     print("Orientation  : " + str(orientation))
+    print("Move         : " + str(movement))
     print("")
 
     return
@@ -413,26 +427,49 @@ player_field_position = [player_position[0], player_position[1]]
 
 create_player_sprite()
 
-while game:
+while open_game:
     now = pygame.time.get_ticks()
 
     for evenement in pygame.event.get():
         if evenement.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        elif evenement.type == pygame.KEYDOWN:
-            manage_keys(evenement.key)
+        elif game:
+            if evenement.type == pygame.KEYDOWN:
+                manage_game_keys(evenement.key)
+        elif menu:
+            if evenement.type == pygame.MOUSEBUTTONDOWN:
+                manage_menu_keys(evenement.key)
+            elif evenement.type == pygame.KEYDOWN:
+                if evenement.key == pygame.K_LEFT:
+                    menu = False
+                    game = True
 
-    stay_at_screen()
+    if menu:
+        ### Menu
 
-    calcul_player_field_position()
+        display_menu_screen()
+        pygame.display.flip()
+        
 
-    #impress()
+    if game:
+        ### Game
+        
+        stay_at_screen()
 
-    create_screen()
+        calcul_player_field_position()
 
-    display_player()
+        impress()
 
-    pygame.display.flip()
+        display_game_screen()
+
+        display_player()
+
+        pygame.display.flip()
+
+
+    if option:
+        ### Option
+        print("")
 
     clock.tick(framerate)
