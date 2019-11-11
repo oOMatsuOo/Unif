@@ -49,6 +49,9 @@ collide = []
 
 orientation = "front"
 
+game_color = PURPLE
+menu_color = PURPLE
+
 
 ### FUNCTION ###
 
@@ -270,7 +273,7 @@ def manage_game_keys(key):
 
 def manage_menu_keys(key):
     
-    
+    print(key)
     return
 
 ### Visual ###
@@ -342,11 +345,18 @@ def display_game_screen():
 
 def display_menu_screen():
     
-    character_font = pygame.font.SysFont("monospace", 24, True)
+    menu_font = pygame.font.SysFont("monospace", 100, True)
+    list_font = pygame.font.SysFont("monospace", 50, True)
 
-    menu = character_font.render("MENU", True, ORANGE)
+    menu = menu_font.render("MENU", True, ORANGE)
+    menu_size = menu_font.size("MENU")
+    game = list_font.render("Game", True, game_color)
+    option = list_font.render("Option",True,option_color)
 
-    window.blit(menu, (100,100))
+    window.blit(menu, (screen_size[0] // 2 - menu_size[0] // 2,screen_size[1]//10))
+    window.blit(game,(screen_size[0] // 5, screen_size[1] // 9 * 3))
+    window.blit(option,(screen_size[0] // 5, screen_size[1] // 9 * 4))
+
 
     return
 
