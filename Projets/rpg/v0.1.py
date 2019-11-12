@@ -26,11 +26,15 @@ game = False
 
 option = False
 
+screen_resolution_menu = False
+
+control_menu = False
+
 ratio = [9,16]
 
 screen_size = [0,0]
 
-width = 36
+width = 0
 height= 0
 
 framerate = 120
@@ -43,14 +47,14 @@ camera_position = [0, 0]
 
 middle = 0
 
-properties_width = 1
-
 collide = []
 
 orientation = "front"
 
 game_color = PURPLE
 option_color = PURPLE
+screen_resolution_color = PURPLE
+control_color = PURPLE
 
 
 ### FUNCTION ###
@@ -84,7 +88,7 @@ def define_screen_size(ratio):
 
     return
 
-def define_spawn_point(point): #Haut gauche
+def define_spawn_point(point):
     global player_field_position,player_position,camera_position
 
     if point[1] <= screen_tile_size[1] // 2:
@@ -108,15 +112,20 @@ def define_spawn_point(point): #Haut gauche
 ### Creation ###
 
 
-def create_field(width):
-    global field, height
+def create_field():
+    global field, height, width
 
     tile = {}
+    with open("maps/map_1/maps.csv") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=",")
+        liste_field = list(csv_reader)
+        width = len(liste_field[1])
+        height = len(liste_field)
+
 
     with open("maps/map_1/maps.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
         line_count = 0
-
         for row in csv_reader:
             tile_count = 0
             tile = {}
@@ -127,21 +136,24 @@ def create_field(width):
             
             field[line_count] = tile
             line_count += 1
+
         print(f"Processed {line_count} lines")
         print(f"Processed {tile_count} tiles")
 
-        height = (line_count)
-
     return
 
-def create_collide(properties_width):
+def create_collide():
     global collide
+
+    with open("maps/map_1/properties.csv") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=",")
+        liste_properties = list(csv_reader)
+        properties_width = len(liste_properties[1])
 
     with open("maps/map_1/properties.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
 
         for row in csv_reader:
-
             tile_count = 0
 
             while tile_count < properties_width:
@@ -263,7 +275,7 @@ def movement_right():
 def manage_game_keys(key):
     global player_position, camera_position, orientation, menu, game
 
-    if key == pygame.K_LEFT: 
+    if key == pygame.K_LEFT or key == pygame.K_q: 
         if player_field_position[0] % tile_size == 0:
             if player_field_position[1] % tile_size == 0:
                 if not field[-player_field_position[1] // tile_size][player_field_position[0] // tile_size - 1] in collide :
@@ -278,7 +290,7 @@ def manage_game_keys(key):
         
         orientation = "left"
 
-    elif key == pygame.K_RIGHT:
+    elif key == pygame.K_RIGHT or key == pygame.K_d:
         if player_field_position[0] % tile_size == 0:
             if player_field_position[1] % tile_size == 0:
                 if not field[-player_field_position[1] // tile_size][player_field_position[0] // tile_size + 1] in collide :
@@ -291,7 +303,7 @@ def manage_game_keys(key):
         
         orientation = "right"
         
-    elif key == pygame.K_UP:
+    elif key == pygame.K_UP or key == pygame.K_z:
         if player_field_position[1] % tile_size == 0:
             if player_field_position[0] % tile_size == 0:
                 if not field[-player_field_position[1] // tile_size - 1][player_field_position[0] // tile_size] in collide :
@@ -306,7 +318,7 @@ def manage_game_keys(key):
         
         orientation = "back"
 
-    elif key == pygame.K_DOWN:
+    elif key == pygame.K_DOWN or key == pygame.K_s:
         if player_field_position[1] % tile_size == 0:
             if player_field_position[0] % tile_size == 0:
                 if not field[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size] in collide:
@@ -327,32 +339,52 @@ def manage_game_keys(key):
 
 def manage_menu_keys(evenement):
     global game_color, option_color, menu, option, game
+
     if evenement == -1:
-        if game_rect_collide(pygame.mouse.get_pos()):
+        if rect_collide(game_rect ,pygame.mouse.get_pos()):
             game_color = RED
-        elif option_rect_collide(pygame.mouse.get_pos()):
+        elif rect_collide(option_rect ,pygame.mouse.get_pos()):
             option_color = RED
         else:
             option_color = PURPLE
             game_color = PURPLE
 
-    else:
-        if evenement.button == 1:
-            if game_rect_collide(pygame.mouse.get_pos()):
+    elif evenement.button == 1:
+            if rect_collide(game_rect ,pygame.mouse.get_pos()):
                 menu = False
                 game = True
-            elif option_rect_collide(pygame.mouse.get_pos()):
+            elif rect_collide(option_rect ,pygame.mouse.get_pos()):
                 menu = False
                 option = True
 
     return
 
-def manage_option_keys(evenement):
-    global option, menu
-    if evenement == K_ESCAPE:
+def manage_option_keys(type_key,evenement):
+    global option, menu, screen_resolution_color, control_color,screen_resolution_menu,control_menu
+    
+    if evenement == -1:
+        if rect_collide(screen_resolution_rect ,pygame.mouse.get_pos()):
+            screen_resolution_color = RED
+        elif rect_collide(control_rect ,pygame.mouse.get_pos()):
+            control_color = RED
+        else:
+            screen_resolution_color = PURPLE
+            control_color = PURPLE
+
+    elif type_key == 1 and evenement.button == 1:
+        if rect_collide(screen_resolution_rect ,pygame.mouse.get_pos()):
+            option = False
+            screen_resolution_menu = True
+        elif rect_collide(control_rect ,pygame.mouse.get_pos()):
+            option = False
+            control_menu = True
+
+    elif type_key == 2 and evenement.key == pygame.K_ESCAPE:
         option = False
         menu = True
+    
     return
+
 
 ### Visual ###
 
@@ -448,13 +480,14 @@ def display_menu_screen():
     return
 
 def display_option_screen():
+    global screen_resolution_rect, control_rect
     
     list_font = pygame.font.SysFont("monospace", 50, True)
 
-    screen_resolution = list_font.render("Game", True, game_color)
-    screen_resolution_size = list_font.size("Game")
-    control = list_font.render("Option",True,option_color)
-    control_size = list_font.size("Option")
+    screen_resolution = list_font.render("Screen resolution", True, screen_resolution_color)
+    screen_resolution_size = list_font.size("Screen resolution")
+    control = list_font.render("Control",True, control_color)
+    control_size = list_font.size("Control")
 
     window.blit(screen_resolution,(screen_size[0] // 5, screen_size[1] // 9 * 3))
     screen_resolution_rect = pygame.Rect(screen_size[0] // 5, screen_size[1] // 9 * 3, screen_resolution_size[0], screen_resolution_size[1])
@@ -464,13 +497,9 @@ def display_option_screen():
     
     return
 
-def game_rect_collide(position):
+def rect_collide(rect,position):
     
-    return game_rect.collidepoint(position)
-
-def option_rect_collide(position):
-
-    return option_rect.collidepoint(position)
+    return rect.collidepoint(position)
 
 
 ### Calcul ###
@@ -547,10 +576,8 @@ background_color = GREY
 
 pygame.key.set_repeat(100,100)
 
-create_field(width)
-create_collide(properties_width)
-create_player_sprite()
-
+create_field()
+create_collide()
 create_player_sprite()
 
 while open_game:
@@ -568,9 +595,10 @@ while open_game:
                 manage_menu_keys(evenement)
         elif option:
             if evenement.type == pygame.MOUSEBUTTONDOWN:
-                manage_option_keys(evenement)
+                manage_option_keys(1,evenement)
             elif evenement.type == pygame.KEYDOWN:
-                manage_option_keys(evenement.key)
+                manage_option_keys(2,evenement)
+
 
     if menu:
         ### Menu
@@ -584,7 +612,7 @@ while open_game:
         pygame.display.flip()
         
 
-    if game:
+    elif game:
         ### Game
         
         stay_at_screen()
@@ -600,15 +628,44 @@ while open_game:
         pygame.display.flip()
 
 
-    if option:
+    elif option:
         ### Option
 
         window.fill(background_color)
         
         display_option_screen()
 
-        manage_option_keys(-1)
+        manage_option_keys(0,-1)
 
         pygame.display.flip()
+    
+
+    elif screen_resolution_menu:
+        ### screen resolution option
+
+        window.fill(background_color)
+
+        #display_screen_resolution_screen()
+
+        #manage_screen_resolution_keys(-1)
+        screen_resolution_menu = False
+        menu = True
+
+        pygame.display.flip()
+
+
+    elif control_menu:
+        ### control option
+
+        window.fill(background_color)
+
+        #display_control_screen()
+
+        #manage_control_keys(-1)
+        control_menu = False
+        menu = True
+
+        pygame.display.flip()
+
 
     clock.tick(framerate)
