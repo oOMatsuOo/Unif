@@ -40,7 +40,7 @@ BARRE_DESSUS = 50
 ### Definition Mouvement ###
 
 def mouvement(nom, duree):
-    return (nom, duree) # durée en msec
+    return (nom, duree) # duree en msec
 
 def nomMouvement(mvt):
     return mvt[0]
@@ -147,13 +147,13 @@ def acceleration(entite, ax, ay):
 
 def deplace(entite, maintenant):
     dt = (maintenant - entite['momentDeplacement']) / 1000
-    # mise à jour vitesse
+    # mise a jour vitesse
     entite['vitesse'][0] += entite['acceleration'][0] * dt
     entite['vitesse'][1] += entite['acceleration'][1] * dt
-    # mise à jour position
+    # mise a jour position
     entite['position'][0] += entite['vitesse'][0] * dt
     entite['position'][1] += entite['vitesse'][1] * dt
-    # mise à jour moment de déplacement
+    # mise a jour moment de deplacement
     entite['momentDeplacement'] = maintenant
 
 def reveille(entite):
@@ -195,7 +195,7 @@ def rectangle(entite):
 
 ### fin ENTITE ###
 
-### Définition Score ###
+### Definition Score ###
 
 def score():
     return{
@@ -217,7 +217,7 @@ def reinitialiser(score):
 
 ### Fin Score ###
 
-### Définition Scene ###
+### Definition Scene ###
 
 def nouvelleScene():
     return{
@@ -259,7 +259,7 @@ def affiche(entites, ecran):
 
 ### Fin Scene ###
 
-### Définition Ciel ###
+### Definition Ciel ###
 
 def nouveauCiel(nombreCouloirs):
     random.seed()
@@ -324,13 +324,13 @@ def nouveauNuage(ciel, couloir, image):
 
 def nouveauPowerUp(ciel, image):
 
-    powerUp = nouvelleEntite()  #Création entité PowerUp
+    powerUp = nouvelleEntite()  #Creation entite PowerUp
     ajoutePose(powerUp, 'powerUp', image)
     prendsPose(powerUp, 'powerUp')
 
     couloir = random.randint(1, COULOIRS_AERIENS)
     
-    rect = rectangle(powerUp)   #Création rectangle du powerUp
+    rect = rectangle(powerUp)   #Creation rectangle du powerUp
     debut = debutCouloir(ciel, couloir)
     fin = debutCouloir(ciel, couloir + 1) - 1 if couloir < ciel['nombreCouloirs'] + 1 else FENETRE_HAUTEUR - 1
     rect.top = random.randint(debut, fin - rect.height)
@@ -351,7 +351,7 @@ def nouveauNuageBas(ciel, image):
 
 ### Fin Ciel ###
 
-### Définition Moment Aléatoire ###
+### Definition Moment Aleatoire ###
 
 def nouveauMomentAleatoire(intervalle):
     return{
@@ -366,9 +366,9 @@ def suivant(momentAleatoire, maintenant):
 def estExpire(momentAleatoire, maintenant):
     return momentAleatoire['momentSuivant'] <= maintenant
 
-### Fin Moment Aléatoire ###
+### Fin Moment Aleatoire ###
 
-### Définition Bouilloire ###
+### Definition Bouilloire ###
 
 def nouvelleBouilloire(intervalle):
     return{
@@ -395,7 +395,7 @@ def faitNuage(bouilloire, maintenant):
 
 ### Fin Bouilloire ###
 
-### Définition Santé ###
+### Definition Sante ###
 
 def nouvelleSante(vieillissement):
     return{
@@ -417,9 +417,9 @@ def vieillir(sante, maintenant):
 def forme(sante):
     return sante['valeur']
 
-### Fin Santé ###
+### Fin Sante ###
 
-### Définition Barre ###
+### Definition Barre ###
 
 def nouvelleBarre(rect, fct_valeur):
     return{
@@ -564,7 +564,7 @@ temps = pygame.time.Clock()
 barre = nouvelleBarre(pygame.Rect(BARRE_GAUCHE, BARRE_DESSUS, BARRE_LARGEUR, BARRE_HAUTEUR),valeurSante)
 
 while not fini:
-    # --- Traiter entrées joueur
+    # --- Traiter entrees joueur
     traite_entrees()
 
     maintenant = pygame.time.get_ticks()
