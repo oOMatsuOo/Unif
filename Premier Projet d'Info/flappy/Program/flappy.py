@@ -8,11 +8,11 @@ ORANGE    = (255, 165,   0)
 FENETRE_LARGEUR = 800
 FENETRE_HAUTEUR = 600
 
-FLAPPY_LARGEUR = 60
-FLAPPY_HAUTEUR = 51
+FLAPPY_LARGEUR = 50
+FLAPPY_HAUTEUR = 50
 
 ACC_CHUTE = (0, FENETRE_HAUTEUR) # pixels/s^2
-DEPLACEMENT_HAUT = -FENETRE_HAUTEUR / 20
+DEPLACEMENT_HAUT = -FENETRE_HAUTEUR / 10
 VITESSE_HORIZONTALE = 4
 
 NUAGE_LARGEUR = 127
@@ -484,6 +484,11 @@ def evolueSante():
 def valeurSante():
     return forme(sante)
 
+def augmenteDifficulte(maintenant):
+    global INTERVALLE_NUAGES
+    #INTERVALLE_NUAGES = INTERVALLE_NUAGES / maintenant * 200
+    INTERVALLE_NUAGES = 5000
+
 pygame.init()
 
 pygame.mixer.init()
@@ -499,9 +504,9 @@ fenetre = pygame.display.set_mode(fenetre_taille)
 pygame.display.set_caption('FLAPPY')
 
 oiseau = nouvelleEntite()
-for nom_image, nom_fichier in (('AILE_HAUTE','bird_wing_up.png'),
-                                ('AILE_MILIEU','bird_wing_mid.png'),
-                                ('AILE_BASSE', 'bird_wing_down.png')):
+for nom_image, nom_fichier in (('AILE_HAUTE','front_stand.png'),
+                                ('AILE_MILIEU','front_stand.png'),
+                                ('AILE_BASSE', 'front_right.png')):
     chemin = 'images/' + nom_fichier
     image = pygame.image.load(chemin).convert_alpha(fenetre)
     image = pygame.transform.scale(image, (FLAPPY_LARGEUR, FLAPPY_HAUTEUR))
@@ -568,6 +573,8 @@ while not fini:
     traite_entrees()
 
     maintenant = pygame.time.get_ticks()
+
+    #augmenteDifficulte(maintenant)
 
     miseAJour(scene, maintenant)
     if enJeu: 
