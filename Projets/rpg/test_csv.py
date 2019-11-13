@@ -15,12 +15,9 @@ with open("maps.csv") as csv_file:
     print(f"Processed {line_count} lines")
 
 
-#def new_animation():
+def new_animation():
     return {
-        'loop':False,
-        'repetition':0,
         'next_move_movement':None,
-        'index_move':None,
         'choreography':[]
     }
 #
@@ -36,17 +33,7 @@ with open("maps.csv") as csv_file:
         return None
     else:
         return name_move(animation['choreography'][animation[index_move]])
-#
-#def start_move(anomation, index):
-    animation['index_move'] = index
-    animation['next_move_moment'] = pygame.time.get_ticks() + duration_move(animation['choreography'][index])
-#
-#def start_animation(animation):
-    start_move(animation,0)
-#
-#def stop_animation(animation):
-    animation['index_move'] = None
-#
+        
 #def animate(animation):
     if animation['index_move'] == None:
         start_animation(animation)
