@@ -1,7 +1,6 @@
 import csv
 import pygame
 import math
-import sys
 import subprocess
 
 ### CONSTANT ###
@@ -71,7 +70,7 @@ def define_screen_size(ratio):
 
     different_screen_size = [426,640,768,800,848,896,960,1024,1152,1280,1366,1600,1920] 
 
-    screen_size[0] = different_screen_size[12]
+    screen_size[0] = different_screen_size[6]
     screen_size[1] = int(screen_size[0] * ratio[0] / ratio[1])
 
     tile_size = 0
@@ -721,7 +720,7 @@ pygame.display.set_caption("First RPG")
 clock = pygame.time.Clock()
 background_color = GREY
 
-pygame.key.set_repeat(50,50)
+pygame.key.set_repeat(25,25)
 
 create_field()
 create_collide()
