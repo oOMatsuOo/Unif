@@ -2,6 +2,7 @@ import csv
 import pygame
 import math
 import subprocess
+import sys
 
 ### CONSTANT ###
 
@@ -46,6 +47,7 @@ field = {}
 player_position = [0, 0]
 player_field_position = [0, 0]
 camera_position = [0, 0]
+spawn_point = []
 
 middle = 0
 
@@ -90,22 +92,22 @@ def define_screen_size(ratio):
 
     return
 
-def define_spawn_point(point):
+def define_spawn_point():
     global player_field_position,player_position,camera_position
 
-    if point[1] <= screen_tile_size[1] // 2:
-        player_position[1] = - point[1] * tile_size
+    if spawn_point[1] <= screen_tile_size[1] // 2:
+        player_position[1] = - spawn_point[1] * tile_size
         camera_position[1] = 0
     else:
         player_position[1] = - screen_tile_size[1] // 2 * tile_size
-        camera_position[1] = - point[1] * tile_size + ( screen_tile_size[1] // 2 * tile_size)
+        camera_position[1] = - spawn_point[1] * tile_size + ( screen_tile_size[1] // 2 * tile_size)
 
-    if point[0] <= screen_tile_size[0] // 2:
-        player_position[0] = point[0] * tile_size
+    if spawn_point[0] <= screen_tile_size[0] // 2:
+        player_position[0] = spawn_point[0] * tile_size
         camera_position[0] = 0
     else:
         player_position[0] = screen_tile_size[0] // 2 * tile_size
-        camera_position[0] = point[0] * tile_size - screen_tile_size[0] // 2 * tile_size
+        camera_position[0] = spawn_point[0] * tile_size - screen_tile_size[0] // 2 * tile_size
 
 
     return
@@ -166,6 +168,32 @@ def create_collide():
             
             if not row[line_collide] in collide and row[line_collide] != "collide":
                 collide.append(row[line_collide])
+
+def create_spawn_point():
+    global spawn_point
+
+    with open("maps/map_1/properties.csv") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=",")
+        liste_properties = list(csv_reader)
+        properties_width = len(liste_properties[1])
+
+    with open("maps/map_1/properties.csv") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=",")
+
+        for row in csv_reader:
+            tile_count = 0
+
+            while tile_count < properties_width:
+                if row[tile_count] == "spawn_point":
+                    line_spawn_point = tile_count
+                    tile_count = properties_width
+                tile_count += 1
+            
+            if row[line_spawn_point] != "spawn_point":
+                spawn_point.append(int(row[line_spawn_point]))
+    print(spawn_point)
+    
+    return
 
 def create_tile(tile_type, x, y):
     x_coord = coordinates_to_pixel(x)
@@ -712,7 +740,8 @@ pygame.init()
 
 define_screen_size(ratio)
 screen_tile_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(screen_size[1]))
-define_spawn_point((15,17))
+create_spawn_point()
+define_spawn_point()
 
 window = pygame.display.set_mode(screen_size)
 pygame.display.set_caption("First RPG")
