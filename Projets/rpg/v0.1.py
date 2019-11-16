@@ -6,15 +6,16 @@ import sys
 
 ### CONSTANT ###
 
-BLACK   = (  0,  0,  0)
-RED     = (139,  0,  0)
-PURPLE  = (148,  0,211)
-GREY    = (105,105,105)
-ORANGE  = (255,140,  0)
-BLUE    = ( 30,144,237)
-BROWN   = (188,143,143)
-SAND    = (230,184, 87)
-GREEN   = (106,230, 87)
+BLACK      = (  0,  0,  0)
+RED        = (139,  0,  0)
+PURPLE     = (148,  0,211)
+GREY       = (105,105,105)
+ORANGE     = (255,140,  0)
+BLUE       = ( 30,144,237)
+BROWN      = (188,143,143)
+SAND       = (230,184, 87)
+GREEN      = (106,230, 87)
+DARK_GREEN = ( 60,134, 33)
 
 ### PARAMETER ###
 
@@ -43,6 +44,7 @@ is_animated = False
 animation = 0
 
 field = {}
+field_object = {}
 
 player_position = [0, 0]
 player_field_position = [0, 0]
@@ -146,6 +148,34 @@ def create_field():
 
     return
 
+def create_object():
+    global field_object
+
+    object_csv = {}
+
+    with open("maps/map_1/object.csv") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=",")
+        liste_field = list(csv_reader)
+        width_object = len(liste_field[1])
+
+    with open("maps/map_1/object.csv") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=",")
+        line_count = 0
+        for row in csv_reader:
+            tile_count = 0
+            object_csv = {}
+            while tile_count < width_object:
+                object_csv[tile_count] = row[tile_count]
+                tile_count += 1
+            
+            field_object[line_count] = object_csv
+            line_count += 1
+
+        print(f"Processed {line_count} lines")
+        print(f"Processed {tile_count} tiles")
+ 
+    return
+
 def create_collide():
     global collide
 
@@ -191,7 +221,6 @@ def create_spawn_point():
             
             if row[line_spawn_point] != "spawn_point":
                 spawn_point.append(int(row[line_spawn_point]))
-    print(spawn_point)
     
     return
 
@@ -199,11 +228,16 @@ def create_tile(tile_type, x, y):
     x_coord = coordinates_to_pixel(x)
     y_coord = coordinates_to_pixel(y)
     
-    square = create_square(x_coord,y_coord)
+    if tile_type == '4':
+        pygame.draw.circle(window,DARK_GREEN,(int(x_coord + tile_size // 2),int(y_coord + tile_size//2)),tile_size//2)
+    
+    else :
+        square = create_square(x_coord,y_coord)
 
-    color = define_type_tile(int(tile_type))
+        color = define_type_tile(int(tile_type))
 
-    pygame.draw.polygon(window, color, square)
+        pygame.draw.polygon(window, color, square)
+    
     return
 
 def create_square(x, y):
@@ -215,6 +249,68 @@ def create_square(x, y):
 
 
     return(p1, p2, p3, p4)
+
+def create_player_sprite():
+    global sprite_player
+
+    sprite_player = {}
+
+    for name_image , name_file in (('front', 'front_stand.png'),
+                                    ('back', 'back_stand.png'),
+                                    ('right', 'right_stand.png'),
+                                    ('left', 'left_stand.png')):
+        path = 'pictures/player/' + name_file
+        image = pygame.image.load(path).convert_alpha(window)
+        image = pygame.transform.scale(image, (tile_size,tile_size))
+        add_position(sprite_player,name_image,image)
+
+def create_player_animation_sprite():
+    global sprite_left,sprite_right,sprite_front,sprite_back
+
+    sprite_left = {
+        'next_move_moment':None,
+        'choreography':[]
+    }
+    sprite_right = {
+        'next_move_moment':None,
+        'choreography':[]
+    }
+    sprite_front = {
+        'next_move_moment':None,
+        'choreography':[]
+    }
+    sprite_back = {
+        'next_move_moment':None,
+        'choreography':[]
+    }
+
+    for name_image, name_file in (('left_left','left_left.png'),
+                                ('left_right', 'left_right.png')):
+        path = 'pictures/player/' + name_file
+        image = pygame.image.load(path).convert_alpha(window)
+        image = pygame.transform.scale(image, (tile_size,tile_size))
+        sprite_left['choreography'].append((name_image,image))
+    
+    for name_image, name_file in (('right_right','right_right.png'),
+                                ('right_left','right_left.png')):
+        path = 'pictures/player/' + name_file
+        image = pygame.image.load(path).convert_alpha(window)
+        image = pygame.transform.scale(image, (tile_size,tile_size))
+        sprite_right['choreography'].append((name_image,image))
+    
+    for name_image, name_file in (('front_right','front_right.png'),
+                                ('front_left','front_left.png')):
+        path = 'pictures/player/' + name_file
+        image = pygame.image.load(path).convert_alpha(window)
+        image = pygame.transform.scale(image, (tile_size,tile_size))
+        sprite_front['choreography'].append((name_image,image))
+
+    for name_image, name_file in (('back_right','back_right.png'),
+                                ('back_left','back_left.png')):
+        path = 'pictures/player/' + name_file
+        image = pygame.image.load(path).convert_alpha(window)
+        image = pygame.transform.scale(image, (tile_size,tile_size))
+        sprite_back['choreography'].append((name_image,image))
 
 
 ### Movement ###
@@ -309,11 +405,13 @@ def manage_game_keys(key):
         if player_field_position[0] % tile_size == 0:
             if player_field_position[1] % tile_size == 0:
                 if not field[-player_field_position[1] // tile_size][player_field_position[0] // tile_size - 1] in collide :
-                    movement_left()
+                    if not field_object[-player_field_position[1] // tile_size][player_field_position[0] // tile_size - 1] in collide :
+                        movement_left()
          
             else:
                 if not field[-player_field_position[1] // tile_size][player_field_position[0] // tile_size - 1] in collide and not field[-player_field_position[1] // tile_size + 1][player_field_position[0]//tile_size - 1] in collide:
-                    movement_left()
+                    if not field_object[-player_field_position[1] // tile_size][player_field_position[0] // tile_size - 1] in collide and not field_object[-player_field_position[1] // tile_size + 1][player_field_position[0]//tile_size - 1] in collide:
+                        movement_left()
 
         else:
             movement_left()
@@ -325,10 +423,12 @@ def manage_game_keys(key):
         if player_field_position[0] % tile_size == 0:
             if player_field_position[1] % tile_size == 0:
                 if not field[-player_field_position[1] // tile_size][player_field_position[0] // tile_size + 1] in collide :
-                    movement_right()
+                    if not field_object[-player_field_position[1] // tile_size][player_field_position[0] // tile_size + 1] in collide :
+                        movement_right()
             else:
                 if not field[-player_field_position[1] // tile_size][player_field_position[0] // tile_size + 1] in collide and not field[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size + 1] in collide:
-                    movement_right()
+                    if not field_object[-player_field_position[1] // tile_size][player_field_position[0] // tile_size + 1] in collide and not field_object[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size + 1] in collide:
+                        movement_right()
         else:
             movement_right()
         
@@ -339,11 +439,13 @@ def manage_game_keys(key):
         if player_field_position[1] % tile_size == 0:
             if player_field_position[0] % tile_size == 0:
                 if not field[-player_field_position[1] // tile_size - 1][player_field_position[0] // tile_size] in collide :
-                    movement_up()
+                    if not field_object[-player_field_position[1] // tile_size - 1][player_field_position[0] // tile_size] in collide :
+                        movement_up()
                     
             else:
                 if not field[-player_field_position[1] // tile_size - 1][player_field_position[0] // tile_size] in collide and not field[-player_field_position[1] // tile_size - 1][player_field_position[0] // tile_size + 1] in collide :
-                    movement_up()
+                    if not field_object[-player_field_position[1] // tile_size - 1][player_field_position[0] // tile_size] in collide and not field_object[-player_field_position[1] // tile_size - 1][player_field_position[0] // tile_size + 1] in collide :
+                        movement_up()
 
         else:
             movement_up()
@@ -355,10 +457,12 @@ def manage_game_keys(key):
         if player_field_position[1] % tile_size == 0:
             if player_field_position[0] % tile_size == 0:
                 if not field[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size] in collide:
-                    movement_down()
+                    if not field_object[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size] in collide:
+                        movement_down()
             else:
                 if not field[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size] in collide and not field[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size + 1] in collide:
-                    movement_down()
+                    if not field_object[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size] in collide and not field_object[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size + 1] in collide:
+                        movement_down()
         else:
             movement_down()
         
@@ -428,68 +532,6 @@ def add_position(entity,name,image):
 
     return
 
-def create_player_sprite():
-    global sprite_player
-
-    sprite_player = {}
-
-    for name_image , name_file in (('front', 'front_stand.png'),
-                                    ('back', 'back_stand.png'),
-                                    ('right', 'right_stand.png'),
-                                    ('left', 'left_stand.png')):
-        path = 'pictures/player/' + name_file
-        image = pygame.image.load(path).convert_alpha(window)
-        image = pygame.transform.scale(image, (tile_size,tile_size))
-        add_position(sprite_player,name_image,image)
-
-def create_player_animation_sprite():
-    global sprite_left,sprite_right,sprite_front,sprite_back
-
-    sprite_left = {
-        'next_move_moment':None,
-        'choreography':[]
-    }
-    sprite_right = {
-        'next_move_moment':None,
-        'choreography':[]
-    }
-    sprite_front = {
-        'next_move_moment':None,
-        'choreography':[]
-    }
-    sprite_back = {
-        'next_move_moment':None,
-        'choreography':[]
-    }
-
-    for name_image, name_file in (('left_left','left_left.png'),
-                                ('left_right', 'left_right.png')):
-        path = 'pictures/player/' + name_file
-        image = pygame.image.load(path).convert_alpha(window)
-        image = pygame.transform.scale(image, (tile_size,tile_size))
-        sprite_left['choreography'].append((name_image,image))
-    
-    for name_image, name_file in (('right_right','right_right.png'),
-                                ('right_left','right_left.png')):
-        path = 'pictures/player/' + name_file
-        image = pygame.image.load(path).convert_alpha(window)
-        image = pygame.transform.scale(image, (tile_size,tile_size))
-        sprite_right['choreography'].append((name_image,image))
-    
-    for name_image, name_file in (('front_right','front_right.png'),
-                                ('front_left','front_left.png')):
-        path = 'pictures/player/' + name_file
-        image = pygame.image.load(path).convert_alpha(window)
-        image = pygame.transform.scale(image, (tile_size,tile_size))
-        sprite_front['choreography'].append((name_image,image))
-
-    for name_image, name_file in (('back_right','back_right.png'),
-                                ('back_left','back_left.png')):
-        path = 'pictures/player/' + name_file
-        image = pygame.image.load(path).convert_alpha(window)
-        image = pygame.transform.scale(image, (tile_size,tile_size))
-        sprite_back['choreography'].append((name_image,image))
-
 def display_player(time):
 
     if is_animated:
@@ -554,6 +596,8 @@ def display_game_screen():
         j_prime = j_first
         while j <  borne_j:
             create_tile(field[i][j], j_prime, i_prime)
+            if field_object[i][j] != '1':
+                create_tile(field_object[i][j], j_prime, i_prime)
             j += 1
             j_prime += 1
 
@@ -693,6 +737,13 @@ def calcul_player_field_position():
 
     return
 
+def is_collide(position):
+    
+    if field[-player_field_position[1] // tile_size][player_field_position[0] // tile_size - 1] in collide or field_object[-player_field_position[1] // tile_size][player_field_position[0] // tile_size - 1] in collide:
+        return True
+    else:
+        return False
+
 def impress():
     print("CAM          : " + str(camera_position))
     print("PLAYER       : " + str(player_position))
@@ -743,7 +794,7 @@ screen_tile_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(s
 create_spawn_point()
 define_spawn_point()
 
-window = pygame.display.set_mode(screen_size)
+window = pygame.display.set_mode(screen_size,pygame.FULLSCREEN)
 pygame.display.set_caption("First RPG")
 
 clock = pygame.time.Clock()
@@ -752,6 +803,7 @@ background_color = GREY
 pygame.key.set_repeat(25,25)
 
 create_field()
+create_object()
 create_collide()
 create_player_sprite()
 create_player_animation_sprite()
