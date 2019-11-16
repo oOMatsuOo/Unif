@@ -475,10 +475,10 @@ def manage_game_keys(key):
 
     return
 
-def manage_menu_keys(evenement):
-    global game_color, option_color, menu, option, game
+def manage_menu_keys(type_key,evenement):
+    global game_color, option_color, menu, option, game, open_game
 
-    if evenement == -1:
+    if type_key == -1:
         if rect_collide(game_rect ,pygame.mouse.get_pos()):
             game_color = RED
         elif rect_collide(option_rect ,pygame.mouse.get_pos()):
@@ -487,13 +487,20 @@ def manage_menu_keys(evenement):
             option_color = PURPLE
             game_color = PURPLE
 
-    elif evenement.button == 1:
-            if rect_collide(game_rect ,pygame.mouse.get_pos()):
-                menu = False
-                game = True
-            elif rect_collide(option_rect ,pygame.mouse.get_pos()):
-                menu = False
-                option = True
+    elif type_key == 1:
+        if evenement.button == 1:
+                if rect_collide(game_rect ,pygame.mouse.get_pos()):
+                    menu = False
+                    game = True
+                elif rect_collide(option_rect ,pygame.mouse.get_pos()):
+                    menu = False
+                    option = True
+    elif type_key == 2 and evenement.key == pygame.K_ESCAPE:
+            pygame.quit()
+            sys.exit()
+    
+    if type_key == 2:
+        print(evenement.key)
 
     return
 
@@ -821,7 +828,9 @@ while open_game:
                 manage_game_keys(evenement.key)
         elif menu:
             if evenement.type == pygame.MOUSEBUTTONDOWN:
-                manage_menu_keys(evenement)
+                manage_menu_keys(1,evenement)
+            elif evenement.type == pygame.KEYDOWN:
+                manage_menu_keys(2,evenement)
         elif option:
             if evenement.type == pygame.MOUSEBUTTONDOWN:
                 manage_option_keys(1,evenement)
@@ -836,7 +845,7 @@ while open_game:
 
         display_menu_screen()
 
-        manage_menu_keys(-1)
+        manage_menu_keys(-1,0)
 
         pygame.display.flip()
         
