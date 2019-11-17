@@ -10,12 +10,14 @@ BLACK      = (  0,  0,  0)
 RED        = (139,  0,  0)
 PURPLE     = (148,  0,211)
 GREY       = (105,105,105)
+LIGHT_GREY = (180,184,181)
 ORANGE     = (255,140,  0)
 BLUE       = ( 30,144,237)
 BROWN      = (188,143,143)
 SAND       = (230,184, 87)
 GREEN      = (106,230, 87)
 DARK_GREEN = ( 60,134, 33)
+WHITE      = (255,255,255)
 
 ### PARAMETER ###
 
@@ -24,6 +26,8 @@ open_game = True
 menu = True
 
 game = False
+
+game_menu = False
 
 option = False
 
@@ -47,20 +51,22 @@ field = {}
 field_object = {}
 
 player_position = [0, 0]
-player_field_position = [0, 0]
 camera_position = [0, 0]
 spawn_point = []
+inventory_size = 5
 
 middle = 0
 
 collide = []
 
-orientation = "front"
+player = {}
 
 game_color = PURPLE
 option_color = PURPLE
 screen_resolution_color = PURPLE
 control_color = PURPLE
+save_game_color = PURPLE
+exit_game_color = PURPLE
 
 
 ### FUNCTION ###
@@ -95,7 +101,7 @@ def define_screen_size(ratio):
     return
 
 def define_spawn_point():
-    global player_field_position,player_position,camera_position
+    global player,player_position,camera_position
 
     if spawn_point[1] <= screen_tile_size[1] // 2:
         player_position[1] = - spawn_point[1] * tile_size
@@ -145,6 +151,46 @@ def create_field():
 
         print(f"Processed {line_count} lines")
         print(f"Processed {tile_count} tiles")
+
+    return
+
+def create_player():
+    global player,height_save
+
+    player = {}
+    component = {}
+    with open("player/save.csv") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=",")
+        liste_field = list(csv_reader)
+        height_save = len(liste_field)
+
+    with open("player/save.csv") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=",")
+        line_count = 0
+
+        for row in csv_reader:
+            tile_count = 1
+            component = {}
+
+            if row[0] == 'position':
+                while tile_count < 3:
+                    component[tile_count - 1] = int(row[tile_count])
+                    tile_count += 1
+                player['position']= component
+
+            elif row[0] == 'orientation':
+                component[tile_count - 1] = int(row[tile_count])
+                player['orientation'] = component
+            
+            elif row[0] == 'inventory':
+                while tile_count < inventory_size + 1:
+                    component[tile_count - 1] = int(row[tile_count])
+                    player['inventory'] = component
+                    tile_count += 1
+            
+            line_count += 1
+        print(player) 
+        print(player['orientation'][0])
 
     return
 
@@ -221,7 +267,11 @@ def create_spawn_point():
             
             if row[line_spawn_point] != "spawn_point":
                 spawn_point.append(int(row[line_spawn_point]))
-    
+
+    if player['position'][0] != 0 and player['position'][1] != 0:
+        spawn_point = []
+        spawn_point.append(player['position'][0])
+        spawn_point.append(player['position'][1])
     return
 
 def create_tile(tile_type, x, y):
@@ -255,10 +305,10 @@ def create_player_sprite():
 
     sprite_player = {}
 
-    for name_image , name_file in (('front', 'front_stand.png'),
-                                    ('back', 'back_stand.png'),
-                                    ('right', 'right_stand.png'),
-                                    ('left', 'left_stand.png')):
+    for name_image , name_file in ((1, 'front_stand.png'),
+                                    (3, 'back_stand.png'),
+                                    (2, 'right_stand.png'),
+                                    (4, 'left_stand.png')):
         path = 'pictures/player/' + name_file
         image = pygame.image.load(path).convert_alpha(window)
         image = pygame.transform.scale(image, (tile_size,tile_size))
@@ -399,78 +449,78 @@ def movement_right():
 
 
 def manage_game_keys(key):
-    global player_position, camera_position, orientation, menu, game
+    global player_position, camera_position, player, menu, game, game_menu
 
     if key == pygame.K_LEFT or key == pygame.K_q: 
-        if player_field_position[0] % tile_size == 0:
-            if player_field_position[1] % tile_size == 0:
-                if not field[-player_field_position[1] // tile_size][player_field_position[0] // tile_size - 1] in collide :
-                    if not field_object[-player_field_position[1] // tile_size][player_field_position[0] // tile_size - 1] in collide :
+        if player['position'][0] % tile_size == 0:
+            if player['position'][1] % tile_size == 0:
+                if not field[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] in collide :
+                    if not field_object[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] in collide :
                         movement_left()
          
             else:
-                if not field[-player_field_position[1] // tile_size][player_field_position[0] // tile_size - 1] in collide and not field[-player_field_position[1] // tile_size + 1][player_field_position[0]//tile_size - 1] in collide:
-                    if not field_object[-player_field_position[1] // tile_size][player_field_position[0] // tile_size - 1] in collide and not field_object[-player_field_position[1] // tile_size + 1][player_field_position[0]//tile_size - 1] in collide:
+                if not field[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] in collide and not field[-player['position'][1] // tile_size + 1][player['position'][0]//tile_size - 1] in collide:
+                    if not field_object[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] in collide and not field_object[-player['position'][1] // tile_size + 1][player['position'][0]//tile_size - 1] in collide:
                         movement_left()
 
         else:
             movement_left()
         
-        orientation = "left"
+        player['orientation'][0] = 4
         start_animation_left(now)
 
     elif key == pygame.K_RIGHT or key == pygame.K_d:
-        if player_field_position[0] % tile_size == 0:
-            if player_field_position[1] % tile_size == 0:
-                if not field[-player_field_position[1] // tile_size][player_field_position[0] // tile_size + 1] in collide :
-                    if not field_object[-player_field_position[1] // tile_size][player_field_position[0] // tile_size + 1] in collide :
+        if player['position'][0] % tile_size == 0:
+            if player['position'][1] % tile_size == 0:
+                if not field[-player['position'][1] // tile_size][player['position'][0] // tile_size + 1] in collide :
+                    if not field_object[-player['position'][1] // tile_size][player['position'][0] // tile_size + 1] in collide :
                         movement_right()
             else:
-                if not field[-player_field_position[1] // tile_size][player_field_position[0] // tile_size + 1] in collide and not field[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size + 1] in collide:
-                    if not field_object[-player_field_position[1] // tile_size][player_field_position[0] // tile_size + 1] in collide and not field_object[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size + 1] in collide:
+                if not field[-player['position'][1] // tile_size][player['position'][0] // tile_size + 1] in collide and not field[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size + 1] in collide:
+                    if not field_object[-player['position'][1] // tile_size][player['position'][0] // tile_size + 1] in collide and not field_object[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size + 1] in collide:
                         movement_right()
         else:
             movement_right()
         
-        orientation = "right"
+        player['orientation'][0] = 2
         start_animation_right(now)
         
     elif key == pygame.K_UP or key == pygame.K_z:
-        if player_field_position[1] % tile_size == 0:
-            if player_field_position[0] % tile_size == 0:
-                if not field[-player_field_position[1] // tile_size - 1][player_field_position[0] // tile_size] in collide :
-                    if not field_object[-player_field_position[1] // tile_size - 1][player_field_position[0] // tile_size] in collide :
+        if player['position'][1] % tile_size == 0:
+            if player['position'][0] % tile_size == 0:
+                if not field[-player['position'][1] // tile_size - 1][player['position'][0] // tile_size] in collide :
+                    if not field_object[-player['position'][1] // tile_size - 1][player['position'][0] // tile_size] in collide :
                         movement_up()
                     
             else:
-                if not field[-player_field_position[1] // tile_size - 1][player_field_position[0] // tile_size] in collide and not field[-player_field_position[1] // tile_size - 1][player_field_position[0] // tile_size + 1] in collide :
-                    if not field_object[-player_field_position[1] // tile_size - 1][player_field_position[0] // tile_size] in collide and not field_object[-player_field_position[1] // tile_size - 1][player_field_position[0] // tile_size + 1] in collide :
+                if not field[-player['position'][1] // tile_size - 1][player['position'][0] // tile_size] in collide and not field[-player['position'][1] // tile_size - 1][player['position'][0] // tile_size + 1] in collide :
+                    if not field_object[-player['position'][1] // tile_size - 1][player['position'][0] // tile_size] in collide and not field_object[-player['position'][1] // tile_size - 1][player['position'][0] // tile_size + 1] in collide :
                         movement_up()
 
         else:
             movement_up()
         
-        orientation = "back"
+        player['orientation'][0] = 3
         start_animation_back(now)
 
     elif key == pygame.K_DOWN or key == pygame.K_s:
-        if player_field_position[1] % tile_size == 0:
-            if player_field_position[0] % tile_size == 0:
-                if not field[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size] in collide:
-                    if not field_object[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size] in collide:
+        if player['position'][1] % tile_size == 0:
+            if player['position'][0] % tile_size == 0:
+                if not field[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size] in collide:
+                    if not field_object[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size] in collide:
                         movement_down()
             else:
-                if not field[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size] in collide and not field[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size + 1] in collide:
-                    if not field_object[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size] in collide and not field_object[-player_field_position[1] // tile_size + 1][player_field_position[0] // tile_size + 1] in collide:
+                if not field[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size] in collide and not field[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size + 1] in collide:
+                    if not field_object[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size] in collide and not field_object[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size + 1] in collide:
                         movement_down()
         else:
             movement_down()
         
-        orientation = "front"
+        player['orientation'][0] = 1
         start_animation_front(now)
           
     elif key == pygame.K_ESCAPE:
-        menu = True
+        game_menu = True
         game = False
 
     return
@@ -530,6 +580,64 @@ def manage_option_keys(type_key,evenement):
     
     return
 
+def manage_game_menu_keys(type_key,evenement):
+    global save_game_color, exit_game_color,game_menu,game,menu
+
+    if type_key == -1:
+        if rect_collide(save_rect ,pygame.mouse.get_pos()):
+            save_game_color = RED
+        elif rect_collide(exit_game_rect ,pygame.mouse.get_pos()):
+            exit_game_color = RED
+        else:
+            save_game_color = PURPLE
+            exit_game_color = PURPLE
+
+    elif type_key == 1:
+        if rect_collide(save_rect ,pygame.mouse.get_pos()):
+            save_game()
+            game_menu = False
+            game = True
+        elif rect_collide(exit_game_rect ,pygame.mouse.get_pos()):
+            save_game()
+            game_menu = False
+            game = False
+            menu = True
+
+    
+    return
+
+
+### Save ###
+
+
+def save_game():
+
+    field_list = []
+    range_list = []
+
+    for j in range (0,height_save):
+        if j == 0:
+            range_list.append('position')
+            range_list.append(int(player['position'][0]//tile_size))
+            range_list.append(int(-player['position'][1]//tile_size))
+        elif j == 1:
+            range_list.append('orientation')
+            range_list.append(player['orientation'][0])
+        elif j == 2:
+            range_list.append('inventory')
+
+            for i in range (0,inventory_size):
+                range_list.append(player['inventory'][i])
+
+        field_list.append(range_list)
+        range_list = []
+
+    out = open("player/save.csv",'w')
+    outw = csv.writer(out)
+    outw.writerows(field_list)
+    out.close()
+    return
+
 
 ### Visual ###
 
@@ -542,28 +650,28 @@ def add_position(entity,name,image):
 def display_player(time):
 
     if is_animated:
-        if animation == 'left':
+        if animation == 4:
             if sprite_left['next_move_moment'] - animation_duration > time:
                 sprite = sprite_left['choreography'][0][1]
             else:
                 sprite = sprite_left['choreography'][1][1]
-        elif animation == 'right':
+        elif animation == 2:
             if sprite_right['next_move_moment'] - animation_duration > time:
                 sprite = sprite_right['choreography'][0][1]
             else:
                 sprite = sprite_right['choreography'][1][1]
-        elif animation == 'front':
+        elif animation == 1:
             if sprite_front['next_move_moment'] - animation_duration > time:
                 sprite = sprite_front['choreography'][0][1]
             else:
                 sprite = sprite_front['choreography'][1][1]
-        elif animation == 'back':
+        elif animation == 3:
             if sprite_back['next_move_moment'] - animation_duration > time:
                 sprite = sprite_back['choreography'][0][1]
             else:
                 sprite = sprite_back['choreography'][1][1]
     else :
-        sprite = sprite_player[orientation]
+        sprite = sprite_player[player['orientation'][0]]
 
     window.blit(sprite,(player_position[0],-player_position[1]))
 
@@ -613,6 +721,29 @@ def display_game_screen():
 
     return
 
+def display_game_menu_screen():
+    global save_rect, exit_game_rect
+
+    game_menu_first_rect = pygame.Rect(screen_size[0] // 200 * 3,screen_size[1] // 300 * 3 ,screen_size[0]//20 * 3 + screen_size[0] // 200 * 3 ,screen_size[1]//10 * 7 + 3 * screen_size[1] // 300 * 3)
+    pygame.draw.rect(window,GREY,game_menu_first_rect)
+
+    game_menu_rect = pygame.Rect(screen_size[0] // 100 * 2,screen_size[1] // 100 * 2 ,screen_size[0]//20 * 3 ,screen_size[1]//10 * 7)
+    pygame.draw.rect(window,LIGHT_GREY,game_menu_rect)
+
+    game_menu_font = pygame.font.SysFont("monospace", 40, True)
+
+    save = game_menu_font.render("Save", True, save_game_color)
+    save_size = game_menu_font.size("Save")
+    exit_game = game_menu_font.render("Exit",True,exit_game_color)
+    exit_game_size = game_menu_font.size("Exit")
+
+    window.blit(save,(screen_size[0] // 100 * 4, screen_size[1] // 100 * 7))
+    save_rect = pygame.Rect(screen_size[0] // 100 * 4, screen_size[1] // 100 * 7,save_size[0],save_size[1])
+    window.blit(exit_game,(screen_size[0] // 100 * 4, screen_size[1] // 100 * 15))
+    exit_game_rect = pygame.Rect(screen_size[0] // 100 * 4, screen_size[1] // 100 * 15,exit_game_size[0],exit_game_size[1])
+
+    return
+
 def display_menu_screen():
     global game_rect, option_rect
     
@@ -659,9 +790,9 @@ def rect_collide(rect,position):
 def start_animation_left(time):
     global is_animated, animation, sprite_left
     
-    if not is_animated or animation != 'left':
+    if not is_animated or animation != 4:
         is_animated = True
-        animation = 'left'
+        animation = 4
         sprite_left['next_move_moment'] = time + animation_duration * 2
 
     elif sprite_left['next_move_moment'] <= time:
@@ -672,9 +803,9 @@ def start_animation_left(time):
 def start_animation_right(time):
     global is_animated, animation, sprite_right
     
-    if not is_animated or animation != 'right':
+    if not is_animated or animation != 2:
         is_animated = True
-        animation = 'right'
+        animation = 2
         sprite_right['next_move_moment'] = time + animation_duration * 2
 
     elif sprite_right['next_move_moment'] <= time:
@@ -685,9 +816,9 @@ def start_animation_right(time):
 def start_animation_front(time):
     global is_animated, animation, sprite_front
     
-    if not is_animated or animation != 'front':
+    if not is_animated or animation != 1:
         is_animated = True
-        animation = 'front'
+        animation = 1
         sprite_front['next_move_moment'] = time + animation_duration * 2
 
     elif sprite_front['next_move_moment'] <= time:
@@ -698,9 +829,9 @@ def start_animation_front(time):
 def start_animation_back(time):
     global is_animated, animation, sprite_back
     
-    if not is_animated or animation != 'back':
+    if not is_animated or animation != 3:
         is_animated = True
-        animation = 'back'
+        animation = 3
         sprite_back['next_move_moment'] = time + animation_duration * 2
 
     elif sprite_back['next_move_moment'] <= time:
@@ -736,17 +867,17 @@ def define_type_tile(type_tile):
 
     return(color)
 
-def calcul_player_field_position():
-    global player_field_position
+def calcul_player_position():
+    global player
 
-    player_field_position[0] = player_position[0] + camera_position[0] 
-    player_field_position[1] = player_position[1] + camera_position[1]
+    player['position'][0] = player_position[0] + camera_position[0] 
+    player['position'][1] = player_position[1] + camera_position[1]
 
     return
 
 def is_collide(position):
     
-    if field[-player_field_position[1] // tile_size][player_field_position[0] // tile_size - 1] in collide or field_object[-player_field_position[1] // tile_size][player_field_position[0] // tile_size - 1] in collide:
+    if field[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] in collide or field_object[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] in collide:
         return True
     else:
         return False
@@ -756,12 +887,12 @@ def impress():
     print("PLAYER       : " + str(player_position))
     print("Screen size  : " + str(screen_size))
     print("tile size    : " + str(tile_size))
-    print("Player field : " + str(player_field_position))
+    print("Player field : " + str(player['position']))
     print("Height       : " + str(height))
     print("Width        : " + str(width))
     print("Screen tile  : " + str(screen_tile_size))
     print("Collide      : " + str(collide))
-    print("Orientation  : " + str(orientation))
+    print("Orientation  : " + str(player['orientation'][0]))
     print("Move         : " + str(movement))
     print("Animated     : " + str(is_animated))
     print("")
@@ -776,19 +907,18 @@ def is_always_animated(time):
     global is_animated
 
     if is_animated:
-        if animation == 'left':
+        if animation == 4:
             if sprite_left['next_move_moment'] < time:
                 is_animated = False
-        elif animation == 'back':
+        elif animation == 3:
             if sprite_back['next_move_moment'] < time:
                 is_animated = False
-        elif animation == 'front':
+        elif animation == 1:
             if sprite_front['next_move_moment'] < time:
                 is_animated = False
-        elif animation == 'right':
+        elif animation == 2:
             if sprite_right['next_move_moment'] < time:
                 is_animated = False
-
 
 
 ### GAME ###
@@ -798,10 +928,11 @@ pygame.init()
 
 define_screen_size(ratio)
 screen_tile_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(screen_size[1]))
+create_player()
 create_spawn_point()
 define_spawn_point()
 
-window = pygame.display.set_mode(screen_size,pygame.FULLSCREEN)
+window = pygame.display.set_mode(screen_size)
 pygame.display.set_caption("First RPG")
 
 clock = pygame.time.Clock()
@@ -836,6 +967,9 @@ while open_game:
                 manage_option_keys(1,evenement)
             elif evenement.type == pygame.KEYDOWN:
                 manage_option_keys(2,evenement)
+        elif game_menu:
+            if evenement.type == pygame.MOUSEBUTTONDOWN:
+                manage_game_menu_keys(1,evenement)
 
 
     if menu:
@@ -855,7 +989,7 @@ while open_game:
         
         stay_at_screen()
 
-        calcul_player_field_position()
+        calcul_player_position()
 
         impress()
 
@@ -863,6 +997,15 @@ while open_game:
 
         display_player(now)
 
+        pygame.display.flip()
+
+    elif game_menu:
+        ### Game Menu
+
+        display_game_menu_screen()
+        
+        manage_game_menu_keys(-1,0)
+        
         pygame.display.flip()
 
 
