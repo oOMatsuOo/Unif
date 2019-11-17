@@ -925,18 +925,19 @@ def is_always_animated(time):
 
 
 pygame.init()
+background_color = GREY
 
 define_screen_size(ratio)
 screen_tile_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(screen_size[1]))
-create_player()
-create_spawn_point()
-define_spawn_point()
 
 window = pygame.display.set_mode(screen_size)
 pygame.display.set_caption("First RPG")
 
+create_player()
+create_spawn_point()
+define_spawn_point()
+
 clock = pygame.time.Clock()
-background_color = GREY
 
 pygame.key.set_repeat(25,25)
 
@@ -998,6 +999,10 @@ while open_game:
         display_player(now)
 
         pygame.display.flip()
+
+
+    elif inventory:
+
 
     elif game_menu:
         ### Game Menu
