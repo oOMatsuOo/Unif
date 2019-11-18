@@ -197,7 +197,7 @@ def define_screen_size(ratio):
 
     different_screen_size = [426,640,768,800,848,896,960,1024,1152,1280,1366,1600,1920] 
 
-    screen_size[0] = different_screen_size[8]
+    screen_size[0] = different_screen_size[6]
     screen_size[1] = int(screen_size[0] * ratio[0] / ratio[1])
 
     tile_size = 0
@@ -345,7 +345,7 @@ def display_information():
 ### Action
 
 def manage_game_keys(type_key,evement):
-    global camera_position, current_tile_2, current_tile_1,provisor_key, which_current_tile,enter_press, color_information, color_current_1, color_current_2, display_object
+    global camera_position, current_tile_2, current_tile_1,provisor_key, which_current_tile,enter_press, color_information, color_current_1, color_current_2, display_object,open_game
 
     if type_key == 2:
         if evenement.key == pygame.K_LEFT or evenement.key == pygame.K_q: 
@@ -359,6 +359,9 @@ def manage_game_keys(type_key,evement):
 
         elif evenement.key == pygame.K_DOWN or evenement.key == pygame.K_s:
             movement_down()
+
+        elif evenement.key == pygame.K_ESCAPE:
+            open_game = False
 
         elif evement.key == pygame.K_RETURN:
             if not enter_press:
@@ -474,6 +477,7 @@ def replace_object_tile(tile,type_tile):
     for i in range(0, height):
         range_list = []
         for j in range (0, width):
+            print(field_object[i][j])
             range_list.append(str(field_object[i][j]))
         field_list.append(range_list)
 
@@ -557,7 +561,7 @@ screen_tile_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(s
 create_spawn_point()
 define_spawn_point()
 
-window = pygame.display.set_mode(screen_size)
+window = pygame.display.set_mode(screen_size,pygame.FULLSCREEN)
 pygame.display.set_caption("Map Creator")
 
 clock = pygame.time.Clock()

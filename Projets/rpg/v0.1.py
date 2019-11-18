@@ -35,6 +35,8 @@ screen_resolution_menu = False
 
 control_menu = False
 
+inventory = False
+
 ratio = [9,16]
 
 screen_size = [0,0]
@@ -67,6 +69,7 @@ screen_resolution_color = PURPLE
 control_color = PURPLE
 save_game_color = PURPLE
 exit_game_color = PURPLE
+cross_color = BLACK
 
 
 ### FUNCTION ###
@@ -449,7 +452,7 @@ def movement_right():
 
 
 def manage_game_keys(key):
-    global player_position, camera_position, player, menu, game, game_menu
+    global player_position, camera_position, player, menu, game, game_menu, inventory
 
     if key == pygame.K_LEFT or key == pygame.K_q: 
         if player['position'][0] % tile_size == 0:
@@ -523,6 +526,10 @@ def manage_game_keys(key):
         game_menu = True
         game = False
 
+    elif key == pygame.K_i:
+        game = False
+        inventory = True
+
     return
 
 def manage_menu_keys(type_key,evenement):
@@ -553,6 +560,25 @@ def manage_menu_keys(type_key,evenement):
         print(evenement.key)
 
     return
+
+def manage_inventory_keys(type_key, evenement):
+    global cross_color,game,inventory
+
+    if type_key == -1:
+        if rect_collide(cross_rect,pygame.mouse.get_pos()):
+            cross_color = RED
+        else:
+            cross_color = BLACK
+
+    elif type_key == 2 and evenement.button == 1:
+        if rect_collide(cross_rect, pygame.mouse.get_pos()):
+            inventory = False
+            game = True
+
+    elif type_key == 1:
+        if evenement.key == pygame.K_i:
+            inventory = False
+            game = True
 
 def manage_option_keys(type_key,evenement):
     global option, menu, screen_resolution_color, control_color,screen_resolution_menu,control_menu
@@ -603,6 +629,10 @@ def manage_game_menu_keys(type_key,evenement):
             game = False
             menu = True
 
+    elif type_key == 2:
+        if evenement.key == pygame.K_ESCAPE:
+            game_menu = False
+            game = True
     
     return
 
@@ -619,7 +649,7 @@ def save_game():
         if j == 0:
             range_list.append('position')
             range_list.append(int(player['position'][0]//tile_size))
-            range_list.append(int(-player['position'][1]//tile_size))
+            range_list.append(int(-player['position'][1]//tile_size - 1))
         elif j == 1:
             range_list.append('orientation')
             range_list.append(player['orientation'][0])
@@ -744,6 +774,28 @@ def display_game_menu_screen():
 
     return
 
+def display_inventory():
+    global cross_rect
+
+    inventory_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10 ,screen_size[0]// 10 * 8  ,screen_size[1]// 10 * 8)
+    pygame.draw.rect(window,GREY,inventory_first_rect)
+
+    inventory_rect = pygame.Rect(screen_size[0] // 10 + screen_size[0] // 200 * 3,screen_size[1] // 10 + screen_size[0] // 200 * 3 , screen_size[0]//10 * 8 - 2 * screen_size[0] // 200 * 3 ,screen_size[1]//10 * 8 - 2 *screen_size[0] // 200 * 3)
+    pygame.draw.rect(window,LIGHT_GREY,inventory_rect)
+
+    inventory_font = pygame.font.SysFont("monospace", 50, True)
+
+    cross = inventory_font.render("X", True, cross_color)
+    cross_size = inventory_font.size("X")
+
+    cross_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10, cross_size[0] + 7, cross_size[1] + 7)
+    pygame.draw.rect(window,GREY,cross_first_rect)
+
+    window.blit(cross,(screen_size[0] // 10 + 5 , screen_size[1] // 10 + 5))
+    cross_rect = pygame.Rect(screen_size[0] // 10 + 5, screen_size[1] // 10 + 5,cross_size[0],cross_size[1])
+
+    return
+    
 def display_menu_screen():
     global game_rect, option_rect
     
@@ -939,7 +991,7 @@ define_spawn_point()
 
 clock = pygame.time.Clock()
 
-pygame.key.set_repeat(25,25)
+pygame.key.set_repeat(100,25)
 
 create_field()
 create_object()
@@ -971,6 +1023,13 @@ while open_game:
         elif game_menu:
             if evenement.type == pygame.MOUSEBUTTONDOWN:
                 manage_game_menu_keys(1,evenement)
+            elif evenement.type == pygame.KEYDOWN:
+                manage_game_menu_keys(2,evenement)
+        elif inventory:
+            if evenement.type == pygame.MOUSEBUTTONDOWN:
+                manage_inventory_keys(2,evenement)
+            elif evenement.type == pygame.KEYDOWN:
+                manage_inventory_keys(1,evenement)
 
 
     if menu:
@@ -1002,6 +1061,13 @@ while open_game:
 
 
     elif inventory:
+        ### Inventory
+
+        display_inventory()
+
+        manage_inventory_keys(-1,0)
+
+        pygame.display.flip()
 
 
     elif game_menu:
