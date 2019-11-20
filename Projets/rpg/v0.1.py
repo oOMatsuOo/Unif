@@ -37,6 +37,8 @@ control_menu = False
 
 inventory = False
 
+squad = False
+
 ratio = [9,16]
 
 screen_size = [0,0]
@@ -70,6 +72,7 @@ control_color = PURPLE
 save_game_color = PURPLE
 exit_game_color = PURPLE
 cross_color = BLACK
+cross_squad_color = BLACK
 
 
 ### FUNCTION ###
@@ -452,7 +455,7 @@ def movement_right():
 
 
 def manage_game_keys(key):
-    global player_position, camera_position, player, menu, game, game_menu, inventory
+    global player_position, camera_position, player, menu, game, game_menu, inventory, squad
 
     if key == pygame.K_LEFT or key == pygame.K_q: 
         if player['position'][0] % tile_size == 0:
@@ -529,6 +532,10 @@ def manage_game_keys(key):
     elif key == pygame.K_i:
         game = False
         inventory = True
+    
+    elif key == pygame.K_u:
+        game = False
+        squad = True
 
     return
 
@@ -579,6 +586,27 @@ def manage_inventory_keys(type_key, evenement):
         if evenement.key == pygame.K_i:
             inventory = False
             game = True
+
+def manage_squad_keys(type_key, evenement):
+    global cross_squad_color,game,squad
+
+    if type_key == -1:
+        if rect_collide(cross_squad_rect,pygame.mouse.get_pos()):
+            cross_squad_color = RED
+        else:
+            cross_squad_color = BLACK
+
+    elif type_key == 2 and evenement.button == 1:
+        if rect_collide(cross_squad_rect, pygame.mouse.get_pos()):
+            squad = False
+            game = True
+
+    elif type_key == 1:
+        if evenement.key == pygame.K_u:
+            squad = False
+            game = True
+    
+    return
 
 def manage_option_keys(type_key,evenement):
     global option, menu, screen_resolution_color, control_color,screen_resolution_menu,control_menu
@@ -796,6 +824,30 @@ def display_inventory():
 
     return
     
+def display_squad():
+    global cross_squad_rect
+
+    squad_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10 ,screen_size[0]// 10 * 8  ,screen_size[1]// 10 * 8)
+    pygame.draw.rect(window,GREY,squad_first_rect)
+
+    squad_rect = pygame.Rect(screen_size[0] // 10 + screen_size[0] // 200 * 3,screen_size[1] // 10 + screen_size[0] // 200 * 3 , screen_size[0]//10 * 8 - 2 * screen_size[0] // 200 * 3 ,screen_size[1]//10 * 8 - 2 *screen_size[0] // 200 * 3)
+    pygame.draw.rect(window,LIGHT_GREY,squad_rect)
+
+    squad_font = pygame.font.SysFont("monospace", 50, True)
+
+    cross = squad_font.render("X", True, cross_squad_color)
+    cross_size = squad_font.size("X")
+
+    cross_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10, cross_size[0] + 7, cross_size[1] + 7)
+    pygame.draw.rect(window,GREY,cross_first_rect)
+
+    window.blit(cross,(screen_size[0] // 10 + 5 , screen_size[1] // 10 + 5))
+
+    cross_squad_rect = pygame.Rect(screen_size[0] // 10 + 5, screen_size[1] // 10 + 5,cross_size[0],cross_size[1])
+    print(cross_squad_rect)
+    
+    return
+
 def display_menu_screen():
     global game_rect, option_rect
     
@@ -1030,6 +1082,11 @@ while open_game:
                 manage_inventory_keys(2,evenement)
             elif evenement.type == pygame.KEYDOWN:
                 manage_inventory_keys(1,evenement)
+        elif squad:
+            if evenement.type == pygame.MOUSEBUTTONDOWN:
+                manage_squad_keys(2,evenement)
+            elif evenement.type == pygame.KEYDOWN:
+                manage_squad_keys(1,evenement)
 
 
     if menu:
@@ -1066,6 +1123,15 @@ while open_game:
         display_inventory()
 
         manage_inventory_keys(-1,0)
+
+        pygame.display.flip()
+
+
+    elif squad:
+        ### Squad team
+        display_squad()
+
+        manage_squad_keys(-1,0)
 
         pygame.display.flip()
 

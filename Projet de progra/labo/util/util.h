@@ -1,9 +1,18 @@
-#ifndef UTIL_H
-#define UTIL_H
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
+#ifndef UTIL_H
+#define UTIL_H
+
+#define remplir_vecteur initR
+#define remplir_matrice init2dR
+#define remplir_vecteur_zeros initZ
+#define remplir_matrice_zeros init2dZ
+#define afficher_vecteur disp
+#define afficher_matrice disp2d
+
+// english name 
 
 void initR(int** arr, int n) {
   srand(time(0));
