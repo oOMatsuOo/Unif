@@ -39,6 +39,8 @@ inventory = False
 
 squad = False
 
+player_stat_display = False
+
 ratio = [9,16]
 
 screen_size = [0,0]
@@ -58,6 +60,7 @@ player_position = [0, 0]
 camera_position = [0, 0]
 spawn_point = []
 inventory_size = 5
+stat_heigth = 9
 
 middle = 0
 
@@ -71,6 +74,7 @@ screen_resolution_color = PURPLE
 control_color = PURPLE
 save_game_color = PURPLE
 exit_game_color = PURPLE
+player_font_color = PURPLE
 cross_color = BLACK
 cross_squad_color = BLACK
 
@@ -161,16 +165,17 @@ def create_field():
     return
 
 def create_player():
-    global player,height_save
+    global player,height_save, player_stat
 
     player = {}
+    player_stat = {}
     component = {}
-    with open("player/save.csv") as csv_file:
+    with open("player/save1.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
         liste_field = list(csv_reader)
         height_save = len(liste_field)
 
-    with open("player/save.csv") as csv_file:
+    with open("player/save1.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
         line_count = 0
 
@@ -194,8 +199,32 @@ def create_player():
                     player['inventory'] = component
                     tile_count += 1
             
+            elif row[0] == 'player':
+                tile_count = 1
+                while tile_count < stat_heigth + 1:
+                    if tile_count == 1:
+                        player_stat['Level'] = int(row[1])
+                    elif tile_count == 2:
+                        player_stat['XP'] = int(row[2])
+                    elif tile_count == 3:
+                        player_stat['Element'] = row[3]
+                    elif tile_count == 4:
+                        player_stat['HP'] = int(row[4])
+                    elif tile_count == 5:
+                        player_stat['Physical attack'] = int(row[5])
+                    elif tile_count == 6:
+                        player_stat['Physical resistance'] = int(row[6])
+                    elif tile_count == 7:
+                        player_stat['Magical attack'] = int(row[7])
+                    elif tile_count == 8:
+                        player_stat['Magical resistance'] = int(row[8]) 
+                    elif tile_count == 9:
+                        player_stat['Speed'] = int(row[9])
+                    tile_count += 1
+
             line_count += 1
         print(player) 
+        print(player_stat)
         print(player['orientation'][0])
 
     return
@@ -588,24 +617,33 @@ def manage_inventory_keys(type_key, evenement):
             game = True
 
 def manage_squad_keys(type_key, evenement):
-    global cross_squad_color,game,squad
+    global cross_squad_color,game,squad, player_font_color,player_stat_display
 
     if type_key == -1:
         if rect_collide(cross_squad_rect,pygame.mouse.get_pos()):
             cross_squad_color = RED
+        elif rect_collide(player_font_rect,pygame.mouse.get_pos()):
+            player_font_color = RED
         else:
             cross_squad_color = BLACK
+            player_font_color = PURPLE
 
     elif type_key == 2 and evenement.button == 1:
         if rect_collide(cross_squad_rect, pygame.mouse.get_pos()):
             squad = False
             game = True
+        elif rect_collide(player_font_rect, pygame.mouse.get_pos()):
+            player_stat_display = True
+            squad = False
 
     elif type_key == 1:
         if evenement.key == pygame.K_u:
             squad = False
             game = True
     
+    return
+
+def manage_player_stat_keys(type_key,evenement):
     return
 
 def manage_option_keys(type_key,evenement):
@@ -686,11 +724,33 @@ def save_game():
 
             for i in range (0,inventory_size):
                 range_list.append(player['inventory'][i])
+        elif j == 3:
+            range_list.append('player')
+
+            for i in range(0,stat_heigth):
+                if i == 0:
+                    range_list.append(player_stat['Level'])
+                elif i == 1:
+                    range_list.append(player_stat['XP'])
+                elif i == 2:
+                    range_list.append(player_stat['Element'])
+                elif i == 3:
+                    range_list.append(player_stat['HP'])
+                elif i == 4:
+                    range_list.append(player_stat['Physical attack'])
+                elif i == 5:
+                    range_list.append(player_stat['Physical resistance'])
+                elif i == 6:
+                    range_list.append(player_stat['Magical attack'])
+                elif i == 7:
+                    range_list.append(player_stat['Magical resistance']) 
+                elif i == 8:
+                    range_list.append(player_stat['Speed'])
 
         field_list.append(range_list)
         range_list = []
 
-    out = open("player/save.csv",'w')
+    out = open("player/save1.csv",'w')
     outw = csv.writer(out)
     outw.writerows(field_list)
     out.close()
@@ -825,7 +885,7 @@ def display_inventory():
     return
     
 def display_squad():
-    global cross_squad_rect
+    global cross_squad_rect,player_font_rect
 
     squad_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10 ,screen_size[0]// 10 * 8  ,screen_size[1]// 10 * 8)
     pygame.draw.rect(window,GREY,squad_first_rect)
@@ -838,14 +898,21 @@ def display_squad():
     cross = squad_font.render("X", True, cross_squad_color)
     cross_size = squad_font.size("X")
 
+    player_font = squad_font.render("Player", True, player_font_color)
+    player_font_size = squad_font.size("Player")
+
     cross_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10, cross_size[0] + 7, cross_size[1] + 7)
     pygame.draw.rect(window,GREY,cross_first_rect)
 
     window.blit(cross,(screen_size[0] // 10 + 5 , screen_size[1] // 10 + 5))
+    window.blit(player_font,(screen_size[0] // 10 * 2 , screen_size[1] // 10 * 2))
 
     cross_squad_rect = pygame.Rect(screen_size[0] // 10 + 5, screen_size[1] // 10 + 5,cross_size[0],cross_size[1])
-    print(cross_squad_rect)
+    player_font_rect = pygame.Rect(screen_size[0] // 10 * 2 , screen_size[1] // 10 * 2,player_font_size[0],player_font_size[1])
     
+    return
+
+def display_stat_player():
     return
 
 def display_menu_screen():
@@ -1108,7 +1175,7 @@ while open_game:
 
         calcul_player_position()
 
-        impress()
+        #impress()
 
         display_game_screen()
 
@@ -1132,6 +1199,16 @@ while open_game:
         display_squad()
 
         manage_squad_keys(-1,0)
+
+        pygame.display.flip()
+
+
+    elif player_stat_display:
+        ### Player Stat Display
+        
+        display_stat_player()
+
+        manage_player_stat_keys(-1,0)
 
         pygame.display.flip()
 
