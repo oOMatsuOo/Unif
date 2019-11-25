@@ -60,7 +60,7 @@ player_position = [0, 0]
 camera_position = [0, 0]
 spawn_point = []
 inventory_size = 5
-stat_heigth = 9
+stat_heigth = 11
 
 middle = 0
 
@@ -75,8 +75,10 @@ control_color = PURPLE
 save_game_color = PURPLE
 exit_game_color = PURPLE
 player_font_color = PURPLE
+stat_player_color = BLACK
 cross_color = BLACK
 cross_squad_color = BLACK
+cross_stat_player_color = BLACK
 
 
 ### FUNCTION ###
@@ -200,33 +202,33 @@ def create_player():
                     tile_count += 1
             
             elif row[0] == 'player':
-                tile_count = 1
-                while tile_count < stat_heigth + 1:
-                    if tile_count == 1:
+                tile_count = 0
+                while tile_count < stat_heigth:
+                    if tile_count == 0:
                         player_stat['Level'] = int(row[1])
-                    elif tile_count == 2:
+                    elif tile_count == 1:
                         player_stat['XP'] = int(row[2])
-                    elif tile_count == 3:
+                    elif tile_count == 2:
                         player_stat['Element'] = row[3]
-                    elif tile_count == 4:
+                    elif tile_count == 3:
                         player_stat['HP'] = int(row[4])
+                    elif tile_count == 4:
+                        player_stat['HP max'] = int(row[5])
                     elif tile_count == 5:
-                        player_stat['Physical attack'] = int(row[5])
+                        player_stat['Physical attack'] = int(row[6])
                     elif tile_count == 6:
-                        player_stat['Physical resistance'] = int(row[6])
+                        player_stat['Physical resistance'] = int(row[7])
                     elif tile_count == 7:
-                        player_stat['Magical attack'] = int(row[7])
+                        player_stat['Magical attack'] = int(row[8])
                     elif tile_count == 8:
-                        player_stat['Magical resistance'] = int(row[8]) 
+                        player_stat['Magical resistance'] = int(row[9]) 
                     elif tile_count == 9:
-                        player_stat['Speed'] = int(row[9])
+                        player_stat['Speed'] = int(row[10])
+                    elif tile_count == 10:
+                        player_stat['Critical %'] = int(row[11])
                     tile_count += 1
 
             line_count += 1
-        print(player) 
-        print(player_stat)
-        print(player['orientation'][0])
-
     return
 
 def create_object():
@@ -588,12 +590,10 @@ def manage_menu_keys(type_key,evenement):
                 elif rect_collide(option_rect ,pygame.mouse.get_pos()):
                     menu = False
                     option = True
+ 
     elif type_key == 2 and evenement.key == pygame.K_ESCAPE:
             pygame.quit()
             sys.exit()
-    
-    if type_key == 2:
-        print(evenement.key)
 
     return
 
@@ -643,8 +643,22 @@ def manage_squad_keys(type_key, evenement):
     
     return
 
-def manage_player_stat_keys(type_key,evenement):
-    return
+def manage_player_stat_keys(type_key, evenement):
+    global cross_stat_player_color, player_stat_display, game
+
+    if type_key == -1:
+        if rect_collide(cross_stat_player_rect ,pygame.mouse.get_pos()):
+            cross_stat_player_color = RED
+        else:
+            cross_stat_player_color = BLACK
+
+    elif type_key == 1:
+        return
+
+    elif type_key == 2 and evenement.button == 1:
+        if rect_collide(cross_stat_player_rect ,pygame.mouse.get_pos()):
+            player_stat_display = False
+            game = True
 
 def manage_option_keys(type_key,evenement):
     global option, menu, screen_resolution_color, control_color,screen_resolution_menu,control_menu
@@ -737,15 +751,19 @@ def save_game():
                 elif i == 3:
                     range_list.append(player_stat['HP'])
                 elif i == 4:
-                    range_list.append(player_stat['Physical attack'])
+                    range_list.append(player_stat['HP max'])
                 elif i == 5:
-                    range_list.append(player_stat['Physical resistance'])
+                    range_list.append(player_stat['Physical attack'])
                 elif i == 6:
-                    range_list.append(player_stat['Magical attack'])
+                    range_list.append(player_stat['Physical resistance'])
                 elif i == 7:
-                    range_list.append(player_stat['Magical resistance']) 
+                    range_list.append(player_stat['Magical attack'])
                 elif i == 8:
+                    range_list.append(player_stat['Magical resistance']) 
+                elif i == 9:
                     range_list.append(player_stat['Speed'])
+                elif i == 10:
+                    range_list.append(player_stat['Critical %'])
 
         field_list.append(range_list)
         range_list = []
@@ -913,6 +931,81 @@ def display_squad():
     return
 
 def display_stat_player():
+    global cross_stat_player_rect
+
+    stat_player_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10 ,screen_size[0]// 10 * 8  ,screen_size[1]// 10 * 8)
+    pygame.draw.rect(window,GREY,stat_player_first_rect)
+
+    stat_player_rect = pygame.Rect(screen_size[0] // 10 + screen_size[0] // 200 * 3,screen_size[1] // 10 + screen_size[0] // 200 * 3 , screen_size[0]//10 * 8 - 2 * screen_size[0] // 200 * 3 ,screen_size[1]//10 * 8 - 2 *screen_size[0] // 200 * 3)
+    pygame.draw.rect(window,LIGHT_GREY,stat_player_rect)
+
+    name_player_font = pygame.font.SysFont("monospace", 50, True)
+    stat_player_font = pygame.font.SysFont("monospace", 35, True)
+    player_font_size = stat_player_font.size("Player")
+
+    XP_first_rect = pygame.Rect(screen_size[0]//10 * 6,screen_size[1]//10 * 2 + player_font_size[1] // 2, screen_size[0] // 10 * 2,screen_size[1] // 200 * 6)
+    pygame.draw.rect(window,RED,XP_first_rect)
+
+    cross_stat_player = name_player_font.render("X", True, cross_stat_player_color)
+    cross_stat_player_size = name_player_font.size("X")
+
+    player_font             = name_player_font.render("Player", True, stat_player_color)
+    level_font              = stat_player_font.render("[ Lvl : " ,True, stat_player_color)
+    stat_level_font         = stat_player_font.render(str(player_stat['Level']) + " ]", True, stat_player_color)
+    element_font            = stat_player_font.render("[ Type : ", True, stat_player_color)
+    stat_element_font       = stat_player_font.render(str(player_stat['Element']) + " ]", True, stat_player_color)
+    HP_font                 = stat_player_font.render("[ HP : ", True, stat_player_color)
+    stat_HP_font            = stat_player_font.render(str(player_stat['HP']) + " / " + str(player_stat['HP max']) + " ]", True, stat_player_color)
+    ph_attack_font          = stat_player_font.render("Physical attack", True, stat_player_color)
+    stat_attack_ph_font     = stat_player_font.render(str(player_stat['Physical attack']) , True, stat_player_color)
+    ph_resistance_font      = stat_player_font.render("Physical resistance", True, stat_player_color)
+    stat_resistance_ph_font = stat_player_font.render(str(player_stat['Physical resistance']), True, stat_player_color)
+    mg_attack_font          = stat_player_font.render("Magical attack", True, stat_player_color)
+    stat_attack_mg_font     = stat_player_font.render(str(player_stat['Magical attack']), True, stat_player_color)
+    mg_resistance_font      = stat_player_font.render("Magical resistance", True, stat_player_color)
+    stat_resistance_mg_font = stat_player_font.render(str(player_stat['Magical resistance']) , True, stat_player_color)
+    speed_font              = stat_player_font.render("Speed", True, stat_player_color)
+    stat_speed_font         = stat_player_font.render(str(player_stat['Speed']), True, stat_player_color)
+    critical_font           = stat_player_font.render("Critical %", True, stat_player_color)
+    stat_critical_font      = stat_player_font.render(str(player_stat['Critical %']), True, stat_player_color)
+
+    cross_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10, cross_stat_player_size[0] + 7, cross_stat_player_size[1] + 7)
+    pygame.draw.rect(window,GREY,cross_first_rect)
+
+    window.blit(cross_stat_player,(screen_size[0] // 10 + 5 , screen_size[1] // 10 + 5))
+
+    window.blit(player_font,(screen_size[0] // 10 * 2 , screen_size[1] // 10 * 2))
+
+    window.blit(level_font,(screen_size[0] // 100 * 40  , screen_size[1] // 10 * 2))
+    window.blit(stat_level_font,(screen_size[0] // 100 * 50, screen_size[1] // 10 * 2))
+
+    window.blit(element_font,(screen_size[0]//100 * 25,screen_size[1] // 100 * 35))
+    window.blit(stat_element_font, (screen_size[0] // 100 * 40,screen_size[1]// 100 * 35))
+
+    window.blit(HP_font,(screen_size[0]//100 * 60,screen_size[1] // 100 * 35))
+    window.blit(stat_HP_font, (screen_size[0] // 100 * 70, screen_size[1] // 100 * 35))
+
+    window.blit(ph_attack_font,(screen_size[0] // 100 * 20, screen_size[1] // 100 * 50))
+    window.blit(stat_attack_ph_font, (screen_size[0] // 100 * 48, screen_size[1] // 100 * 50))
+
+    window.blit(ph_resistance_font, (screen_size[0] // 100 * 55, screen_size[1] // 100 * 50))
+    window.blit(stat_resistance_ph_font, (screen_size[0] // 100 * 88, screen_size[1] // 100 * 50))
+
+    window.blit(mg_attack_font, (screen_size[0] // 100 * 20, screen_size[1] // 100 * 60))
+    window.blit(stat_attack_mg_font, (screen_size[0] // 100 * 48, screen_size[1] // 100 * 60))
+
+    window.blit(mg_resistance_font, (screen_size[0] // 100 * 55, screen_size[1] // 100 * 60))
+    window.blit(stat_resistance_mg_font, (screen_size[0] // 100 * 88, screen_size[1] // 100 * 60))
+
+    window.blit(speed_font, (screen_size[0] // 100 * 55, screen_size[1] // 100 * 70))
+    window.blit(stat_speed_font, (screen_size[0] // 100 * 88, screen_size[1] // 100 * 70))
+
+    window.blit(critical_font, (screen_size[0] // 100 * 20, screen_size[1] // 100 * 70))
+    window.blit(stat_critical_font, (screen_size[0] // 100 * 48, screen_size[1] // 100 * 70))
+
+
+    cross_stat_player_rect = pygame.Rect(screen_size[0] // 10 + 5, screen_size[1] // 10 + 5,cross_stat_player_size[0],cross_stat_player_size[1])
+    
     return
 
 def display_menu_screen():
@@ -1101,7 +1194,7 @@ background_color = GREY
 define_screen_size(ratio)
 screen_tile_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(screen_size[1]))
 
-window = pygame.display.set_mode(screen_size)
+window = pygame.display.set_mode(screen_size, pygame.FULLSCREEN)
 pygame.display.set_caption("First RPG")
 
 create_player()
@@ -1154,6 +1247,9 @@ while open_game:
                 manage_squad_keys(2,evenement)
             elif evenement.type == pygame.KEYDOWN:
                 manage_squad_keys(1,evenement)
+        elif player_stat_display:
+            if evenement.type == pygame.MOUSEBUTTONDOWN:
+                manage_player_stat_keys(2, evenement)
 
 
     if menu:

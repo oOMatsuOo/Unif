@@ -1,4 +1,4 @@
-position,46,13
-orientation,2
+position,22,12
+orientation,3
 inventory,1,0,0,0,0
-player,1,0,feu,100,30,30,30,30,10
+player,6,1,feu,100,100,30,30,30,30,10,10
