@@ -1,4 +1,5 @@
 import csv
+import random as rdm
 import pygame
 import math
 import subprocess
@@ -37,7 +38,7 @@ control_menu = False
 
 inventory = False
 
-squad = False
+squad_menu = False
 
 player_stat_display = False
 
@@ -60,13 +61,17 @@ player_position = [0, 0]
 camera_position = [0, 0]
 spawn_point = []
 inventory_size = 5
-stat_heigth = 11
+stat_heigth = 12
+stat_squad_height = 13
 
 middle = 0
 
 collide = []
 
 player = {}
+squad_color = {}
+squad_font_rect = {}
+squad_display = {}
 
 game_color = PURPLE
 option_color = PURPLE
@@ -76,9 +81,11 @@ save_game_color = PURPLE
 exit_game_color = PURPLE
 player_font_color = PURPLE
 stat_player_color = BLACK
+stat_member_color = BLACK
 cross_color = BLACK
 cross_squad_color = BLACK
 cross_stat_player_color = BLACK
+cross_stat_member_color = BLACK
 
 
 ### FUNCTION ###
@@ -167,11 +174,14 @@ def create_field():
     return
 
 def create_player():
-    global player,height_save, player_stat
+    global player,height_save, player_stat,squad
 
     player = {}
     player_stat = {}
     component = {}
+    squad = {}
+    squad_number = 0
+
     with open("player/save1.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
         liste_field = list(csv_reader)
@@ -226,10 +236,94 @@ def create_player():
                         player_stat['Speed'] = int(row[10])
                     elif tile_count == 10:
                         player_stat['Critical %'] = int(row[11])
+                    elif tile_count == 11:
+                        player_stat['Area'] = row[12]
                     tile_count += 1
+
+            elif row[0] == 'squad':
+                tile_count = 0
+                squad[squad_number] = {}
+                while tile_count < stat_squad_height:
+                    if tile_count == 0:
+                        squad[squad_number]['Name'] = row[1]
+                    elif tile_count == 1:
+                        squad[squad_number]['Level'] = int(row[2])
+                    elif tile_count == 2:
+                        squad[squad_number]['XP'] = int(row[3])
+                    elif tile_count == 3:
+                        squad[squad_number]['Element'] = row[4]
+                    elif tile_count == 4:
+                        squad[squad_number]['HP'] = int(row[5])
+                    elif tile_count == 5:
+                        squad[squad_number]['HP max'] = int(row[6])
+                    elif tile_count == 6:
+                        squad[squad_number]['Physical attack'] = int(row[7])
+                    elif tile_count == 7:
+                        squad[squad_number]['Physical resistance'] = int(row[8])
+                    elif tile_count == 8:
+                        squad[squad_number]['Magical attack'] = int(row[9]) 
+                    elif tile_count == 9:
+                        squad[squad_number]['Magical resistance'] = int(row[10])
+                    elif tile_count == 10:
+                        squad[squad_number]['Speed'] = int(row[11])
+                    elif tile_count == 11:
+                        squad[squad_number]['Critical %'] = int(row[12])
+                    elif tile_count == 12:
+                        squad[squad_number]['Present'] = int(row[13])
+                    tile_count += 1
+                squad_number += 1
 
             line_count += 1
     return
+
+def create_monster():
+    global monster
+
+    monster = {}
+
+    with open("Monster/monster.csv") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter = ",")
+
+        for row in csv_reader:
+            tile_count =  0
+            monster[tile_count] = {}
+            
+            monster[tile_count]['Name'] = row[0]
+            monster[tile_count]['HP'] = int(row[1])
+            monster[tile_count]['HP max'] = int(row[2])
+            monster[tile_count]['Element'] = row[3]
+            monster[tile_count]['XP'] = int(row[4])
+            monster[tile_count]['Physical attack'] = int(row[5])
+            monster[tile_count]['Physical resistance'] = int(row[6])
+            monster[tile_count]['Magical attack'] = int(row[7])
+            monster[tile_count]['Magical resistance'] = int(row[8])
+            monster[tile_count]['Speed'] = int(row[9])
+            monster[tile_count]['Critical %'] = int(row[10])
+            tile_count += 1
+
+def create_area():
+    global area
+
+    area = []
+
+    with open("maps/map_1/properties.csv") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter = ",")
+
+        for row in csv_reader:
+            if row[0] == 'area':
+                area_csv = {}
+                area_csv['Number'] = row[1]
+                area_csv['X1'] = row[2]
+                area_csv['Y1'] = row[3]
+                area_csv['X2'] = row[4]
+                area_csv['Y2'] = row[5]
+                area_csv['Type'] = row[6]
+                if area_csv['Type'] == 'fight':
+                    area_csv['Monster 1'] = row[7]
+                    area_csv['Monster 2'] = row[8]
+                    area_csv['Monster 3'] = row[9]
+
+                area.append(area_csv)
 
 def create_object():
     global field_object
@@ -264,52 +358,27 @@ def create_collide():
 
     with open("maps/map_1/properties.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
-        liste_properties = list(csv_reader)
-        properties_width = len(liste_properties[1])
-
-    with open("maps/map_1/properties.csv") as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=",")
 
         for row in csv_reader:
-            tile_count = 0
-
-            while tile_count < properties_width:
-                if row[tile_count] == "collide":
-                    line_collide = tile_count
-                    tile_count = properties_width
-                tile_count += 1
-            
-            if not row[line_collide] in collide and row[line_collide] != "collide":
-                collide.append(row[line_collide])
+            if row[0] == 'collide':
+                for i in range(1,len(row)):
+                    if not row[i] in collide and row[i] != "collide":
+                        collide.append(row[i])
 
 def create_spawn_point():
     global spawn_point
 
-    with open("maps/map_1/properties.csv") as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=",")
-        liste_properties = list(csv_reader)
-        properties_width = len(liste_properties[1])
+    spawn_point = {}
 
     with open("maps/map_1/properties.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
 
         for row in csv_reader:
-            tile_count = 0
 
-            while tile_count < properties_width:
-                if row[tile_count] == "spawn_point":
-                    line_spawn_point = tile_count
-                    tile_count = properties_width
-                tile_count += 1
-            
-            if row[line_spawn_point] != "spawn_point":
-                spawn_point.append(int(row[line_spawn_point]))
-
-    if player['position'][0] != 0 and player['position'][1] != 0:
-        spawn_point = []
-        spawn_point.append(player['position'][0])
-        spawn_point.append(player['position'][1])
-    return
+            for row in csv_reader:
+                if row[0] == 'spawn_point':
+                    spawn_point[0] = int(row[1])
+                    spawn_point[1] = int(row[2])
 
 def create_tile(tile_type, x, y):
     x_coord = coordinates_to_pixel(x)
@@ -432,6 +501,8 @@ def movement_up():
     else:
         camera_position[1] += movement
     
+    if player_fight_area():
+            fight()
 
     return
 
@@ -448,6 +519,8 @@ def movement_down():
     else:
         camera_position[1] -= movement
 
+    if player_fight_area():
+            fight()
 
     return
 
@@ -463,6 +536,8 @@ def movement_left():
     else:
         camera_position[0] -= movement
     
+    if player_fight_area():
+            fight()
 
     return
 
@@ -479,6 +554,9 @@ def movement_right():
     else:
         camera_position[0] += movement
 
+    if player_fight_area():
+            fight()
+
     return
 
 
@@ -486,7 +564,7 @@ def movement_right():
 
 
 def manage_game_keys(key):
-    global player_position, camera_position, player, menu, game, game_menu, inventory, squad
+    global player_position, camera_position, player, menu, game, game_menu, inventory, squad_menu
 
     if key == pygame.K_LEFT or key == pygame.K_q: 
         if player['position'][0] % tile_size == 0:
@@ -566,7 +644,7 @@ def manage_game_keys(key):
     
     elif key == pygame.K_u:
         game = False
-        squad = True
+        squad_menu = True
 
     return
 
@@ -617,9 +695,17 @@ def manage_inventory_keys(type_key, evenement):
             game = True
 
 def manage_squad_keys(type_key, evenement):
-    global cross_squad_color,game,squad, player_font_color,player_stat_display
+    global cross_squad_color,game,squad_menu, player_font_color,player_stat_display, squad_color
 
     if type_key == -1:
+        for row in squad:
+            if squad[row]['Present'] == 1:
+                if rect_collide(squad_font_rect[row], pygame.mouse.get_pos()):
+                    squad_color[row] = RED
+                else:
+                   squad_color[row] = PURPLE
+                            
+                    
         if rect_collide(cross_squad_rect,pygame.mouse.get_pos()):
             cross_squad_color = RED
         elif rect_collide(player_font_rect,pygame.mouse.get_pos()):
@@ -630,15 +716,22 @@ def manage_squad_keys(type_key, evenement):
 
     elif type_key == 2 and evenement.button == 1:
         if rect_collide(cross_squad_rect, pygame.mouse.get_pos()):
-            squad = False
+            squad_menu = False
             game = True
         elif rect_collide(player_font_rect, pygame.mouse.get_pos()):
             player_stat_display = True
-            squad = False
+            squad_menu = False
+
+        for row in squad:
+            if squad[row]['Present'] == 1:
+                if rect_collide(squad_font_rect[row], pygame.mouse.get_pos()):
+                    squad_display[row] = True
+                    squad_menu = False
+                            
 
     elif type_key == 1:
         if evenement.key == pygame.K_u:
-            squad = False
+            squad_menu = False
             game = True
     
     return
@@ -659,6 +752,23 @@ def manage_player_stat_keys(type_key, evenement):
         if rect_collide(cross_stat_player_rect ,pygame.mouse.get_pos()):
             player_stat_display = False
             game = True
+
+def manage_stat_member_keys(member,type_key, evenement):
+    global cross_stat_member_color, game, squad_display
+
+    if type_key == -1:
+        if rect_collide(cross_stat_member_rect, pygame.mouse.get_pos()):
+            cross_stat_member_color = RED
+        else:
+            cross_stat_member_color = BLACK
+    elif type_key == 1:
+        return
+    elif type_key == 2 and evenement.button == 1:
+        if rect_collide(cross_stat_member_rect, pygame.mouse.get_pos()):
+            game = True
+            squad_display[member] = False
+
+    return
 
 def manage_option_keys(type_key,evenement):
     global option, menu, screen_resolution_color, control_color,screen_resolution_menu,control_menu
@@ -764,6 +874,37 @@ def save_game():
                     range_list.append(player_stat['Speed'])
                 elif i == 10:
                     range_list.append(player_stat['Critical %'])
+        for row in squad:
+            if row + 4 == j:
+                range_list.append('squad')
+
+                for i in range(0, stat_squad_height):
+                    if i == 0:
+                        range_list.append(squad[row]['Name'])
+                    elif i == 1:
+                        range_list.append(squad[row]['Level'])
+                    elif i == 2:
+                        range_list.append(squad[row]['XP'])
+                    elif i == 3:
+                        range_list.append(squad[row]['Element'])
+                    elif i == 4:
+                        range_list.append(squad[row]['HP'])
+                    elif i == 5:
+                        range_list.append(squad[row]['HP max'])
+                    elif i == 6:
+                        range_list.append(squad[row]['Physical attack'])
+                    elif i == 7:
+                        range_list.append(squad[row]['Physical resistance'])
+                    elif i == 8:
+                        range_list.append(squad[row]['Magical attack']) 
+                    elif i == 9:
+                        range_list.append(squad[row]['Magical resistance'])
+                    elif i == 10:
+                        range_list.append(squad[row]['Speed'])
+                    elif i == 11:
+                        range_list.append(squad[row]['Critical %'])
+                    elif i == 12:
+                        range_list.append(squad[row]['Present'])
 
         field_list.append(range_list)
         range_list = []
@@ -772,6 +913,32 @@ def save_game():
     outw = csv.writer(out)
     outw.writerows(field_list)
     out.close()
+    return
+
+
+### Fight ###
+
+
+def player_fight_area():
+    for i in area:
+        if i['Type'] == 'fight' and i['Number'] == player_stat['Area']:
+            return True
+
+    return False
+
+def fight():
+    number = rdm.randint(0,100)
+
+    if number <= 1:
+        start_fight()
+
+def monster():
+
+
+def start_fight():
+    monster()
+
+    
     return
 
 
@@ -903,7 +1070,7 @@ def display_inventory():
     return
     
 def display_squad():
-    global cross_squad_rect,player_font_rect
+    global cross_squad_rect,player_font_rect,squad_font_rect,squad_color, squad_display
 
     squad_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10 ,screen_size[0]// 10 * 8  ,screen_size[1]// 10 * 8)
     pygame.draw.rect(window,GREY,squad_first_rect)
@@ -918,6 +1085,25 @@ def display_squad():
 
     player_font = squad_font.render("Player", True, player_font_color)
     player_font_size = squad_font.size("Player")
+
+    for row in squad:
+        if squad[row]['Present'] == 1:
+            try:
+                squad_color[row] = squad_color[row]
+            except:
+                squad_color[row] = PURPLE
+
+            try:
+                squad_display[row] = squad_display[row]
+            except:
+                squad_display[row] = False
+
+            squad_row_font = squad_font.render(squad[row]['Name'], True, squad_color[row])
+            squad_row_font_size = squad_font.size(squad[row]['Name'])
+            
+            window.blit(squad_row_font,(screen_size[0] // 10 * 2, screen_size[1] // 10 * (3 + row)))
+
+            squad_font_rect[row] = pygame.Rect(screen_size[0] // 10 * 2,screen_size[1] // 10 * ( 3 + row), squad_row_font_size[0], squad_row_font_size[1])
 
     cross_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10, cross_size[0] + 7, cross_size[1] + 7)
     pygame.draw.rect(window,GREY,cross_first_rect)
@@ -1005,6 +1191,86 @@ def display_stat_player():
 
 
     cross_stat_player_rect = pygame.Rect(screen_size[0] // 10 + 5, screen_size[1] // 10 + 5,cross_stat_player_size[0],cross_stat_player_size[1])
+    
+    return
+
+def display_stat_member(number):
+    global cross_stat_member_rect,cross_stat_member_color
+
+    squad_member = squad[number]
+
+    stat_member_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10 ,screen_size[0]// 10 * 8  ,screen_size[1]// 10 * 8)
+    pygame.draw.rect(window,GREY,stat_member_first_rect)
+
+    stat_member_rect = pygame.Rect(screen_size[0] // 10 + screen_size[0] // 200 * 3,screen_size[1] // 10 + screen_size[0] // 200 * 3 , screen_size[0]//10 * 8 - 2 * screen_size[0] // 200 * 3 ,screen_size[1]//10 * 8 - 2 *screen_size[0] // 200 * 3)
+    pygame.draw.rect(window,LIGHT_GREY,stat_member_rect)
+
+    name_member_font = pygame.font.SysFont("monospace", 50, True)
+    stat_member_font = pygame.font.SysFont("monospace", 35, True)
+    member_font_size = stat_member_font.size(squad_member['Name'])
+
+    XP_first_rect = pygame.Rect(screen_size[0]//10 * 6,screen_size[1]//10 * 2 + member_font_size[1] // 2, screen_size[0] // 10 * 2,screen_size[1] // 200 * 6)
+    pygame.draw.rect(window,RED,XP_first_rect)
+
+    cross_stat_member = name_member_font.render("X", True, cross_stat_member_color)
+    cross_stat_member_size = name_member_font.size("X")
+
+    member_font             = name_member_font.render(squad_member['Name'], True, stat_member_color)
+    level_font              = stat_member_font.render("[ Lvl : " ,True, stat_member_color)
+    stat_level_font         = stat_member_font.render(str(squad_member['Level']) + " ]", True, stat_member_color)
+    element_font            = stat_member_font.render("[ Type : ", True, stat_member_color)
+    stat_element_font       = stat_member_font.render(str(squad_member['Element']) + " ]", True, stat_member_color)
+    HP_font                 = stat_member_font.render("[ HP : ", True, stat_member_color)
+    stat_HP_font            = stat_member_font.render(str(squad_member['HP']) + " / " + str(squad_member['HP max']) + " ]", True, stat_member_color)
+    ph_attack_font          = stat_member_font.render("Physical attack", True, stat_member_color)
+    stat_attack_ph_font     = stat_member_font.render(str(squad_member['Physical attack']) , True, stat_member_color)
+    ph_resistance_font      = stat_member_font.render("Physical resistance", True, stat_member_color)
+    stat_resistance_ph_font = stat_member_font.render(str(squad_member['Physical resistance']), True, stat_member_color)
+    mg_attack_font          = stat_member_font.render("Magical attack", True, stat_member_color)
+    stat_attack_mg_font     = stat_member_font.render(str(squad_member['Magical attack']), True, stat_member_color)
+    mg_resistance_font      = stat_member_font.render("Magical resistance", True, stat_member_color)
+    stat_resistance_mg_font = stat_member_font.render(str(squad_member['Magical resistance']) , True, stat_member_color)
+    speed_font              = stat_member_font.render("Speed", True, stat_member_color)
+    stat_speed_font         = stat_member_font.render(str(squad_member['Speed']), True, stat_member_color)
+    critical_font           = stat_member_font.render("Critical %", True, stat_member_color)
+    stat_critical_font      = stat_member_font.render(str(squad_member['Critical %']), True, stat_member_color)
+
+    cross_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10, cross_stat_member_size[0] + 7, cross_stat_member_size[1] + 7)
+    pygame.draw.rect(window,GREY,cross_first_rect)
+
+    window.blit(cross_stat_member,(screen_size[0] // 10 + 5 , screen_size[1] // 10 + 5))
+
+    window.blit(member_font,(screen_size[0] // 10 * 2 , screen_size[1] // 10 * 2))
+
+    window.blit(level_font,(screen_size[0] // 100 * 40  , screen_size[1] // 10 * 2))
+    window.blit(stat_level_font,(screen_size[0] // 100 * 50, screen_size[1] // 10 * 2))
+
+    window.blit(element_font,(screen_size[0]//100 * 25,screen_size[1] // 100 * 35))
+    window.blit(stat_element_font, (screen_size[0] // 100 * 40,screen_size[1]// 100 * 35))
+
+    window.blit(HP_font,(screen_size[0]//100 * 60,screen_size[1] // 100 * 35))
+    window.blit(stat_HP_font, (screen_size[0] // 100 * 70, screen_size[1] // 100 * 35))
+
+    window.blit(ph_attack_font,(screen_size[0] // 100 * 20, screen_size[1] // 100 * 50))
+    window.blit(stat_attack_ph_font, (screen_size[0] // 100 * 48, screen_size[1] // 100 * 50))
+
+    window.blit(ph_resistance_font, (screen_size[0] // 100 * 55, screen_size[1] // 100 * 50))
+    window.blit(stat_resistance_ph_font, (screen_size[0] // 100 * 88, screen_size[1] // 100 * 50))
+
+    window.blit(mg_attack_font, (screen_size[0] // 100 * 20, screen_size[1] // 100 * 60))
+    window.blit(stat_attack_mg_font, (screen_size[0] // 100 * 48, screen_size[1] // 100 * 60))
+
+    window.blit(mg_resistance_font, (screen_size[0] // 100 * 55, screen_size[1] // 100 * 60))
+    window.blit(stat_resistance_mg_font, (screen_size[0] // 100 * 88, screen_size[1] // 100 * 60))
+
+    window.blit(speed_font, (screen_size[0] // 100 * 55, screen_size[1] // 100 * 70))
+    window.blit(stat_speed_font, (screen_size[0] // 100 * 88, screen_size[1] // 100 * 70))
+
+    window.blit(critical_font, (screen_size[0] // 100 * 20, screen_size[1] // 100 * 70))
+    window.blit(stat_critical_font, (screen_size[0] // 100 * 48, screen_size[1] // 100 * 70))
+
+
+    cross_stat_member_rect = pygame.Rect(screen_size[0] // 10 + 5, screen_size[1] // 10 + 5,cross_stat_member_size[0],cross_stat_member_size[1])
     
     return
 
@@ -1194,10 +1460,11 @@ background_color = GREY
 define_screen_size(ratio)
 screen_tile_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(screen_size[1]))
 
-window = pygame.display.set_mode(screen_size, pygame.FULLSCREEN)
+window = pygame.display.set_mode(screen_size)
 pygame.display.set_caption("First RPG")
 
 create_player()
+create_monster()
 create_spawn_point()
 define_spawn_point()
 
@@ -1208,6 +1475,7 @@ pygame.key.set_repeat(100,25)
 create_field()
 create_object()
 create_collide()
+create_area()
 create_player_sprite()
 create_player_animation_sprite()
 
@@ -1242,7 +1510,7 @@ while open_game:
                 manage_inventory_keys(2,evenement)
             elif evenement.type == pygame.KEYDOWN:
                 manage_inventory_keys(1,evenement)
-        elif squad:
+        elif squad_menu:
             if evenement.type == pygame.MOUSEBUTTONDOWN:
                 manage_squad_keys(2,evenement)
             elif evenement.type == pygame.KEYDOWN:
@@ -1251,6 +1519,12 @@ while open_game:
             if evenement.type == pygame.MOUSEBUTTONDOWN:
                 manage_player_stat_keys(2, evenement)
 
+        for row in squad_display:
+            if squad_display[row] and evenement.type == pygame.MOUSEBUTTONDOWN:    
+                try :
+                    manage_stat_member_keys(row,2,evenement)
+                except:
+                    display_stat_member(row)
 
     if menu:
         ### Menu
@@ -1290,7 +1564,7 @@ while open_game:
         pygame.display.flip()
 
 
-    elif squad:
+    elif squad_menu:
         ### Squad team
         display_squad()
 
@@ -1357,6 +1631,17 @@ while open_game:
         menu = True
 
         pygame.display.flip()
+
+
+    for row in squad_display:
+        if squad_display[row]:
+            ### Display member stat
+
+            display_stat_member(row)
+
+            manage_stat_member_keys(row,-1,0)
+
+            pygame.display.flip()
 
 
     clock.tick(framerate)

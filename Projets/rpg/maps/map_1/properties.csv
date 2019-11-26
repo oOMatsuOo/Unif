@@ -1,5 +1,4 @@
-collide,spawn_point,0
-0,59,0
-3,6,0
-4,0,0
-0,0,0
+collide,0,3,4
+spawn_point,59,6
+area,0,26,31,27,31,fight,0,1,0
+area,1,100,100,100,100,neutral

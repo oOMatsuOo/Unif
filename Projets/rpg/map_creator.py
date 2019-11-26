@@ -104,8 +104,11 @@ def create_object():
             object_csv = {}
             while tile_count < width_object:
                 object_csv[tile_count] = row[tile_count]
-                if int(object_csv[tile_count]) > max_type_tile:
-                    max_type_tile = int(object_csv[tile_count])
+                try:
+                    if int(object_csv[tile_count]) > max_type_tile:
+                        max_type_tile = int(object_csv[tile_count])
+                except:
+                    print(object_csv[tile_count])
                 tile_count += 1
             
             field_object[line_count] = object_csv
@@ -121,56 +124,38 @@ def create_collide():
 
     with open("maps/map_1/properties.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
-        liste_properties = list(csv_reader)
-        properties_width = len(liste_properties[1])
-
-    with open("maps/map_1/properties.csv") as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=",")
 
         for row in csv_reader:
-            tile_count = 0
-
-            while tile_count < properties_width:
-                if row[tile_count] == "collide":
-                    line_collide = tile_count
-                    tile_count = properties_width
-                tile_count += 1
-            
-            if not row[line_collide] in collide and row[line_collide] != "collide":
-                collide.append(row[line_collide])
+            if row[0] == 'collide':
+                for i in range(1,len(row)):
+                    if not row[i] in collide and row[i] != "collide":
+                        collide.append(row[i])
 
 def create_spawn_point():
     global spawn_point
 
-    with open("maps/map_1/properties.csv") as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=",")
-        liste_properties = list(csv_reader)
-        properties_width = len(liste_properties[1])
+    spawn_point = {}
 
     with open("maps/map_1/properties.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
 
         for row in csv_reader:
-            tile_count = 0
 
-            while tile_count < properties_width:
-                if row[tile_count] == "spawn_point":
-                    line_spawn_point = tile_count
-                    tile_count = properties_width
-                tile_count += 1
-            
-            if row[line_spawn_point] != "spawn_point":
-                spawn_point.append(int(row[line_spawn_point]))
+            for row in csv_reader:
+                if row[0] == 'spawn_point':
+                    spawn_point[0] = int(row[1])
+                    spawn_point[1] = int(row[2])
 
     return
 
 def create_tile(tile_type, x, y):
     x_coord = coordinates_to_pixel(x)
     y_coord = coordinates_to_pixel(y)
-    print(tile_type)
     
     if tile_type == '4':
-            pygame.draw.circle(window,DARK_GREEN,(int(x_coord + tile_size // 2),int(y_coord + tile_size//2)),tile_size//2)
+        pygame.draw.circle(window,DARK_GREEN,(int(x_coord + tile_size // 2),int(y_coord + tile_size//2)),tile_size//2)
+    elif tile_type == '5':
+        pygame.draw.circle(window,RED,(int(x_coord + tile_size // 2),int(y_coord + tile_size//2)),tile_size//2)
     else :
         square = create_square(x_coord,y_coord)
 
@@ -558,10 +543,11 @@ pygame.init()
 
 define_screen_size(ratio)
 screen_tile_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(screen_size[1]))
+create_collide()
 create_spawn_point()
 define_spawn_point()
 
-window = pygame.display.set_mode(screen_size,pygame.FULLSCREEN)
+window = pygame.display.set_mode(screen_size)
 pygame.display.set_caption("Map Creator")
 
 clock = pygame.time.Clock()
@@ -571,7 +557,6 @@ pygame.key.set_repeat(300,50)
 
 create_field()
 create_object()
-create_collide()
 
 while open_game:
     now = pygame.time.get_ticks()
@@ -596,7 +581,7 @@ while open_game:
 
         display_game_screen()
 
-        impress()
+        #impress()
 
         display_information()
 

@@ -1,4 +1,6 @@
 position,58,22
 orientation,1
 inventory,1,0,0,0,0
-player,6,1,feu,100,100,30,30,30,30,10,10
+player,6,1,feu,100,100,30,30,30,30,10,10,0
+squad,Kieran,1,1,eau,100,100,40,40,20,20,7,15,0
+squad,Said,1,1,vent,100,100,20,20,40,40,15,10,0
