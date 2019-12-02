@@ -1,0 +1,181 @@
+/*
+Devoir 4 : Fonctions et Procédures
+
+Rappel des consignes générales de soumission :
+----------------------------------------------
+
+- Vous pouvez écrire des commentaires, comme vous le feriez dans un code C ;
+- Respectez scrupuleusement les consignes de soumissions pour ne pas recevoir une 
+  cote nulle ;
+- NE PAS TOUCHER AUX CARACTÃˆRES '#'. Ils sont placés aux bons endroits. 
+  Faites en sorte de ne pas les inclure dans un commentaire...
+
+Consignes spécifiques Ã  ce devoir :
+-----------------------------------
+
+La maniÃ¨re exacte de spécifier les éléments complétant l'invariant est détaillée
+dans l'énoncé. Veuillez vous y reporter pour de plus amples informations.
+
+Le fichier est divisé en trois partie :
+- fonction est premier
+- fonction sont_jumeaux
+- procédure affiche_jumeaux
+
+Ces parties sont subdivisées en sections :
+- Invariant (*)
+- Fonction de terminaison (*)
+- Code
+
+(*) si applicable
+
+! ATTENTION : NE VOUS TROMPEZ PAS !
+*/
+/*==============================================================================
+===                           fonction est_premier                           ===
+==============================================================================*/
+/*
+Invariant du Code de la fonction est_premier.
+________________________________________________________________________________
+
+Indiquez aprÃ¨s ce commentaire vos six choix, comme indiqué dans l'énoncé 
+(numéro de colonne, suivi d'un point, suivi de la valeur numérique, variable
+ou constante correspondant Ã  votre choix).
+ 
+Pour votre facilité, les six numéros de boite et les points sont déjÃ  indiqués.
+Respectez l'ordre croissant des numéros de boite.
+*/
+1.2
+2.x-1
+3.3
+4.x
+5.2
+6.1
+/* Encodez votre réponse Ã  l'Invariant de la fonction est_premier ci-dessus */
+#
+/*
+Fonction de terminaison de la fonction est_premier.
+________________________________________________________________________________
+
+Indiquez, aprÃ¨s ce commentaire, l'expressions C qui décrit la valeur que prend 
+votre fonction de terminaison 
+*/
+
+i-x
+
+/* Indiquez ci-dessus votre fonction de terminaison pour est_premier*/
+#
+/*
+Code de la fonction est_premier
+________________________________________________________________________________
+
+Indiquez aprÃ¨s ce commentaire votre code pour la fonction est_premier.
+
+Remplacez le commentaire Â« //votre code ici Â» par votre code. Ne modifiez ni
+la signature ni les accolades ouvrantes et fermantes qui sont déjÃ 
+ écrites. Ne les effacez pas non plus. 
+*/
+int est_premier(unsigned int x){
+   unsigned int reponse = 1, i = 2;
+
+    for(i = 2; i < x; i++){
+        if((x % i) == 0)
+            reponse = 0;
+            i = x;
+    };
+
+    return reponse; 
+   
+}
+/* Indiquez ci-dessus votre extrait de code pour la fonction est_premier. */
+#
+/*==============================================================================
+===                           fonction sont_jumeaux                          ===
+==============================================================================*/
+/*
+Code de la fonction sont_jumeaux
+________________________________________________________________________________
+
+Indiquez aprÃ¨s ce commentaire votre code pour la fonction sont_jumeaux.
+
+Remplacez le commentaire Â« //votre code ici Â» par votre code. Ne modifiez ni
+la signature ni les accolades ouvrantes et fermantes qui sont déjÃ 
+ écrites. Ne les effacez pas non plus. 
+*/
+int sont_jumeaux(unsigned int p, unsigned int n){
+   unsigned int reponse = 0, difference = 0;
+
+    difference = p - n;
+
+    if(difference == 2 && est_premier(p) && est_premier(n)){
+        reponse = 1;
+    };
+
+    return reponse;  
+   
+}
+/* Indiquez ci-dessus votre extrait de code pour la fonction sont_jumeaux. */
+#
+/*==============================================================================
+===                        Procédure affiche_jumeaux                         ===
+==============================================================================*/
+/*
+Invariant du Code de la procédure affiche_jumeaux.
+________________________________________________________________________________
+
+Indiquez aprÃ¨s ce commentaire vos cinq choix, comme indiqué dans l'énoncé 
+(numéro de colonne, suivi d'un point, suivi de la valeur numérique, variable, 
+constante ou mot correspondant Ã  votre choix).
+ 
+Pour votre facilité, les cinq numéros de boite et les points sont déjÃ  indiqués.
+Respectez l'ordre croissant des numéros de boite.
+*/
+1.premiers
+2.jumeaux
+3.2
+4.i
+5.4
+/* Encodez votre réponse Ã  l'Invariant de la procédure affiche_jumeaux ci-dessus */
+#
+/*
+Fonction de terminaison de la procédure affiche_jumeaux.
+________________________________________________________________________________
+
+Indiquez, aprÃ¨s ce commentaire, l'expressions C qui décrit la valeur que prend 
+votre fonction de terminaison 
+*/
+
+i-x
+
+/* Indiquez ci-dessus votre fonction de terminaison pour affiche_jumeaux */
+#
+/*
+Code de la procédure affiche_jumeaux
+________________________________________________________________________________
+
+Indiquez aprÃ¨s ce commentaire votre code pour la fonction premier_vers_numero.
+
+Remplacez le commentaire Â« //votre code ici Â» par votre code. Ne modifiez ni
+la signature ni les accolades ouvrantes et fermantes qui sont déjÃ 
+ écrites. Ne les effacez pas non plus. 
+*/
+void affiche_jumeaux(unsigned int x){
+   unsigned int jum1 = 2, jum2 = 2, i = 2,premier = 0;
+
+    for(i = 2; i <= x; i++){
+        
+        if(est_premier(i)){
+            jum2 = i;
+            premier = 1;
+        };
+
+        if(sont_jumeaux(jum2,jum1))
+            printf("%d %d\n",jum1,jum2);
+
+        if(premier = 1)    
+            jum1 = jum2;
+
+        premier = 0;
+    };
+   
+}
+/* Indiquez ci-dessus votre extrait de code pour la procédure affiche_jumeaux. */

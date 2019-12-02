@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.6
+
 import csv
 import random as rdm
 import pygame
@@ -63,6 +65,9 @@ spawn_point = []
 inventory_size = 5
 stat_heigth = 12
 stat_squad_height = 13
+doing_attack = 0
+wich_attack = 1
+which_target = -1
 
 middle = 0
 
@@ -86,6 +91,17 @@ cross_color = BLACK
 cross_squad_color = BLACK
 cross_stat_player_color = BLACK
 cross_stat_member_color = BLACK
+attack_color = BLACK
+object_color = BLACK
+run_color = BLACK
+magical_color = BLACK
+physical_color = BLACK
+monster_1_color = RED
+monster_2_color = RED
+monster_3_color = RED
+player_color = GREEN
+squad1_color = GREEN
+squad2_color = GREEN
 
 
 ### FUNCTION ###
@@ -199,11 +215,13 @@ def create_player():
                 while tile_count < 3:
                     component[tile_count - 1] = int(row[tile_count])
                     tile_count += 1
-                player['position']= component
+                player['position'] = component
+
+            elif row[0] == 'area':
+                player['area'] = int(row[1])
 
             elif row[0] == 'orientation':
-                component[tile_count - 1] = int(row[tile_count])
-                player['orientation'] = component
+                player['orientation'] = int(row[1])
             
             elif row[0] == 'inventory':
                 while tile_count < inventory_size + 1:
@@ -237,7 +255,7 @@ def create_player():
                     elif tile_count == 10:
                         player_stat['Critical %'] = int(row[11])
                     elif tile_count == 11:
-                        player_stat['Area'] = row[12]
+                        player_stat['Name'] = row[12]
                     tile_count += 1
 
             elif row[0] == 'squad':
@@ -274,31 +292,34 @@ def create_player():
                 squad_number += 1
 
             line_count += 1
+    
+    print(player)
     return
 
 def create_monster():
-    global monster
+    global monster_tab
 
-    monster = {}
+    monster_tab = {}
 
     with open("Monster/monster.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter = ",")
+        tile_count =  0
 
         for row in csv_reader:
-            tile_count =  0
-            monster[tile_count] = {}
-            
-            monster[tile_count]['Name'] = row[0]
-            monster[tile_count]['HP'] = int(row[1])
-            monster[tile_count]['HP max'] = int(row[2])
-            monster[tile_count]['Element'] = row[3]
-            monster[tile_count]['XP'] = int(row[4])
-            monster[tile_count]['Physical attack'] = int(row[5])
-            monster[tile_count]['Physical resistance'] = int(row[6])
-            monster[tile_count]['Magical attack'] = int(row[7])
-            monster[tile_count]['Magical resistance'] = int(row[8])
-            monster[tile_count]['Speed'] = int(row[9])
-            monster[tile_count]['Critical %'] = int(row[10])
+            monster_tab[tile_count] = {}
+
+            monster_tab[tile_count]['Name'] = row[0]
+            monster_tab[tile_count]['HP'] = int(row[1])
+            monster_tab[tile_count]['HP max'] = int(row[2])
+            monster_tab[tile_count]['Element'] = row[3]
+            monster_tab[tile_count]['XP'] = int(row[4])
+            monster_tab[tile_count]['Physical attack'] = int(row[5])
+            monster_tab[tile_count]['Physical resistance'] = int(row[6])
+            monster_tab[tile_count]['Magical attack'] = int(row[7])
+            monster_tab[tile_count]['Magical resistance'] = int(row[8])
+            monster_tab[tile_count]['Speed'] = int(row[9])
+            monster_tab[tile_count]['Critical %'] = int(row[10])
+
             tile_count += 1
 
 def create_area():
@@ -322,8 +343,11 @@ def create_area():
                     area_csv['Monster 1'] = row[7]
                     area_csv['Monster 2'] = row[8]
                     area_csv['Monster 3'] = row[9]
+                    area_csv['Monster min level'] = row[10]
+                    area_csv['Monster max level'] = row[11]
 
                 area.append(area_csv)
+    print(area)
 
 def create_object():
     global field_object
@@ -502,7 +526,7 @@ def movement_up():
         camera_position[1] += movement
     
     if player_fight_area():
-            fight()
+            if_fight()
 
     return
 
@@ -520,7 +544,7 @@ def movement_down():
         camera_position[1] -= movement
 
     if player_fight_area():
-            fight()
+            if_fight()
 
     return
 
@@ -537,7 +561,7 @@ def movement_left():
         camera_position[0] -= movement
     
     if player_fight_area():
-            fight()
+            if_fight()
 
     return
 
@@ -555,7 +579,7 @@ def movement_right():
         camera_position[0] += movement
 
     if player_fight_area():
-            fight()
+            if_fight()
 
     return
 
@@ -566,7 +590,7 @@ def movement_right():
 def manage_game_keys(key):
     global player_position, camera_position, player, menu, game, game_menu, inventory, squad_menu
 
-    if key == pygame.K_LEFT or key == pygame.K_q: 
+    if key == pygame.K_LEFT or key == pygame.K_q:
         if player['position'][0] % tile_size == 0:
             if player['position'][1] % tile_size == 0:
                 if not field[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] in collide :
@@ -581,7 +605,7 @@ def manage_game_keys(key):
         else:
             movement_left()
         
-        player['orientation'][0] = 4
+        player['orientation'] = 4
         start_animation_left(now)
 
     elif key == pygame.K_RIGHT or key == pygame.K_d:
@@ -597,7 +621,7 @@ def manage_game_keys(key):
         else:
             movement_right()
         
-        player['orientation'][0] = 2
+        player['orientation'] = 2
         start_animation_right(now)
         
     elif key == pygame.K_UP or key == pygame.K_z:
@@ -615,7 +639,7 @@ def manage_game_keys(key):
         else:
             movement_up()
         
-        player['orientation'][0] = 3
+        player['orientation'] = 3
         start_animation_back(now)
 
     elif key == pygame.K_DOWN or key == pygame.K_s:
@@ -631,7 +655,7 @@ def manage_game_keys(key):
         else:
             movement_down()
         
-        player['orientation'][0] = 1
+        player['orientation'] = 1
         start_animation_front(now)
           
     elif key == pygame.K_ESCAPE:
@@ -736,6 +760,70 @@ def manage_squad_keys(type_key, evenement):
     
     return
 
+def manage_fight_keys(type_key, evenement):
+    global doing_attack, attack_color, object_color, run_color, magical_color, physical_color
+
+    if type_key == -1:
+        if rect_collide(attack_rect,pygame.mouse.get_pos()):
+            attack_color = RED
+        elif rect_collide(use_object_rect, pygame.mouse.get_pos()):
+            object_color = RED
+        elif rect_collide(run_rect , pygame.mouse.get_pos()):
+            run_color = RED
+        elif rect_collide(magical_rect , pygame.mouse.get_pos()):
+            magical_color = RED
+        elif rect_collide(physical_rect , pygame.mouse.get_pos()):
+            physical_color = RED
+        else:
+            attack_color = BLACK
+            object_color = BLACK
+            run_color = BLACK
+            magical_color = BLACK
+            physical_color = BLACK
+
+    if type_key == 2 and evenement.button == 1:
+        if rect_collide(attack_rect,pygame.mouse.get_pos()):
+            doing_attack = 1
+            return [0,0,0]
+        elif rect_collide(use_object_rect, pygame.mouse.get_pos()):
+            print("OBJET")
+        elif rect_collide(run_rect , pygame.mouse.get_pos()):
+            print("RUNNNN")
+        if doing_attack:
+            if rect_collide(magical_rect , pygame.mouse.get_pos()):
+                return [1,wich_attack,'magical']
+            elif rect_collide(physical_rect , pygame.mouse.get_pos()):
+                return [1,wich_attack, 'physical']
+    
+    return [0,0,0]
+
+def manage_choose_monster_keys(type_key, evenement, action, m1, m2, m3):
+    global which_target, monster_1_color, monster_2_color, monster_3_color
+
+    if type_key == -1:
+        if rect_collide(sprite_m1, pygame.mouse.get_pos()) and m1 > 0:
+            monster_1_color = BLUE
+        elif rect_collide(sprite_m2, pygame.mouse.get_pos()) and m2 > 0:
+            monster_2_color = BLUE
+        elif rect_collide(sprite_m3, pygame.mouse.get_pos()) and m3 > 0:
+            monster_3_color = BLUE
+        else:
+            monster_1_color = RED
+            monster_2_color = RED
+            monster_3_color = RED
+
+    elif type_key == 2:
+        if rect_collide(sprite_m1, pygame.mouse.get_pos()) and m1 > 0:
+            which_target = 1
+            return [2, 1, action[2]]
+        elif rect_collide(sprite_m2, pygame.mouse.get_pos()) and m2 > 0:
+            which_target = 2
+            return [2, 2, action[2]]
+        elif rect_collide(sprite_m3, pygame.mouse.get_pos()) and m3 > 0:
+            which_target = 3
+            return [2, 3, action[2]]
+
+    return action
 def manage_player_stat_keys(type_key, evenement):
     global cross_stat_player_color, player_stat_display, game
 
@@ -841,14 +929,17 @@ def save_game():
             range_list.append(int(player['position'][0]//tile_size))
             range_list.append(int(-player['position'][1]//tile_size - 1))
         elif j == 1:
-            range_list.append('orientation')
-            range_list.append(player['orientation'][0])
+            range_list.append('area')
+            range_list.append(int(player['area']))
         elif j == 2:
+            range_list.append('orientation')
+            range_list.append(player['orientation'])
+        elif j == 3:
             range_list.append('inventory')
 
             for i in range (0,inventory_size):
                 range_list.append(player['inventory'][i])
-        elif j == 3:
+        elif j == 4:
             range_list.append('player')
 
             for i in range(0,stat_heigth):
@@ -874,8 +965,9 @@ def save_game():
                     range_list.append(player_stat['Speed'])
                 elif i == 10:
                     range_list.append(player_stat['Critical %'])
+        
         for row in squad:
-            if row + 4 == j:
+            if row + 5 == j:
                 range_list.append('squad')
 
                 for i in range(0, stat_squad_height):
@@ -921,25 +1013,242 @@ def save_game():
 
 def player_fight_area():
     for i in area:
-        if i['Type'] == 'fight' and i['Number'] == player_stat['Area']:
+        if i['Type'] == 'fight' and int(i['Number']) == player['area']:
             return True
 
     return False
 
-def fight():
+def if_fight():
     number = rdm.randint(0,100)
 
     if number <= 1:
         start_fight()
 
-def monster():
+def which_monster():
+    current_area = area[player['area']]  # Monster depends on the area
 
+    monsters = [-1,-1,-1]
+
+    monsters[0] = int(current_area['Monster 1'])
+    monsters[1] = -1
+    monsters[2] = -1
+
+    if monsters[0] != current_area['Monster 2']:
+        monsters[1] = int(current_area['Monster 2'])
+
+    if monsters[0] != int(current_area['Monster 3']) and monsters[1] != int(current_area['Monster 3']):
+        monsters[2] = int(current_area['Monster 3'])
+
+    return (monsters)
 
 def start_fight():
-    monster()
+    global game
 
+    game = False
+
+    monsters = []
+    monsters = which_monster() # Depends on the area of the player
+
+    fight_monsters = [-1,-1,-1]
+    fight_monsters[0] = monsters[0]
+
+    if monsters[1] != -1:
+        fight_monsters[1] = monsters[1]
+        if monsters[2] != -1:
+            fight_monsters[2] = monsters[2]
+
+    fighting(create_fighting_monsters(fight_monsters))
     
     return
+        
+def create_fighting_monsters(fight_monsters):
+    
+    stat_monsters = {}
+    i = 0
+
+    for i in range(0,3):
+        if(fight_monsters[i] != -1):
+            stat_monsters[i] = monster_tab[fight_monsters[i]]
+
+    return stat_monsters
+
+def fighting(monsters):
+    global game, action, attack, doing_attack
+
+    monster_1 = {}
+    monster_2 = {}
+    monster_3 = {}
+
+    number_monsters = 2
+    monsters_added = -1
+    actual_turn = 0
+    current_fighter = {}
+
+    for i in range(0,3):
+        current_monster = {}
+        while monsters_added != i:
+            number = rdm.randint(0,number_monsters)
+
+            try:
+                monsters[number]['Name'] != " "
+                current_monster = monsters[number]
+                monsters_added += 1
+
+                if i == 0:
+                    monster_1 = create_monster_XP(current_monster)
+                if i == 1:
+                    monster_2 = create_monster_XP(current_monster)
+                if i == 2:
+                    monster_3 = create_monster_XP(current_monster)
+
+            except:
+                number_monsters -= 1
+
+    while player_stat['HP'] > 0 and (monster_1['HP'] > 0 and monster_2['HP'] > 0 and monster_3['HP'] > 0):
+        attack = 0
+
+        fighters = [monster_1,monster_2,monster_3,player_stat,squad[0],squad[1]]
+        
+        number_fighter  = number_fighter_function()
+        turn            = turn_fighter(monster_1["Speed"],monster_2["Speed"],monster_3["Speed"], number_fighter)
+
+        current_fighter = fighters[turn[actual_turn]]
+        print(current_fighter)
+        
+        action = [0,0,0]
+        doing_attack = 0
+
+        while (action[0] == 0) :
+
+            display_fight_screen(current_fighter,fighters, number_fighter)
+
+            for evenement in pygame.event.get():
+                if evenement.type == pygame.MOUSEBUTTONDOWN:
+                    action = manage_fight_keys(2, evenement)
+
+            manage_fight_keys(-1, 0)
+
+            pygame.display.flip()
+        
+        while action[0] == 1:
+            
+            for evenement in pygame.event.get():
+                if evenement.type == pygame.MOUSEBUTTONDOWN:
+                    action = manage_choose_monster_keys(2, evenement, action, monster_1['HP'], monster_2['HP'], monster_3['HP'])
+
+            manage_choose_monster_keys(-1, 0, 0, monster_1['HP'], monster_2['HP'], monster_3['HP'])
+
+            display_fight_screen(current_fighter,fighters, number_fighter)
+            
+            pygame.display.flip()
+        
+        while action[0] == 2:
+
+            display_fight_animation_screen(current_fighter,fighters[action[1]], fighters, number_fighter)
+
+            fighters[action[1]] = fight_calculator(current_fighter,fighters[action[1]], action[2])
+
+            pygame.display.flip()
+
+            action[0] = 0
+        
+        
+        if actual_turn == number_fighter - 1:
+            actual_turn = 0
+        else:
+            actual_turn += 1
+
+        print(number_fighter)
+        print(turn)
+
+        monster_1['HP'] -= 10
+        monster_2['HP'] -= 10
+        monster_3['HP'] -= 10
+
+    print('fin du combat')
+
+    display_fight_screen(current_fighter,fighters, number_fighter)
+    
+    pygame.display.flip()
+
+
+    pygame.time.wait(5000)
+
+    game = True
+
+    return
+
+def create_monster_XP(monster):
+
+    end_monster = {}
+    current_area = area[player['area']]
+    level = rdm.randint(int(current_area['Monster min level']), int(current_area['Monster max level']))
+
+    end_monster['Name']                 = monster['Name']
+    end_monster['HP']                   = int(monster['HP']) + level * 5
+    end_monster['HP max']               = int(monster['HP max']) + level * 5
+    end_monster['Element']              = monster['Element']
+    end_monster['XP']                   = int(monster['XP']) + level * 10
+    end_monster['Physical attack']      = int(monster['Physical attack']) + level
+    end_monster['Physical resistance']  = int(monster['Physical resistance']) + level
+    end_monster['Magical attack']       = int(monster['Magical attack']) + level
+    end_monster['Magical resistance']   = int(monster['Magical resistance']) + level
+    end_monster['Speed']                = int(monster['Speed']) + level // 2
+    end_monster['Critical %']           = int(monster['Critical %']) + level // 2
+
+    return end_monster
+
+def fight_calculator(attacker, defender, attack_type):
+
+    return defender
+
+def number_fighter_function():
+    number = 4
+
+    if squad[0]['Present']:
+        number += 1
+        if squad[1]['Present']:
+            number += 1
+
+    return number
+
+def turn_fighter(speed_m1,speed_m2,speed_m3,number_fighter):
+    fighters = [-1,-1,-1,-1,-1,-1]
+    
+    speed = {}
+    speed[0] = [0,speed_m1]
+    speed[1] = [1,speed_m2]
+    speed[2] = [2,speed_m3]
+    speed[3] = [3,player_stat['Speed']]
+    speed[4] = [4,squad[0]['Speed']]
+    speed[5] = [5,squad[1]['Speed']]
+
+    maximum = 0
+    max_count = 0
+    fighter_maximum = 0
+
+    fighter_counter = 0
+
+    while fighter_counter < number_fighter:
+        max_count = 0
+        maximum = 0
+        fighter_maximum = 0
+
+        while max_count < number_fighter:
+
+            if speed[max_count][1] > maximum:
+                fighter_maximum = speed[max_count][0]
+                maximum = speed[max_count][1]
+
+            max_count += 1
+
+        speed[fighter_maximum][1] = 0
+
+        fighters[fighter_counter] = fighter_maximum
+        fighter_counter += 1
+
+    return fighters
+
 
 
 ### Visual ###
@@ -974,7 +1283,7 @@ def display_player(time):
             else:
                 sprite = sprite_back['choreography'][1][1]
     else :
-        sprite = sprite_player[player['orientation'][0]]
+        sprite = sprite_player[player['orientation']]
 
     window.blit(sprite,(player_position[0],-player_position[1]))
 
@@ -1313,6 +1622,150 @@ def display_option_screen():
     
     return
 
+def display_fight_screen(attacker,fighters, number_fighter):
+    global attack_rect, use_object_rect, run_rect, magical_rect, physical_rect, attack, sprite_m1, sprite_m2, sprite_m3
+    
+    fight_font = pygame.font.SysFont("monospace", 50, True)
+    name_font = pygame.font.SysFont("monospace", 35, True)
+
+    background = BLACK
+
+    sprite_m1 = pygame.Rect(screen_size[0] // 20 * 5 ,screen_size[1] // 20 , screen_size[0] // 20 * 2 ,screen_size[0] // 20 * 2)
+    m1_name = name_font.render(fighters[0]['Name'], True, monster_1_color)
+    sprite_m2 = pygame.Rect(screen_size[0] // 20 * 4 ,screen_size[1] // 20 * 5 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    m2_name = name_font.render(fighters[1]['Name'], True, monster_2_color)
+    sprite_m3 = pygame.Rect(screen_size[0] // 20 * 3,screen_size[1] // 20 * 9 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    m3_name = name_font.render(fighters[2]['Name'], True, monster_3_color)
+
+    sprite_player = pygame.Rect(screen_size[0] // 20 * 15 ,screen_size[1] // 20 * 3 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    player_name = name_font.render(fighters[3]['Name'], True, RED)
+    sprite_squad1 = pygame.Rect(screen_size[0] // 20 * 14 ,screen_size[1] // 20 * 7  , screen_size[0] // 20 * 2 ,screen_size[0] // 20 * 2)
+    squad1_name = name_font.render(fighters[4]['Name'], True, RED)
+    sprite_squad2 = pygame.Rect(screen_size[0] // 20 * 13 ,screen_size[1] // 20 * 11 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    squad2_name = name_font.render(fighters[5]['Name'], True, RED)
+
+    option_rect = pygame.Rect( 0 , screen_size[1] // 20 * 14, screen_size[0] // 20 * 11, screen_size[1] // 20 * 6 )
+    option_bar  = pygame.Rect(screen_size[0] // 20 * 6, screen_size[1] // 20 * 14, screen_size[0] // 100, screen_size[1] // 20 * 6)
+
+    attack = fight_font.render("Attack",True,attack_color)
+    attack_size = fight_font.size("Attack")
+    use_object = fight_font.render("Object", True, object_color)
+    use_object_size = fight_font.size("Object")
+    run = fight_font.render("Run", True, run_color)
+    run_size = fight_font.size("Run")
+
+    magical = fight_font.render("Magical", True, magical_color)
+    magical_size = fight_font.size("Magical")
+    physical = fight_font.render("Physical", True, physical_color)
+    physical_size = fight_font.size("Physical")
+
+    attack_rect = pygame.Rect(screen_size[0] // 20 * 7, screen_size[1] // 20 * 14 ,attack_size[0], attack_size[1])
+    use_object_rect = pygame.Rect(screen_size[0] // 20 * 7, screen_size[1] // 20 * 16, use_object_size[0], use_object_size[1])
+    run_rect = pygame.Rect(screen_size[0] // 20 * 7, screen_size[1] // 20 * 18, run_size[0], run_size[1])
+    magical_rect = pygame.Rect(screen_size[0] // 20 * 1, screen_size[1] // 20 * 15, magical_size[0], magical_size[1])
+    physical_rect = pygame.Rect(screen_size[0] // 20 * 1 , screen_size[1] // 20 * 17, physical_size[0], physical_size[1])
+
+
+    window.fill(background)
+    pygame.draw.rect(window,RED,sprite_m1)
+    window.blit(m1_name, (screen_size[0] // 40 * 5 ,screen_size[1] // 40 * 3))
+    pygame.draw.rect(window,RED,sprite_m2)
+    window.blit(m2_name, (screen_size[0] // 40 * 3 ,screen_size[1] // 40 * 11))
+    pygame.draw.rect(window,RED,sprite_m3)
+    window.blit(m3_name, (screen_size[0] // 40 * 1,screen_size[1] // 40 * 19))
+
+    pygame.draw.rect(window,GREEN,sprite_player)
+    window.blit(player_name, (screen_size[0] // 40 * 35 ,screen_size[1] // 40 * 7))
+    pygame.draw.rect(window,GREEN,sprite_squad1)
+    window.blit(squad1_name, (screen_size[0] // 40 * 33 ,screen_size[1] // 40 * 16))
+    pygame.draw.rect(window,GREEN,sprite_squad2)
+    window.blit(squad2_name, (screen_size[0] // 40 * 31 ,screen_size[1] // 40 * 24))
+
+    pygame.draw.rect(window,GREY,option_rect)
+    pygame.draw.rect(window,BLACK,option_bar)
+
+    window.blit(attack, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 14))
+    window.blit(use_object, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 16))
+    window.blit(run, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 18))
+
+    if doing_attack :
+        window.blit(magical, (screen_size[0] // 20 * 1, screen_size[1] // 20 * 15))
+        window.blit(physical, (screen_size[0] // 20 * 1 , screen_size[1] // 20 * 17))
+
+    
+    return
+
+def display_fight_animation_screen(attacker, defender, fighters, number_fighter):
+    global attack_rect, use_object_rect, run_rect, magical_rect, physical_rect, attack, sprite_m1, sprite_m2, sprite_m3
+
+    m1_x_pos = screen_size[0] // 20 * 4
+    m2_x_pos = screen_size[0] // 20 * 3
+    m3_x_pos = screen_size[0] // 20 * 2
+
+    player_x_pos = screen_size[0] // 20 * 16
+    squad1_x_pos = screen_size[0] // 20 * 15
+    squad2_x_pos = screen_size[0] // 20 * 14
+
+    player_color = GREEN
+    squad1_color = GREEN
+    squad2_color = GREEN
+
+    print(attacker, defender)
+
+    fight_font = pygame.font.SysFont("monospace", 50, True)
+
+    background = BLACK
+
+    sprite_m1 = pygame.Rect(m1_x_pos ,screen_size[1] // 20 , screen_size[0] // 20 * 2 ,screen_size[0] // 20 * 2)
+    sprite_m2 = pygame.Rect(m2_x_pos,screen_size[1] // 20 * 5 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    sprite_m3 = pygame.Rect(m3_x_pos,screen_size[1] // 20 * 9 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    
+    sprite_player = pygame.Rect(player_x_pos ,screen_size[1] // 20 * 3 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    sprite_squad1 = pygame.Rect(squad1_x_pos ,screen_size[1] // 20 * 7  , screen_size[0] // 20 * 2 ,screen_size[0] // 20 * 2)
+    sprite_squad2 = pygame.Rect(squad2_x_pos ,screen_size[1] // 20 * 11 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+
+    option_rect = pygame.Rect( 0 , screen_size[1] // 20 * 14, screen_size[0] // 20 * 13, screen_size[1] // 20 * 6 )
+    option_bar  = pygame.Rect(screen_size[0] // 20 * 8, screen_size[1] // 20 * 14, screen_size[0] // 100, screen_size[1] // 20 * 6)
+
+    attack = fight_font.render("Attack",True,attack_color)
+    attack_size = fight_font.size("Attack")
+    use_object = fight_font.render("Object", True, object_color)
+    use_object_size = fight_font.size("Object")
+    run = fight_font.render("Run", True, run_color)
+    run_size = fight_font.size("Run")
+
+    magical = fight_font.render("Magical", True, magical_color)
+    magical_size = fight_font.size("Magical")
+    physical = fight_font.render("Physical", True, physical_color)
+    physical_size = fight_font.size("Physical")
+
+    attack_rect = pygame.Rect(screen_size[0] // 20 * 9, screen_size[1] // 20 * 14 ,attack_size[0], attack_size[1])
+    use_object_rect = pygame.Rect(screen_size[0] // 20 * 9, screen_size[1] // 20 * 16, use_object_size[0], use_object_size[1])
+    run_rect = pygame.Rect(screen_size[0] // 20 * 9, screen_size[1] // 20 * 18, run_size[0], run_size[1])
+    magical_rect = pygame.Rect(screen_size[0] // 20 * 2, screen_size[1] // 20 * 15, magical_size[0], magical_size[1])
+    physical_rect = pygame.Rect(screen_size[0] // 20 * 2 , screen_size[1] // 20 * 17, physical_size[0], physical_size[1])
+
+
+    window.fill(background)
+    pygame.draw.rect(window,monster_1_color,sprite_m1)
+    pygame.draw.rect(window,monster_2_color,sprite_m2)
+    pygame.draw.rect(window,monster_3_color,sprite_m3)
+    pygame.draw.rect(window,player_color,sprite_player)
+    pygame.draw.rect(window,squad1_color,sprite_squad1)
+    pygame.draw.rect(window,squad2_color,sprite_squad2)
+    pygame.draw.rect(window,GREY,option_rect)
+    pygame.draw.rect(window,BLACK,option_bar)
+
+    window.blit(attack, (screen_size[0] // 20 * 9, screen_size[1] // 20 * 14))
+    window.blit(use_object, (screen_size[0] // 20 * 9, screen_size[1] // 20 * 16))
+    window.blit(run, (screen_size[0] // 20 * 9, screen_size[1] // 20 * 18))
+
+    if doing_attack :
+        window.blit(magical, (screen_size[0] // 20 * 2, screen_size[1] // 20 * 15))
+        window.blit(physical, (screen_size[0] // 20 * 2 , screen_size[1] // 20 * 17))
+
+    return
+
 def rect_collide(rect,position):
     
     return rect.collidepoint(position)
@@ -1370,7 +1823,7 @@ def start_animation_back(time):
         return
 
 
-### Calcul ###
+### Calcul ###!
 
 
 def coordinates_to_pixel(coord):
@@ -1422,7 +1875,7 @@ def impress():
     print("Width        : " + str(width))
     print("Screen tile  : " + str(screen_tile_size))
     print("Collide      : " + str(collide))
-    print("Orientation  : " + str(player['orientation'][0]))
+    print("Orientation  : " + str(player['orientation']))
     print("Move         : " + str(movement))
     print("Animated     : " + str(is_animated))
     print("")
@@ -1460,7 +1913,7 @@ background_color = GREY
 define_screen_size(ratio)
 screen_tile_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(screen_size[1]))
 
-window = pygame.display.set_mode(screen_size)
+window = pygame.display.set_mode(screen_size, pygame.FULLSCREEN)
 pygame.display.set_caption("First RPG")
 
 create_player()
@@ -1470,7 +1923,7 @@ define_spawn_point()
 
 clock = pygame.time.Clock()
 
-pygame.key.set_repeat(100,25)
+pygame.key.set_repeat(50,25)
 
 create_field()
 create_object()
@@ -1525,6 +1978,7 @@ while open_game:
                     manage_stat_member_keys(row,2,evenement)
                 except:
                     display_stat_member(row)
+
 
     if menu:
         ### Menu
