@@ -51,7 +51,7 @@ screen_size = [0,0]
 width = 0
 height= 0
 
-framerate = 120
+framerate = 60
 animation_duration = 150
 is_animated = False
 animation = 0
@@ -68,6 +68,20 @@ stat_squad_height = 13
 doing_attack = 0
 wich_attack = 1
 which_target = -1
+changing_zone = 0
+critical = False
+auto_mode = True
+time_changing_area = 0
+display_changing_area_time = 2000
+start_fight_time = 0
+animation_start_1_time = 500
+animation_start_2_time = 900
+animation_start_3_time = 1200
+animation_start_4_time = 1400
+animation_start_5_time = 1500
+animation_start_6_time = 1550
+animation_start_7_time = 1575
+object_display = []
 
 middle = 0
 
@@ -138,19 +152,27 @@ def define_screen_size(ratio):
 def define_spawn_point():
     global player,player_position,camera_position
 
-    if spawn_point[1] <= screen_tile_size[1] // 2:
-        player_position[1] = - spawn_point[1] * tile_size
-        camera_position[1] = 0
-    else:
-        player_position[1] = - screen_tile_size[1] // 2 * tile_size
-        camera_position[1] = - spawn_point[1] * tile_size + ( screen_tile_size[1] // 2 * tile_size)
+    if player['position'][0] == 0 and player['position'][1] == 0:
+        if spawn_point[1] <= screen_tile_size[1] // 2:
+            player_position[1] = - spawn_point[1] * tile_size
+            camera_position[1] = 0
+        else:
+            player_position[1] = - screen_tile_size[1] // 2 * tile_size
+            camera_position[1] = - spawn_point[1] * tile_size + ( screen_tile_size[1] // 2 * tile_size)
 
-    if spawn_point[0] <= screen_tile_size[0] // 2:
-        player_position[0] = spawn_point[0] * tile_size
-        camera_position[0] = 0
-    else:
-        player_position[0] = screen_tile_size[0] // 2 * tile_size
-        camera_position[0] = spawn_point[0] * tile_size - screen_tile_size[0] // 2 * tile_size
+        if spawn_point[0] <= screen_tile_size[0] // 2:
+            player_position[0] = spawn_point[0] * tile_size
+            camera_position[0] = 0
+        else:
+            player_position[0] = screen_tile_size[0] // 2 * tile_size
+            camera_position[0] = spawn_point[0] * tile_size - screen_tile_size[0] // 2 * tile_size
+
+    else :
+
+        player_position[0] = player['position'][0] - camera_position[0]
+         
+        player_position[1] = player['position'][1] - camera_position[1]
+
 
 
     return
@@ -190,7 +212,7 @@ def create_field():
     return
 
 def create_player():
-    global player,height_save, player_stat,squad
+    global player,height_save, player_stat,squad, player_position, camera_position
 
     player = {}
     player_stat = {}
@@ -212,9 +234,11 @@ def create_player():
             component = {}
 
             if row[0] == 'position':
-                while tile_count < 3:
-                    component[tile_count - 1] = int(row[tile_count])
-                    tile_count += 1
+                component[0] = float(row[1])
+                component[1] = float(row[2])
+                camera_position[0] = float(row[3])
+                camera_position[1] = float(row[4])
+
                 player['position'] = component
 
             elif row[0] == 'area':
@@ -224,9 +248,9 @@ def create_player():
                 player['orientation'] = int(row[1])
             
             elif row[0] == 'inventory':
+                player['inventory'] = []
                 while tile_count < inventory_size + 1:
-                    component[tile_count - 1] = int(row[tile_count])
-                    player['inventory'] = component
+                    player['inventory'].append(int(row[tile_count]))
                     tile_count += 1
             
             elif row[0] == 'player':
@@ -257,6 +281,19 @@ def create_player():
                     elif tile_count == 11:
                         player_stat['Name'] = row[12]
                     tile_count += 1
+
+            elif row[0] == 'object':
+                number_object = len(row)
+                player['object'] = {}
+                count = 0
+                player['object']['X'] = []
+                player['object']['Y'] = []
+
+                while tile_count < number_object:
+                    player['object']['X'].append(int(row[tile_count]))
+                    player['object']['Y'].append(int(row[tile_count + 1]))
+                    tile_count += 2
+                    count += 1
 
             elif row[0] == 'squad':
                 tile_count = 0
@@ -319,6 +356,7 @@ def create_monster():
             monster_tab[tile_count]['Magical resistance'] = int(row[8])
             monster_tab[tile_count]['Speed'] = int(row[9])
             monster_tab[tile_count]['Critical %'] = int(row[10])
+            monster_tab[tile_count]['Level'] = int(row[11])
 
             tile_count += 1
 
@@ -334,17 +372,18 @@ def create_area():
             if row[0] == 'area':
                 area_csv = {}
                 area_csv['Number'] = row[1]
-                area_csv['X1'] = row[2]
-                area_csv['Y1'] = row[3]
-                area_csv['X2'] = row[4]
-                area_csv['Y2'] = row[5]
-                area_csv['Type'] = row[6]
+                area_csv['Name'] = row[2]
+                area_csv['X1'] = int(row[3])
+                area_csv['Y1'] = int(row[4])
+                area_csv['X2'] = int(row[5])
+                area_csv['Y2'] = int(row[6])
+                area_csv['Type'] = row[7]
                 if area_csv['Type'] == 'fight':
-                    area_csv['Monster 1'] = row[7]
-                    area_csv['Monster 2'] = row[8]
-                    area_csv['Monster 3'] = row[9]
-                    area_csv['Monster min level'] = row[10]
-                    area_csv['Monster max level'] = row[11]
+                    area_csv['Monster 1'] = row[8]
+                    area_csv['Monster 2'] = row[9]
+                    area_csv['Monster 3'] = row[10]
+                    area_csv['Monster min level'] = row[11]
+                    area_csv['Monster max level'] = row[12]
 
                 area.append(area_csv)
     print(area)
@@ -410,7 +449,10 @@ def create_tile(tile_type, x, y):
     
     if tile_type == '4':
         pygame.draw.circle(window,DARK_GREEN,(int(x_coord + tile_size // 2),int(y_coord + tile_size//2)),tile_size//2)
-    
+    elif tile_type == '5':
+        pygame.draw.circle(window,BROWN,(int(x_coord + tile_size // 2),int(y_coord + tile_size//2)),tile_size//2)
+    elif tile_type == '9':
+        pygame.draw.circle(window,BLUE,(int(x_coord + tile_size // 2),int(y_coord + tile_size//2)),tile_size//2)
     else :
         square = create_square(x_coord,y_coord)
 
@@ -527,6 +569,8 @@ def movement_up():
     
     if player_fight_area():
             if_fight()
+    
+    change_area()
 
     return
 
@@ -546,6 +590,8 @@ def movement_down():
     if player_fight_area():
             if_fight()
 
+    change_area()
+
     return
 
 def movement_left():
@@ -562,6 +608,8 @@ def movement_left():
     
     if player_fight_area():
             if_fight()
+
+    change_area()
 
     return
 
@@ -581,26 +629,54 @@ def movement_right():
     if player_fight_area():
             if_fight()
 
+    change_area()
+
     return
 
+def change_area():
+    global player, changing_zone, time_changing_area
 
+    if changing_zone == 1 :
+        changing_zone += 1
+    elif changing_zone == 2:
+        changing_zone = 0
+   
+    if player['area'] > 0 and not changing_zone:
+        input_1_area_1 = (area[player['area']]['X1'],area[player['area']]['Y1'])
+        input_2_area_1 = (area[player['area']]['X2'],area[player['area']]['Y2'])
+        
+        if camera_position[0] + player_position[0] <= input_2_area_1[0] * tile_size and camera_position[0] + player_position[0] >= input_1_area_1[0] * tile_size:
+            if -camera_position[1] - player_position[1] <= input_2_area_1[1] * tile_size and -camera_position[1] - player_position[1] >= input_1_area_1[1] * tile_size:
+                time_changing_area = pygame.time.get_ticks()
+                player['area'] -= 1
+                changing_zone = 1
+    
+    if player['area'] < len(area) - 1 and not changing_zone:
+        input_1_area_2 = (area[player['area'] + 1]['X1'],area[player['area'] + 1]['Y1'])
+        input_2_area_2 = (area[player['area'] + 1]['X2'],area[player['area'] + 1]['Y2'])
+
+        if camera_position[0] + player_position[0] <= input_2_area_2[0] * tile_size and camera_position[0] + player_position[0] >= input_1_area_2[0] * tile_size:
+            if -camera_position[1] - player_position[1] <= input_2_area_2[1] * tile_size and -camera_position[1] - player_position[1] >= input_1_area_2[1] * tile_size:
+                time_changing_area = pygame.time.get_ticks()
+                player['area'] += 1
+                changing_zone = 1
+ 
+                
 ### Action ###
 
 
 def manage_game_keys(key):
     global player_position, camera_position, player, menu, game, game_menu, inventory, squad_menu
 
-    if key == pygame.K_LEFT or key == pygame.K_q:
+    if key == pygame.K_LEFT or key == pygame.K_q:        
         if player['position'][0] % tile_size == 0:
             if player['position'][1] % tile_size == 0:
-                if not field[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] in collide :
-                    if not field_object[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] in collide :
-                        movement_left()
+                if is_not_collide(0,'left',player['position']):
+                    movement_left()
          
             else:
-                if not field[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] in collide and not field[-player['position'][1] // tile_size + 1][player['position'][0]//tile_size - 1] in collide:
-                    if not field_object[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] in collide and not field_object[-player['position'][1] // tile_size + 1][player['position'][0]//tile_size - 1] in collide:
-                        movement_left()
+                if is_not_collide(1,'left',player['position']):
+                    movement_left()
 
         else:
             movement_left()
@@ -611,13 +687,12 @@ def manage_game_keys(key):
     elif key == pygame.K_RIGHT or key == pygame.K_d:
         if player['position'][0] % tile_size == 0:
             if player['position'][1] % tile_size == 0:
-                if not field[-player['position'][1] // tile_size][player['position'][0] // tile_size + 1] in collide :
-                    if not field_object[-player['position'][1] // tile_size][player['position'][0] // tile_size + 1] in collide :
-                        movement_right()
-            else:
-                if not field[-player['position'][1] // tile_size][player['position'][0] // tile_size + 1] in collide and not field[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size + 1] in collide:
-                    if not field_object[-player['position'][1] // tile_size][player['position'][0] // tile_size + 1] in collide and not field_object[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size + 1] in collide:
-                        movement_right()
+                if is_not_collide(0,'right',player['position']):
+                    movement_right()
+
+            else:    
+                if is_not_collide(1,'right',player['position']):
+                    movement_right()
         else:
             movement_right()
         
@@ -627,14 +702,12 @@ def manage_game_keys(key):
     elif key == pygame.K_UP or key == pygame.K_z:
         if player['position'][1] % tile_size == 0:
             if player['position'][0] % tile_size == 0:
-                if not field[-player['position'][1] // tile_size - 1][player['position'][0] // tile_size] in collide :
-                    if not field_object[-player['position'][1] // tile_size - 1][player['position'][0] // tile_size] in collide :
-                        movement_up()
+                if is_not_collide(0,'up',player['position']):
+                    movement_up()
                     
             else:
-                if not field[-player['position'][1] // tile_size - 1][player['position'][0] // tile_size] in collide and not field[-player['position'][1] // tile_size - 1][player['position'][0] // tile_size + 1] in collide :
-                    if not field_object[-player['position'][1] // tile_size - 1][player['position'][0] // tile_size] in collide and not field_object[-player['position'][1] // tile_size - 1][player['position'][0] // tile_size + 1] in collide :
-                        movement_up()
+                if is_not_collide(1,'up',player['position']):
+                    movement_up()
 
         else:
             movement_up()
@@ -645,19 +718,31 @@ def manage_game_keys(key):
     elif key == pygame.K_DOWN or key == pygame.K_s:
         if player['position'][1] % tile_size == 0:
             if player['position'][0] % tile_size == 0:
-                if not field[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size] in collide:
-                    if not field_object[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size] in collide:
-                        movement_down()
+                if is_not_collide(0,'down',player['position']):
+                    movement_down()
             else:
-                if not field[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size] in collide and not field[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size + 1] in collide:
-                    if not field_object[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size] in collide and not field_object[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size + 1] in collide:
-                        movement_down()
+                if is_not_collide(1,'down',player['position']):
+                    movement_down()
         else:
             movement_down()
         
         player['orientation'] = 1
         start_animation_front(now)
-          
+    
+    elif key == pygame.K_RETURN:
+        if player['orientation'] == 1:
+            if field_object[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size] == '9' and not (player['position'][0] // tile_size) in player['object']['X'] and not (player['position'][1] // tile_size + 1) in player['object']['Y']:
+                add_object()
+        elif player['orientation'] == 2:
+            if field_object[-player['position'][1] // tile_size][player['position'][0] // tile_size + 1] == '9' and not (player['position'][0] // tile_size + 1) in player['object']['X'] and not (player['position'][1] // tile_size) in player['object']['Y']:
+                add_object()
+        elif player['orientation'] == 3:
+            if field_object[-player['position'][1] // tile_size - 1][player['position'][0] // tile_size] == '9' and not (player['position'][0] // tile_size) in player['object']['X'] and not (player['position'][1] // tile_size - 1) in player['object']['Y']:
+                add_object()
+        elif player['orientation'] == 4:
+            if field_object[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] == '9' and not (player['position'][0] // tile_size - 1) in player['object']['X'] and not (player['position'][1] // tile_size) in player['object']['Y']:
+                add_object()     
+
     elif key == pygame.K_ESCAPE:
         game_menu = True
         game = False
@@ -673,7 +758,7 @@ def manage_game_keys(key):
     return
 
 def manage_menu_keys(type_key,evenement):
-    global game_color, option_color, menu, option, game, open_game
+    global game_color, option_color, menu, option, game, open_game, time_changing_area
 
     if type_key == -1:
         if rect_collide(game_rect ,pygame.mouse.get_pos()):
@@ -689,6 +774,8 @@ def manage_menu_keys(type_key,evenement):
                 if rect_collide(game_rect ,pygame.mouse.get_pos()):
                     menu = False
                     game = True
+                    time_changing_area = pygame.time.get_ticks()
+
                 elif rect_collide(option_rect ,pygame.mouse.get_pos()):
                     menu = False
                     option = True
@@ -814,16 +901,17 @@ def manage_choose_monster_keys(type_key, evenement, action, m1, m2, m3):
 
     elif type_key == 2:
         if rect_collide(sprite_m1, pygame.mouse.get_pos()) and m1 > 0:
+            which_target = 0
+            return [2, 0, action[2]]
+        elif rect_collide(sprite_m2, pygame.mouse.get_pos()) and m2 > 0:
             which_target = 1
             return [2, 1, action[2]]
-        elif rect_collide(sprite_m2, pygame.mouse.get_pos()) and m2 > 0:
+        elif rect_collide(sprite_m3, pygame.mouse.get_pos()) and m3 > 0:
             which_target = 2
             return [2, 2, action[2]]
-        elif rect_collide(sprite_m3, pygame.mouse.get_pos()) and m3 > 0:
-            which_target = 3
-            return [2, 3, action[2]]
 
     return action
+
 def manage_player_stat_keys(type_key, evenement):
     global cross_stat_player_color, player_stat_display, game
 
@@ -926,8 +1014,10 @@ def save_game():
     for j in range (0,height_save):
         if j == 0:
             range_list.append('position')
-            range_list.append(int(player['position'][0]//tile_size))
-            range_list.append(int(-player['position'][1]//tile_size - 1))
+            range_list.append(player['position'][0])
+            range_list.append(player['position'][1])
+            range_list.append(camera_position[0])
+            range_list.append(camera_position[1])
         elif j == 1:
             range_list.append('area')
             range_list.append(int(player['area']))
@@ -965,7 +1055,16 @@ def save_game():
                     range_list.append(player_stat['Speed'])
                 elif i == 10:
                     range_list.append(player_stat['Critical %'])
-        
+                elif i == 11:
+                    range_list.append(player_stat['Name'])
+        elif j == 7:
+            range_list.append('object')
+            height_object_list = len(player['object']['X'])
+
+            for i in range(0,height_object_list):
+                range_list.append(player['object']['X'][i])
+                range_list.append(player['object']['Y'][i])
+
         for row in squad:
             if row + 5 == j:
                 range_list.append('squad')
@@ -998,6 +1097,7 @@ def save_game():
                     elif i == 12:
                         range_list.append(squad[row]['Present'])
 
+
         field_list.append(range_list)
         range_list = []
 
@@ -1019,11 +1119,14 @@ def player_fight_area():
     return False
 
 def if_fight():
-    number = rdm.randint(0,100)
+    global start_fight_time
+    number = rdm.randint(0,200)
 
-    if number <= 1:
+    if number <= 0:
+        start_fight_time = pygame.time.get_ticks()
+        display_start_fight()
         start_fight()
-
+    
 def which_monster():
     current_area = area[player['area']]  # Monster depends on the area
 
@@ -1073,7 +1176,7 @@ def create_fighting_monsters(fight_monsters):
     return stat_monsters
 
 def fighting(monsters):
-    global game, action, attack, doing_attack
+    global game, action, attack, doing_attack, monster_1_color, monster_2_color, monster_3_color, magical_color, physical_color, player_stat, squad, critical
 
     monster_1 = {}
     monster_2 = {}
@@ -1104,8 +1207,10 @@ def fighting(monsters):
             except:
                 number_monsters -= 1
 
-    while player_stat['HP'] > 0 and (monster_1['HP'] > 0 and monster_2['HP'] > 0 and monster_3['HP'] > 0):
+    while (( player_stat['HP'] > 0 ) and (monster_1['HP'] > 0 or monster_2['HP'] > 0 or monster_3['HP'] > 0)):
+        
         attack = 0
+        critical = False
 
         fighters = [monster_1,monster_2,monster_3,player_stat,squad[0],squad[1]]
         
@@ -1113,66 +1218,151 @@ def fighting(monsters):
         turn            = turn_fighter(monster_1["Speed"],monster_2["Speed"],monster_3["Speed"], number_fighter)
 
         current_fighter = fighters[turn[actual_turn]]
-        print(current_fighter)
         
         action = [0,0,0]
         doing_attack = 0
 
-        while (action[0] == 0) :
+        while action[0] == 0 :
 
-            display_fight_screen(current_fighter,fighters, number_fighter)
+            display_fight_screen(current_fighter,fighters, number_fighter, turn[actual_turn])
 
-            for evenement in pygame.event.get():
-                if evenement.type == pygame.MOUSEBUTTONDOWN:
-                    action = manage_fight_keys(2, evenement)
+            if turn[actual_turn] < 3:
+                action[0] = 1
+                number = rdm.randint(0,1)
 
-            manage_fight_keys(-1, 0)
+                if number == 0:
+                    action[2] = 'magical'
+                elif number == 1:
+                    action[2] = 'physical'
+            elif auto_mode:
+                action[0] = 1
+                number = rdm.randint(0,1)
 
-            pygame.display.flip()
-        
+                if number == 0:
+                    action[2] = 'magical'
+                elif number == 1:
+                    action[2] = 'physical'
+
+            else:
+                for evenement in pygame.event.get():
+                    if evenement.type == pygame.MOUSEBUTTONDOWN:
+                        action = manage_fight_keys(2, evenement)
+
+                manage_fight_keys(-1, 0)
+
         while action[0] == 1:
-            
-            for evenement in pygame.event.get():
-                if evenement.type == pygame.MOUSEBUTTONDOWN:
-                    action = manage_choose_monster_keys(2, evenement, action, monster_1['HP'], monster_2['HP'], monster_3['HP'])
 
-            manage_choose_monster_keys(-1, 0, 0, monster_1['HP'], monster_2['HP'], monster_3['HP'])
-
-            display_fight_screen(current_fighter,fighters, number_fighter)
+            if turn[actual_turn] < 3:
+                action[0] = 2
+                number = rdm.randint(0,2)
+                if number == 0:
+                    if fighters[3]['HP'] > 0:
+                        action[1] = 3
+                    elif fighters[4]['HP'] > 0:
+                        action[1] = 4
+                    elif fighters[5]['HP'] > 0:
+                        action[1] = 5
+                if number == 1:
+                    if fighters[4]['HP'] > 0:
+                        action[1] = 4
+                    elif fighters[5]['HP'] > 0:
+                        action[1] = 5
+                    elif fighters[3]['HP'] > 0:
+                        action[1] = 3
+                if number == 2:
+                    if fighters[5]['HP'] > 0:
+                        action[1] = 5
+                    elif fighters[4]['HP'] > 0:
+                        action[1] = 4
+                    elif fighters[3]['HP'] > 0:
+                        action[1] = 3
             
-            pygame.display.flip()
+            elif auto_mode:
+                action[0] = 2
+                number = rdm.randint(0,2)
+                if number == 0:
+                    if fighters[0]['HP'] > 0:
+                        action[1] = 0
+                    elif fighters[1]['HP'] > 0:
+                        action[1] = 1
+                    elif fighters[2]['HP'] > 0:
+                        action[1] = 2
+                if number == 1:
+                    if fighters[1]['HP'] > 0:
+                        action[1] = 1
+                    elif fighters[2]['HP'] > 0:
+                        action[1] = 2
+                    elif fighters[0]['HP'] > 0:
+                        action[1] = 0
+                if number == 2:
+                    if fighters[2]['HP'] > 0:
+                        action[1] = 2
+                    elif fighters[0]['HP'] > 0:
+                        action[1] = 0
+                    elif fighters[1]['HP'] > 0:
+                        action[1] = 1
+            
+            else :
+                for evenement in pygame.event.get():
+                    if evenement.type == pygame.MOUSEBUTTONDOWN:
+                        action = manage_choose_monster_keys(2, evenement, action, monster_1['HP'], monster_2['HP'], monster_3['HP'])
+
+                manage_choose_monster_keys(-1, 0, 0, monster_1['HP'], monster_2['HP'], monster_3['HP'])
+
+                display_fight_screen(current_fighter,fighters, number_fighter, turn[actual_turn])
         
         while action[0] == 2:
 
-            display_fight_animation_screen(current_fighter,fighters[action[1]], fighters, number_fighter)
+            monster_1_color = RED
+            monster_2_color = RED
+            monster_3_color = RED
 
-            fighters[action[1]] = fight_calculator(current_fighter,fighters[action[1]], action[2])
+            temporary_fighter = fight_calculator(current_fighter,fighters[action[1]], action[2])
+
+            display_fight_animation_screen(turn[actual_turn], action[1], fighters, number_fighter, turn[actual_turn])
+
+            fighters[action[1]] = temporary_fighter
 
             pygame.display.flip()
 
             action[0] = 0
         
-        
+
         if actual_turn == number_fighter - 1:
             actual_turn = 0
         else:
             actual_turn += 1
+        
+        while fighters[turn[actual_turn]]['HP'] < 0:
+            if actual_turn == number_fighter - 1:
+                actual_turn = 0
+            else:
+                actual_turn += 1
 
-        print(number_fighter)
-        print(turn)
+        doing_attack = 0
+        magical_color = BLACK
+        physical_color = BLACK
 
-        monster_1['HP'] -= 10
-        monster_2['HP'] -= 10
-        monster_3['HP'] -= 10
+        pygame.time.wait(1000)
 
+    if player_stat['HP'] > 0:
+        player_stat = add_XP(fighters, player_stat)
+        player_stat = add_level(player_stat)
+
+        if squad[0]['HP'] > 0:
+            squad[0] = add_XP(fighters, squad[0])
+            squad[0] = add_level(squad[0])
+
+        if squad[1]['HP'] > 0:
+            squad[1] = add_XP(fighters, squad[1])
+            squad[1] = add_level(squad[1])
+
+    display_fight_screen(current_fighter,fighters, number_fighter, turn[actual_turn - 1])
     print('fin du combat')
+    pygame.time.wait(500)
 
-    display_fight_screen(current_fighter,fighters, number_fighter)
     
     pygame.display.flip()
-
-
-    pygame.time.wait(5000)
 
     game = True
 
@@ -1195,12 +1385,67 @@ def create_monster_XP(monster):
     end_monster['Magical resistance']   = int(monster['Magical resistance']) + level
     end_monster['Speed']                = int(monster['Speed']) + level // 2
     end_monster['Critical %']           = int(monster['Critical %']) + level // 2
+    end_monster['Level']                = int(level)
 
     return end_monster
 
 def fight_calculator(attacker, defender, attack_type):
 
+    power = elements(attacker, defender, attack_type)
+
+    defender['HP'] -= power
+
     return defender
+
+def calcul_power(attacker, defender, attack_type):
+    if attacker['Magical attack'] < defender['Magical resistance']:
+        defender['Magical resistance'] = attacker['Magical attack'] * 3 // 2
+
+    if attacker['Physical attack'] < defender['Physical resistance']:
+        defender['Physical resistance'] = attacker['Physical attack'] * 3 // 2
+
+    if attack_type == 'magical':
+        power = attacker['Magical attack'] - (defender['Magical resistance'] // 2)
+    elif attack_type == 'physical':
+        power = attacker['Physical attack'] - (defender['Physical resistance'] // 2)
+    
+    power = critical_hit(power, attacker)
+
+    return power
+
+def critical_hit(power,attacker):
+    global critical
+
+    chance_crit = rdm.randint(0,100)
+
+    if attacker['Critical %'] >= chance_crit:
+        power = power * 3 // 2
+        critical = True
+
+    return power
+
+def elements(attacker, defender, attack_type):
+    if attacker['Element'] == 'feu':
+        if defender['Element'] == 'feu': #égalité
+            return calcul_power(attacker, defender, attack_type)
+        elif defender['Element'] == 'vent': #bonus
+            return calcul_power(attacker, defender, attack_type) * 4 // 3
+        elif defender['Element'] == 'eau': #malus
+            return calcul_power(attacker, defender, attack_type) * 2 // 3
+    elif attacker['Element'] == 'eau':
+        if defender['Element'] == 'eau':
+            return calcul_power(attacker, defender, attack_type)
+        elif defender['Element'] == 'feu':
+            return calcul_power(attacker, defender, attack_type) * 4 // 3
+        elif defender['Element'] == 'vent':
+            return calcul_power(attacker, defender, attack_type) * 2 // 3
+    elif attacker['Element'] == 'vent':
+        if defender['Element'] == 'vent':
+            return calcul_power(attacker, defender, attack_type)
+        elif defender['Element'] == 'eau':
+            return calcul_power(attacker, defender, attack_type) * 4 // 3
+        elif defender['Element'] == 'feu' :
+            return calcul_power(attacker, defender, attack_type) * 2 // 3
 
 def number_fighter_function():
     number = 4
@@ -1249,6 +1494,29 @@ def turn_fighter(speed_m1,speed_m2,speed_m3,number_fighter):
 
     return fighters
 
+def add_XP(fighters, people):
+    amount_XP = fighters[0]['XP'] + fighters[1]['XP'] + fighters[2]['XP']
+
+    people['XP'] += amount_XP // 2
+
+    return people
+
+def add_level(people):
+    while (people['Level'] * 25 + 100 < people['XP']):
+        people['Level'] += 1
+        people['Magical attack'] += 2
+        people['Magical resistance'] += 2
+        people['Physical attack'] += 2
+        people['Physical resistance'] += 2
+        people['Speed'] += 1
+        people['Critical %'] += 1
+        people['XP'] -= people['Level'] * 20 + 100
+        people['HP max'] += 10
+        people['HP'] = people['HP max']
+    
+        display_add_level(people)
+    
+    return people
 
 
 ### Visual ###
@@ -1324,12 +1592,31 @@ def display_game_screen():
         while j <  borne_j:
             create_tile(field[i][j], j_prime, i_prime)
             if field_object[i][j] != '1':
-                create_tile(field_object[i][j], j_prime, i_prime)
+                if field_object[i][j] == '9':
+                    if not int(j) in player['object']['X'] and not int(i) in player['object']['Y']:
+                        create_tile(field_object[i][j], j_prime, i_prime)
+                else:
+                    create_tile(field_object[i][j], j_prime, i_prime)
+
             j += 1
             j_prime += 1
 
         i += 1
         i_prime += 1
+
+    area_font = pygame.font.SysFont("monospace", 50, True)
+    
+    if time_changing_area > pygame.time.get_ticks() - display_changing_area_time:
+        area_name = area_font.render(area[player['area']]['Name'], True, BROWN)
+        area_name_size = area_font.size(area[player['area']]['Name'])
+
+        area_rect = pygame.Rect(0,0,area_name_size[0] + screen_size[0] / 25, area_name_size[1] + screen_size[0] / 25)
+        area_rect_2 = pygame.Rect(screen_size[0] / 100, screen_size[0] / 100, area_name_size[0] + screen_size[0] / 50, area_name_size[1] + screen_size[0] / 50 )
+        
+        pygame.draw.rect(window,GREY,area_rect)
+        pygame.draw.rect(window,LIGHT_GREY,area_rect_2)
+        window.blit(area_name,(screen_size[0] / 50 , screen_size[0] / 50 ))
+
 
     return
 
@@ -1439,8 +1726,10 @@ def display_stat_player():
     player_font_size = stat_player_font.size("Player")
 
     XP_first_rect = pygame.Rect(screen_size[0]//10 * 6,screen_size[1]//10 * 2 + player_font_size[1] // 2, screen_size[0] // 10 * 2,screen_size[1] // 200 * 6)
-    pygame.draw.rect(window,RED,XP_first_rect)
-
+    XP_rect       = pygame.Rect(screen_size[0]//10 * 6,screen_size[1]//10 * 2 + player_font_size[1] // 2, screen_size[0] // 10 * 2 / (player_stat['Level'] * 30 + 100) * player_stat['XP'],screen_size[1] // 200 * 6)
+    pygame.draw.rect(window,BLACK,XP_first_rect)
+    pygame.draw.rect(window,GREEN,XP_rect)
+ 
     cross_stat_player = name_player_font.render("X", True, cross_stat_player_color)
     cross_stat_player_size = name_player_font.size("X")
 
@@ -1519,7 +1808,9 @@ def display_stat_member(number):
     member_font_size = stat_member_font.size(squad_member['Name'])
 
     XP_first_rect = pygame.Rect(screen_size[0]//10 * 6,screen_size[1]//10 * 2 + member_font_size[1] // 2, screen_size[0] // 10 * 2,screen_size[1] // 200 * 6)
-    pygame.draw.rect(window,RED,XP_first_rect)
+    XP_rect       = pygame.Rect(screen_size[0]//10 * 6,screen_size[1]//10 * 2 + member_font_size[1] // 2, screen_size[0] // 10 * 2 / (squad_member['Level'] * 30 + 100) * squad_member['XP'],screen_size[1] // 200 * 6)
+    pygame.draw.rect(window,BLACK,XP_first_rect)
+    pygame.draw.rect(window,GREEN,XP_rect)
 
     cross_stat_member = name_member_font.render("X", True, cross_stat_member_color)
     cross_stat_member_size = name_member_font.size("X")
@@ -1622,27 +1913,58 @@ def display_option_screen():
     
     return
 
-def display_fight_screen(attacker,fighters, number_fighter):
+def display_fight_screen(attacker,fighters, number_fighter, actual_fighter):
     global attack_rect, use_object_rect, run_rect, magical_rect, physical_rect, attack, sprite_m1, sprite_m2, sprite_m3
     
     fight_font = pygame.font.SysFont("monospace", 50, True)
-    name_font = pygame.font.SysFont("monospace", 35, True)
+    name_font = pygame.font.SysFont("monospace", 32, True)
 
     background = BLACK
 
-    sprite_m1 = pygame.Rect(screen_size[0] // 20 * 5 ,screen_size[1] // 20 , screen_size[0] // 20 * 2 ,screen_size[0] // 20 * 2)
+    sprite_m1 = pygame.Rect(screen_size[0] // 20 * 6 ,screen_size[1] // 20 , screen_size[0] // 20 * 2 ,screen_size[0] // 20 * 2)
     m1_name = name_font.render(fighters[0]['Name'], True, monster_1_color)
-    sprite_m2 = pygame.Rect(screen_size[0] // 20 * 4 ,screen_size[1] // 20 * 5 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
-    m2_name = name_font.render(fighters[1]['Name'], True, monster_2_color)
-    sprite_m3 = pygame.Rect(screen_size[0] // 20 * 3,screen_size[1] // 20 * 9 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
-    m3_name = name_font.render(fighters[2]['Name'], True, monster_3_color)
+    HP_max_bar_m1 = pygame.Rect(screen_size[0] // 40 * 5, screen_size[1] // 40 * 6, screen_size[0] // 9, screen_size[1] // 75)
+    HP_bar_m1 = pygame.Rect(screen_size[0] // 40 * 5, screen_size[1] // 40 * 6, screen_size[0] // 9 * fighters[0]['HP'] // fighters[0]['HP max'], screen_size[1] // 75)
+    level_m1 = name_font.render('[' + str(fighters[0]['Level']) + ']', True, monster_1_color)
 
-    sprite_player = pygame.Rect(screen_size[0] // 20 * 15 ,screen_size[1] // 20 * 3 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+
+    sprite_m2 = pygame.Rect(screen_size[0] // 20 * 5 ,screen_size[1] // 20 * 5 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    m2_name = name_font.render(fighters[1]['Name'], True, monster_2_color)
+    HP_max_bar_m2 = pygame.Rect(screen_size[0] // 40 * 3, screen_size[1] // 40 * 14, screen_size[0] // 9, screen_size[1] // 75)
+    HP_bar_m2 = pygame.Rect(screen_size[0] // 40 * 3, screen_size[1] // 40 * 14, screen_size[0] // 9 * fighters[1]['HP'] // fighters[1]['HP max'], screen_size[1] // 75)
+    level_m2 = name_font.render('[' + str(fighters[1]['Level']) + ']', True, monster_2_color)
+
+
+    sprite_m3 = pygame.Rect(screen_size[0] // 20 * 4,screen_size[1] // 20 * 9 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    m3_name = name_font.render(fighters[2]['Name'], True, monster_3_color)
+    HP_max_bar_m3 = pygame.Rect(screen_size[0] // 40 * 1, screen_size[1] // 40 * 22, screen_size[0] // 9, screen_size[1] // 75)
+    HP_bar_m3 = pygame.Rect(screen_size[0] // 40 * 1, screen_size[1] // 40 * 22, screen_size[0] // 9 * fighters[2]['HP'] // fighters[2]['HP max'], screen_size[1] // 75)
+    level_m3 = name_font.render('[' + str(fighters[2]['Level']) + ']', True, monster_3_color)
+
+
+    sprite_player = pygame.Rect(screen_size[0] // 20 * 14 ,screen_size[1] // 20 * 2 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
     player_name = name_font.render(fighters[3]['Name'], True, RED)
-    sprite_squad1 = pygame.Rect(screen_size[0] // 20 * 14 ,screen_size[1] // 20 * 7  , screen_size[0] // 20 * 2 ,screen_size[0] // 20 * 2)
+    HP_max_bar_player = pygame.Rect(screen_size[0] // 40 * 33, screen_size[1] // 40 * 8, screen_size[0] // 9, screen_size[1] // 75)
+    HP_bar_player = pygame.Rect(screen_size[0] // 40 * 33, screen_size[1] // 40 * 8, screen_size[0] // 9 * fighters[3]['HP'] // fighters[3]['HP max'], screen_size[1] // 75)
+    level_player = name_font.render('[' + str(fighters[3]['Level']) + ']', True, RED)
+
+
+    sprite_squad1 = pygame.Rect(screen_size[0] // 20 * 13 ,screen_size[1] // 20 * 6  , screen_size[0] // 20 * 2 ,screen_size[0] // 20 * 2)
     squad1_name = name_font.render(fighters[4]['Name'], True, RED)
-    sprite_squad2 = pygame.Rect(screen_size[0] // 20 * 13 ,screen_size[1] // 20 * 11 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    HP_max_bar_squad1 = pygame.Rect(screen_size[0] // 40 * 31, screen_size[1] // 40 * 17, screen_size[0] // 9, screen_size[1] // 75)
+    HP_bar_squad1 = pygame.Rect(screen_size[0] // 40 * 31, screen_size[1] // 40 * 17, screen_size[0] // 9 * fighters[4]['HP'] // fighters[4]['HP max'], screen_size[1] // 75)
+    level_squad1 = name_font.render('[' + str(fighters[4]['Level']) + ']', True, RED)
+
+
+    sprite_squad2 = pygame.Rect(screen_size[0] // 20 * 12 ,screen_size[1] // 20 * 10 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
     squad2_name = name_font.render(fighters[5]['Name'], True, RED)
+    HP_max_bar_squad2 = pygame.Rect(screen_size[0] // 40 * 29, screen_size[1] // 40 * 25, screen_size[0] // 9, screen_size[1] // 75)
+    HP_bar_squad2 = pygame.Rect(screen_size[0] // 40 * 29, screen_size[1] // 40 * 25, screen_size[0] // 9 * fighters[5]['HP'] // fighters[5]['HP max'], screen_size[1] // 75)
+    level_squad2 = name_font.render('[' + str(fighters[5]['Level']) + ']', True, RED)
+
+    
+    current_player = fight_font.render('Current  : ' + str(fighters[actual_fighter]['Name']),True, RED)
+
 
     option_rect = pygame.Rect( 0 , screen_size[1] // 20 * 14, screen_size[0] // 20 * 11, screen_size[1] // 20 * 6 )
     option_bar  = pygame.Rect(screen_size[0] // 20 * 6, screen_size[1] // 20 * 14, screen_size[0] // 100, screen_size[1] // 20 * 6)
@@ -1667,20 +1989,52 @@ def display_fight_screen(attacker,fighters, number_fighter):
 
 
     window.fill(background)
-    pygame.draw.rect(window,RED,sprite_m1)
-    window.blit(m1_name, (screen_size[0] // 40 * 5 ,screen_size[1] // 40 * 3))
-    pygame.draw.rect(window,RED,sprite_m2)
-    window.blit(m2_name, (screen_size[0] // 40 * 3 ,screen_size[1] // 40 * 11))
-    pygame.draw.rect(window,RED,sprite_m3)
-    window.blit(m3_name, (screen_size[0] // 40 * 1,screen_size[1] // 40 * 19))
 
-    pygame.draw.rect(window,GREEN,sprite_player)
-    window.blit(player_name, (screen_size[0] // 40 * 35 ,screen_size[1] // 40 * 7))
-    pygame.draw.rect(window,GREEN,sprite_squad1)
-    window.blit(squad1_name, (screen_size[0] // 40 * 33 ,screen_size[1] // 40 * 16))
-    pygame.draw.rect(window,GREEN,sprite_squad2)
-    window.blit(squad2_name, (screen_size[0] // 40 * 31 ,screen_size[1] // 40 * 24))
+    if fighters[0]['HP'] > 0:
+        pygame.draw.rect(window,RED,sprite_m1)
+        window.blit(m1_name, (screen_size[0] // 40 * 7 ,screen_size[1] // 40 * 3))
+        window.blit(level_m1, (screen_size[0] // 40 * 5 ,screen_size[1] // 40 * 3))
+        pygame.draw.rect(window,RED,HP_max_bar_m1)
+        pygame.draw.rect(window,GREEN,HP_bar_m1)
 
+    if fighters[1]['HP'] > 0:
+        pygame.draw.rect(window,RED,sprite_m2)
+        window.blit(m2_name, (screen_size[0] // 40 * 5 ,screen_size[1] // 40 * 11))
+        window.blit(level_m2, (screen_size[0] // 40 * 3 ,screen_size[1] // 40 * 11))
+        pygame.draw.rect(window,RED,HP_max_bar_m2)
+        pygame.draw.rect(window,GREEN,HP_bar_m2)
+
+    if fighters[2]['HP'] > 0:
+        pygame.draw.rect(window,RED,sprite_m3)
+        window.blit(m3_name, (screen_size[0] // 40 * 3,screen_size[1] // 40 * 19))
+        window.blit(level_m3, (screen_size[0] // 40 * 1 ,screen_size[1] // 40 * 19))
+        pygame.draw.rect(window,RED,HP_max_bar_m3)
+        pygame.draw.rect(window,GREEN,HP_bar_m3)
+
+    if fighters[3]['HP'] > 0:
+        pygame.draw.rect(window,GREEN,sprite_player)
+        window.blit(player_name, (screen_size[0] // 40 * 33 ,screen_size[1] // 40 * 5))
+        window.blit(level_player, (screen_size[0] // 40 * 38,screen_size[1] // 40 * 5))
+        pygame.draw.rect(window,RED,HP_max_bar_player)
+        pygame.draw.rect(window,GREEN,HP_bar_player)
+        
+    if fighters[4]['HP'] > 0:
+        pygame.draw.rect(window,GREEN,sprite_squad1)
+        window.blit(squad1_name, (screen_size[0] // 40 * 31 ,screen_size[1] // 40 * 14))
+        window.blit(level_squad1, (screen_size[0] // 40 * 36 ,screen_size[1] // 40 * 14))
+        pygame.draw.rect(window,RED,HP_max_bar_squad1)
+        pygame.draw.rect(window,GREEN,HP_bar_squad1)
+
+    if fighters[5]['HP'] > 0:
+        pygame.draw.rect(window,GREEN,sprite_squad2)
+        window.blit(squad2_name, (screen_size[0] // 40 * 29 ,screen_size[1] // 40 * 22))
+        window.blit(level_squad2, (screen_size[0] // 40 * 34 ,screen_size[1] // 40 * 22))
+        pygame.draw.rect(window,RED,HP_max_bar_squad2)
+        pygame.draw.rect(window,GREEN,HP_bar_squad2)
+    
+    if actual_fighter > 2:
+        window.blit(current_player, (screen_size[0] // 40 * 23, screen_size[1] // 20 * 16))
+    
     pygame.draw.rect(window,GREY,option_rect)
     pygame.draw.rect(window,BLACK,option_bar)
 
@@ -1692,77 +2046,262 @@ def display_fight_screen(attacker,fighters, number_fighter):
         window.blit(magical, (screen_size[0] // 20 * 1, screen_size[1] // 20 * 15))
         window.blit(physical, (screen_size[0] // 20 * 1 , screen_size[1] // 20 * 17))
 
+    pygame.display.flip()
     
     return
 
-def display_fight_animation_screen(attacker, defender, fighters, number_fighter):
+def display_fight_animation_screen(attacker, defender, fighters, number_fighter, actual_fighter):
     global attack_rect, use_object_rect, run_rect, magical_rect, physical_rect, attack, sprite_m1, sprite_m2, sprite_m3
 
-    m1_x_pos = screen_size[0] // 20 * 4
-    m2_x_pos = screen_size[0] // 20 * 3
-    m3_x_pos = screen_size[0] // 20 * 2
+    time_begin = pygame.time.get_ticks()
+    animation_time = 750
 
-    player_x_pos = screen_size[0] // 20 * 16
-    squad1_x_pos = screen_size[0] // 20 * 15
-    squad2_x_pos = screen_size[0] // 20 * 14
+    position = {}
+    position[0] = screen_size[0] // 20 * 6
+    position[1] = screen_size[0] // 20 * 5
+    position[2] = screen_size[0] // 20 * 4
 
-    player_color = GREEN
-    squad1_color = GREEN
-    squad2_color = GREEN
+    position[3] = screen_size[0] // 20 * 14
+    position[4] = screen_size[0] // 20 * 13
+    position[5] = screen_size[0] // 20 * 12
 
-    print(attacker, defender)
+    position2 = {}
+    position2[0] = screen_size[1] // 20
+    position2[1] = screen_size[1] // 20 * 5 
+    position2[2] = screen_size[1] // 20 * 9
+
+    position2[3] = screen_size[1] // 20 * 2
+    position2[4] = screen_size[1] // 20 * 6
+    position2[5] = screen_size[1] // 20 * 10
+
+    ### Animation :
+    compteur = [0,0]
+    compteur2 = [0,0,0,0]
+    frame_attacker = 65
+    frame_defender = 30
+    
+    while(pygame.time.get_ticks() < time_begin + animation_time):
+
+        if pygame.time.get_ticks() <= time_begin + animation_time / 3 and compteur[0] < frame_attacker:
+            if attacker > 2:
+                position[attacker] -= tile_size / 35
+                compteur[0] += 1
+            else:
+                position[attacker] += tile_size / 35
+                compteur[0] += 1
+        elif pygame.time.get_ticks() <= time_begin + animation_time / 3 * 2 :
+            if compteur[1] < frame_attacker:
+                if attacker > 2:
+                    position[attacker] += tile_size / 35
+                    compteur[1] += 1
+                else:
+                    position[attacker] -= tile_size / 35
+                    compteur[1] += 1
+            if pygame.time.get_ticks() <= time_begin + animation_time / 6 * 3 and compteur2[0] < frame_defender:
+                position[defender] += tile_size / 50
+                compteur2[0] += 1
+            elif pygame.time.get_ticks() <= time_begin + animation_time / 6 * 4 and compteur2[1] < frame_defender:
+                position[defender] -= tile_size / 50
+                compteur2[1] += 1
+        if pygame.time.get_ticks() <= time_begin + animation_time or compteur2[1] == frame_defender:
+            if pygame.time.get_ticks() <= time_begin + animation_time / 6 * 5 and compteur2[2] < frame_defender:
+                position[defender] += tile_size / 50
+                compteur2[2] += 1
+            elif compteur2[3] < frame_defender:
+                position[defender] -= tile_size / 50
+                compteur2[3] += 1        
+
+        fight_font = pygame.font.SysFont("monospace", 50, True)
+        name_font = pygame.font.SysFont("monospace", 32, True)
+
+        background = BLACK
+
+        critic_hit = name_font.render('Critical hit !', True, PURPLE)
+        critic_hit_rect = name_font.size('Critical hit !')
+
+        sprite_m1 = pygame.Rect(position[0] ,screen_size[1] // 20 , screen_size[0] // 20 * 2 ,screen_size[0] // 20 * 2)
+        m1_name = name_font.render(fighters[0]['Name'], True, monster_1_color)
+        HP_max_bar_m1 = pygame.Rect(screen_size[0] // 40 * 5, screen_size[1] // 40 * 6, screen_size[0] // 9, screen_size[1] // 75)
+        HP_bar_m1 = pygame.Rect(screen_size[0] // 40 * 5, screen_size[1] // 40 * 6, screen_size[0] // 9 * fighters[0]['HP'] // fighters[0]['HP max'], screen_size[1] // 75)
+        level_m1 = name_font.render('[' + str(fighters[0]['Level']) + ']', True, monster_1_color)
+
+
+        sprite_m2 = pygame.Rect(position[1] ,screen_size[1] // 20 * 5 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+        m2_name = name_font.render(fighters[1]['Name'], True, monster_2_color)
+        HP_max_bar_m2 = pygame.Rect(screen_size[0] // 40 * 3, screen_size[1] // 40 * 14, screen_size[0] // 9, screen_size[1] // 75)
+        HP_bar_m2 = pygame.Rect(screen_size[0] // 40 * 3, screen_size[1] // 40 * 14, screen_size[0] // 9 * fighters[1]['HP'] // fighters[1]['HP max'], screen_size[1] // 75)
+        level_m2 = name_font.render('[' + str(fighters[1]['Level']) + ']', True, monster_2_color)
+
+
+
+        sprite_m3 = pygame.Rect(position[2],screen_size[1] // 20 * 9 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+        m3_name = name_font.render(fighters[2]['Name'], True, monster_3_color)
+        HP_max_bar_m3 = pygame.Rect(screen_size[0] // 40 * 1, screen_size[1] // 40 * 22, screen_size[0] // 9, screen_size[1] // 75)
+        HP_bar_m3 = pygame.Rect(screen_size[0] // 40 * 1, screen_size[1] // 40 * 22, screen_size[0] // 9 * fighters[2]['HP'] // fighters[2]['HP max'], screen_size[1] // 75)
+        level_m3 = name_font.render('[' + str(fighters[2]['Level']) + ']', True, monster_3_color)
+
+
+        sprite_player = pygame.Rect(position[3] ,screen_size[1] // 20 * 2 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+        player_name = name_font.render(fighters[3]['Name'], True, RED)
+        HP_max_bar_player = pygame.Rect(screen_size[0] // 40 * 33, screen_size[1] // 40 * 8, screen_size[0] // 9, screen_size[1] // 75)
+        HP_bar_player = pygame.Rect(screen_size[0] // 40 * 33, screen_size[1] // 40 * 8, screen_size[0] // 9 * fighters[3]['HP'] // fighters[3]['HP max'], screen_size[1] // 75)
+        level_player = name_font.render('[' + str(fighters[3]['Level']) + ']', True, RED)
+
+
+        sprite_squad1 = pygame.Rect(position[4] ,screen_size[1] // 20 * 6  , screen_size[0] // 20 * 2 ,screen_size[0] // 20 * 2)
+        squad1_name = name_font.render(fighters[4]['Name'], True, RED)
+        HP_max_bar_squad1 = pygame.Rect(screen_size[0] // 40 * 31, screen_size[1] // 40 * 17, screen_size[0] // 9, screen_size[1] // 75)
+        HP_bar_squad1 = pygame.Rect(screen_size[0] // 40 * 31, screen_size[1] // 40 * 17, screen_size[0] // 9 * fighters[4]['HP'] // fighters[4]['HP max'], screen_size[1] // 75)
+        level_squad1 = name_font.render('[' + str(fighters[4]['Level']) + ']', True, RED)
+
+
+        sprite_squad2 = pygame.Rect(position[5] ,screen_size[1] // 20 * 10 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+        squad2_name = name_font.render(fighters[5]['Name'], True, RED)
+        HP_max_bar_squad2 = pygame.Rect(screen_size[0] // 40 * 29, screen_size[1] // 40 * 25, screen_size[0] // 9, screen_size[1] // 75)
+        HP_bar_squad2 = pygame.Rect(screen_size[0] // 40 * 29, screen_size[1] // 40 * 25, screen_size[0] // 9 * fighters[5]['HP'] // fighters[5]['HP max'], screen_size[1] // 75)
+        level_squad2 = name_font.render('[' + str(fighters[5]['Level']) + ']', True, RED)
+
+        current_player = fight_font.render('Current  : ' + str(fighters[actual_fighter]['Name']),True, RED)
+
+
+        option_rect = pygame.Rect( 0 , screen_size[1] // 20 * 14, screen_size[0] // 20 * 11, screen_size[1] // 20 * 6 )
+        option_bar  = pygame.Rect(screen_size[0] // 20 * 6, screen_size[1] // 20 * 14, screen_size[0] // 100, screen_size[1] // 20 * 6)
+
+        attack = fight_font.render("Attack",True,attack_color)
+        attack_size = fight_font.size("Attack")
+        use_object = fight_font.render("Object", True, object_color)
+        use_object_size = fight_font.size("Object")
+        run = fight_font.render("Run", True, run_color)
+        run_size = fight_font.size("Run")
+
+        attack_rect = pygame.Rect(screen_size[0] // 20 * 9, screen_size[1] // 20 * 14 ,attack_size[0], attack_size[1])
+        use_object_rect = pygame.Rect(screen_size[0] // 20 * 9, screen_size[1] // 20 * 16, use_object_size[0], use_object_size[1])
+        run_rect = pygame.Rect(screen_size[0] // 20 * 9, screen_size[1] // 20 * 18, run_size[0], run_size[1])
+
+        window.fill(background)
+
+        if fighters[0]['HP'] > 0:
+            pygame.draw.rect(window,RED,sprite_m1)
+            window.blit(m1_name, (screen_size[0] // 40 * 7 ,screen_size[1] // 40 * 3))
+            window.blit(level_m1, (screen_size[0] // 40 * 5 ,screen_size[1] // 40 * 3))
+            pygame.draw.rect(window,RED,HP_max_bar_m1)
+            pygame.draw.rect(window,GREEN,HP_bar_m1)
+
+        if fighters[1]['HP'] > 0:
+            pygame.draw.rect(window,RED,sprite_m2)
+            window.blit(m2_name, (screen_size[0] // 40 * 5 ,screen_size[1] // 40 * 11))
+            window.blit(level_m2, (screen_size[0] // 40 * 3 ,screen_size[1] // 40 * 11))
+            pygame.draw.rect(window,RED,HP_max_bar_m2)
+            pygame.draw.rect(window,GREEN,HP_bar_m2)
+
+        if fighters[2]['HP'] > 0:
+            pygame.draw.rect(window,RED,sprite_m3)
+            window.blit(m3_name, (screen_size[0] // 40 * 3,screen_size[1] // 40 * 19))
+            window.blit(level_m3, (screen_size[0] // 40 * 1 ,screen_size[1] // 40 * 19))
+            pygame.draw.rect(window,RED,HP_max_bar_m3)
+            pygame.draw.rect(window,GREEN,HP_bar_m3)
+
+        if fighters[3]['HP'] > 0:
+            pygame.draw.rect(window,GREEN,sprite_player)
+            window.blit(player_name, (screen_size[0] // 40 * 33 ,screen_size[1] // 40 * 5))
+            window.blit(level_player, (screen_size[0] // 40 * 38,screen_size[1] // 40 * 5))
+            pygame.draw.rect(window,RED,HP_max_bar_player)
+            pygame.draw.rect(window,GREEN,HP_bar_player)
+
+        if fighters[4]['HP'] > 0:
+            pygame.draw.rect(window,GREEN,sprite_squad1)
+            window.blit(squad1_name, (screen_size[0] // 40 * 31 ,screen_size[1] // 40 * 14))
+            window.blit(level_squad1, (screen_size[0] // 40 * 36 ,screen_size[1] // 40 * 14))
+            pygame.draw.rect(window,RED,HP_max_bar_squad1)
+            pygame.draw.rect(window,GREEN,HP_bar_squad1)
+
+        if fighters[5]['HP'] > 0:
+            pygame.draw.rect(window,GREEN,sprite_squad2)
+            window.blit(squad2_name, (screen_size[0] // 40 * 29 ,screen_size[1] // 40 * 22))
+            window.blit(level_squad2, (screen_size[0] // 40 * 34 ,screen_size[1] // 40 * 22))
+            pygame.draw.rect(window,RED,HP_max_bar_squad2)
+            pygame.draw.rect(window,GREEN,HP_bar_squad2)
+        
+        if actual_fighter > 2:
+            window.blit(current_player, (screen_size[0] // 40 * 23, screen_size[1] // 20 * 16))
+
+        if critical and pygame.time.get_ticks() < time_begin + animation_time and compteur2[0] != 0:
+            window.blit(critic_hit, (position[defender] + screen_size[0] / 20 * 1 - critic_hit_rect[0] / 2,position2[defender] + screen_size[0] // 20 * 1 - critic_hit_rect[1] / 2))
+    
+
+        pygame.draw.rect(window,GREY,option_rect)
+        pygame.draw.rect(window,BLACK,option_bar)
+
+        window.blit(attack, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 14))
+        window.blit(use_object, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 16))
+        window.blit(run, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 18))
+
+        pygame.display.flip()
+
+    return
+
+def display_add_level(people):
 
     fight_font = pygame.font.SysFont("monospace", 50, True)
-
-    background = BLACK
-
-    sprite_m1 = pygame.Rect(m1_x_pos ,screen_size[1] // 20 , screen_size[0] // 20 * 2 ,screen_size[0] // 20 * 2)
-    sprite_m2 = pygame.Rect(m2_x_pos,screen_size[1] // 20 * 5 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
-    sprite_m3 = pygame.Rect(m3_x_pos,screen_size[1] // 20 * 9 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
     
-    sprite_player = pygame.Rect(player_x_pos ,screen_size[1] // 20 * 3 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
-    sprite_squad1 = pygame.Rect(squad1_x_pos ,screen_size[1] // 20 * 7  , screen_size[0] // 20 * 2 ,screen_size[0] // 20 * 2)
-    sprite_squad2 = pygame.Rect(squad2_x_pos ,screen_size[1] // 20 * 11 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    first_rect = pygame.Rect(0 , screen_size[1] // 20 * 14, screen_size[0] // 20 * 11, screen_size[1] // 20 * 6)
+    second_rect = pygame.Rect(screen_size[0] / 100,screen_size[1] // 20 * 14 + screen_size[0] / 100,screen_size[0] // 20 * 11 - screen_size[0] / 50, screen_size[1] // 20 * 6 - screen_size[0] / 50)
 
-    option_rect = pygame.Rect( 0 , screen_size[1] // 20 * 14, screen_size[0] // 20 * 13, screen_size[1] // 20 * 6 )
-    option_bar  = pygame.Rect(screen_size[0] // 20 * 8, screen_size[1] // 20 * 14, screen_size[0] // 100, screen_size[1] // 20 * 6)
+    name = fight_font.render( people['Name'] + " level up !", True, BLACK)
+    name_size = fight_font.size(people['Name'] + " level up !")
 
-    attack = fight_font.render("Attack",True,attack_color)
-    attack_size = fight_font.size("Attack")
-    use_object = fight_font.render("Object", True, object_color)
-    use_object_size = fight_font.size("Object")
-    run = fight_font.render("Run", True, run_color)
-    run_size = fight_font.size("Run")
+    pygame.draw.rect(window,GREY,first_rect)
+    pygame.draw.rect(window,LIGHT_GREY, second_rect)
 
-    magical = fight_font.render("Magical", True, magical_color)
-    magical_size = fight_font.size("Magical")
-    physical = fight_font.render("Physical", True, physical_color)
-    physical_size = fight_font.size("Physical")
+    window.blit(name, (screen_size[0] / 100 + name_size[0] / 10 ,screen_size[1] // 20 * 14 + screen_size[0] / 100 + name_size[1] / 10))
+    
+    pygame.display.flip()
+    pygame.time.wait(1000)
+    return
 
-    attack_rect = pygame.Rect(screen_size[0] // 20 * 9, screen_size[1] // 20 * 14 ,attack_size[0], attack_size[1])
-    use_object_rect = pygame.Rect(screen_size[0] // 20 * 9, screen_size[1] // 20 * 16, use_object_size[0], use_object_size[1])
-    run_rect = pygame.Rect(screen_size[0] // 20 * 9, screen_size[1] // 20 * 18, run_size[0], run_size[1])
-    magical_rect = pygame.Rect(screen_size[0] // 20 * 2, screen_size[1] // 20 * 15, magical_size[0], magical_size[1])
-    physical_rect = pygame.Rect(screen_size[0] // 20 * 2 , screen_size[1] // 20 * 17, physical_size[0], physical_size[1])
+def display_start_fight():
 
 
-    window.fill(background)
-    pygame.draw.rect(window,monster_1_color,sprite_m1)
-    pygame.draw.rect(window,monster_2_color,sprite_m2)
-    pygame.draw.rect(window,monster_3_color,sprite_m3)
-    pygame.draw.rect(window,player_color,sprite_player)
-    pygame.draw.rect(window,squad1_color,sprite_squad1)
-    pygame.draw.rect(window,squad2_color,sprite_squad2)
-    pygame.draw.rect(window,GREY,option_rect)
-    pygame.draw.rect(window,BLACK,option_bar)
+    while(pygame.time.get_ticks() < start_fight_time + animation_start_1_time):
+        fight_font = pygame.font.SysFont("monospace", 40, True)
 
-    window.blit(attack, (screen_size[0] // 20 * 9, screen_size[1] // 20 * 14))
-    window.blit(use_object, (screen_size[0] // 20 * 9, screen_size[1] // 20 * 16))
-    window.blit(run, (screen_size[0] // 20 * 9, screen_size[1] // 20 * 18))
+        first_rect = pygame.Rect(0 , screen_size[1] // 20 * 14, screen_size[0] // 20 * 11, screen_size[1] // 20 * 6)
+        second_rect = pygame.Rect(screen_size[0] / 100,screen_size[1] // 20 * 14 + screen_size[0] / 100,screen_size[0] // 20 * 11 - screen_size[0] / 50, screen_size[1] // 20 * 6 - screen_size[0] / 50)
+       
+        name = fight_font.render("A group of monsters appear !", True, BLACK)
+        name_size = fight_font.size("A group of monsters appear !")
+        
+        pygame.draw.rect(window,GREY,first_rect)
+        pygame.draw.rect(window,LIGHT_GREY, second_rect)
+        
+        window.blit(name, (screen_size[0] / 100 + name_size[0] / 10 ,screen_size[1] // 20 * 14 + screen_size[0] / 100 + name_size[1] / 10))
+        
+        pygame.display.flip()
 
-    if doing_attack :
-        window.blit(magical, (screen_size[0] // 20 * 2, screen_size[1] // 20 * 15))
-        window.blit(physical, (screen_size[0] // 20 * 2 , screen_size[1] // 20 * 17))
+        
+    while pygame.time.get_ticks() < start_fight_time + animation_start_2_time:
+        window.fill(BLACK)
+        pygame.display.flip()
+
+    while pygame.time.get_ticks() < start_fight_time + animation_start_3_time:
+        window.fill(WHITE)
+        pygame.display.flip()
+        
+    while pygame.time.get_ticks() < start_fight_time + animation_start_4_time:
+        window.fill(BLACK)
+        pygame.display.flip()
+
+    while pygame.time.get_ticks() < start_fight_time + animation_start_5_time:
+        window.fill(WHITE)
+        pygame.display.flip()
+
+    while pygame.time.get_ticks() < start_fight_time + animation_start_6_time:
+        window.fill(BLACK)
+        pygame.display.flip()
+
+    while pygame.time.get_ticks() < start_fight_time + animation_start_7_time:
+        window.fill(WHITE)
+        pygame.display.flip()
 
     return
 
@@ -1858,13 +2397,91 @@ def calcul_player_position():
 
     return
 
-def is_collide(position):
+def is_not_collide(type_collide,current_orientation,position):
     
-    if field[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] in collide or field_object[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] in collide:
-        return True
-    else:
-        return False
+    if type_collide == 0:
+        if current_orientation == 'left':
+            if not field[-position[1] // tile_size][position[0] // tile_size - 1] in collide :
+                if not field_object[-position[1] // tile_size][position[0] // tile_size - 1] in collide :
+                    return True
+                elif int(position[0] // tile_size - 1) in player['object']['X']:
+                    return True
+                else:
+                    return False
+            else:
+                return False
 
+        if current_orientation == 'up':
+            if not field[-position[1] // tile_size - 1][position[0] // tile_size] in collide :
+                if not field_object[-position[1] // tile_size - 1][position[0] // tile_size] in collide :
+                    return True
+                elif int(position[1] // tile_size - 1) in player['object']['Y']:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        
+        if current_orientation == 'right':
+            if not field[-position[1] // tile_size][position[0] // tile_size + 1] in collide :
+                if not field_object[-position[1] // tile_size][position[0] // tile_size + 1] in collide :
+                    return True
+                elif int(position[0] // tile_size + 1) in player['object']['X']:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        
+        if current_orientation == 'down':
+            if not field[-position[1] // tile_size + 1][position[0] // tile_size] in collide:
+                if not field_object[-position[1] // tile_size + 1][position[0] // tile_size] in collide:
+                    return True
+                elif int(position[1] // tile_size + 1) in player['object']['Y']:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+
+    elif type_collide == 1:    
+
+        if current_orientation == 'left':
+            if not field[-position[1] // tile_size][position[0] // tile_size - 1] in collide and not field[-position[1] // tile_size + 1][position[0]//tile_size - 1] in collide:
+                if not field_object[-position[1] // tile_size][position[0] // tile_size - 1] in collide and not field_object[-position[1] // tile_size + 1][position[0]//tile_size - 1] in collide:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+
+        if current_orientation == 'up':
+            if not field[-position[1] // tile_size - 1][position[0] // tile_size] in collide and not field[-position[1] // tile_size - 1][position[0] // tile_size + 1] in collide :
+                if not field_object[-position[1] // tile_size - 1][position[0] // tile_size] in collide and not field_object[-position[1] // tile_size - 1][position[0] // tile_size + 1] in collide : 
+                    return True
+                else:
+                    return False 
+            else:
+                return False
+        
+        if current_orientation == 'right':
+            if not field[-position[1] // tile_size][position[0] // tile_size + 1] in collide and not field[-position[1] // tile_size + 1][position[0] // tile_size + 1] in collide:
+                if not field_object[-position[1] // tile_size][position[0] // tile_size + 1] in collide and not field_object[-position[1] // tile_size + 1][position[0] // tile_size + 1] in collide:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        
+        if current_orientation == 'down':
+            if not field[-position[1] // tile_size + 1][position[0] // tile_size] in collide and not field[-position[1] // tile_size + 1][position[0] // tile_size + 1] in collide:
+                if not field_object[-position[1] // tile_size + 1][position[0] // tile_size] in collide and not field_object[-position[1] // tile_size + 1][position[0] // tile_size + 1] in collide:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        
 def impress():
     print("CAM          : " + str(camera_position))
     print("PLAYER       : " + str(player_position))
@@ -1903,6 +2520,33 @@ def is_always_animated(time):
             if sprite_right['next_move_moment'] < time:
                 is_animated = False
 
+def add_object():
+
+    i = 0
+
+    while i < inventory_size:
+        if player['inventory'][i] == 0:
+            player['inventory'][i] = 1
+            print('You found a potion !')
+            i = inventory_size + 1
+        elif i == inventory_size - 1:
+            print('Full inventory')
+            return
+        i += 1
+
+    if player['orientation'] == 1:
+        player['object']['X'].append(int(player['position'][0] // tile_size))
+        player['object']['Y'].append(int(player['position'][1] // tile_size + 1))
+    elif player['orientation'] == 2:
+        player['object']['X'].append(int(player['position'][0] // tile_size + 1))
+        player['object']['Y'].append(int(player['position'][1] // tile_size))
+    elif player['orientation'] == 3:
+        player['object']['X'].append(int(player['position'][0] // tile_size))
+        player['object']['Y'].append(int(player['position'][1] // tile_size - 1))
+    elif player['orientation'] == 4:
+        player['object']['X'].append(int(player['position'][0] // tile_size - 1))
+        player['object']['Y'].append(int(player['position'][1] // tile_size))
+
 
 ### GAME ###
 
@@ -1913,7 +2557,7 @@ background_color = GREY
 define_screen_size(ratio)
 screen_tile_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(screen_size[1]))
 
-window = pygame.display.set_mode(screen_size, pygame.FULLSCREEN)
+window = pygame.display.set_mode(screen_size)
 pygame.display.set_caption("First RPG")
 
 create_player()
@@ -1998,8 +2642,6 @@ while open_game:
         stay_at_screen()
 
         calcul_player_position()
-
-        #impress()
 
         display_game_screen()
 

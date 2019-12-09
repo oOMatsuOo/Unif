@@ -1,7 +1,8 @@
-position,51,7
-area,0
-orientation,1
-inventory,1,0,0,0,0
-player,1,1,feu,100,100,30,30,30,30,10,10
-squad,Kieran,1,1,eau,100,100,40,40,20,20,7,15,1
-squad,Said,1,1,vent,100,100,20,20,40,40,15,10,1
+position,4972.5,-1845.0,4492.5,-1567.5
+area,2
+orientation,4
+inventory,1,1,1,1,0
+player,15,147,feu,240,240,58,50,58,50,24,24,Joshua
+squad,Kieran,15,147,eau,240,240,68,56,48,56,21,29,1
+squad,Said,15,147,vent,240,240,48,50,68,50,29,24,1
+object,6,-35,17,-31,14,-25,51,-22

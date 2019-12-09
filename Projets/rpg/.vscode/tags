@@ -1,0 +1,241 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BLACK	../map_creator.py	/^BLACK      = (  0,  0,  0)$/;"	kind:variable	line:8
+BLACK	../v0.1.py	/^BLACK      = (  0,  0,  0)$/;"	kind:variable	line:12
+BLUE	../map_creator.py	/^BLUE       = ( 30,144,237)$/;"	kind:variable	line:13
+BLUE	../v0.1.py	/^BLUE       = ( 30,144,237)$/;"	kind:variable	line:18
+BROWN	../map_creator.py	/^BROWN      = (188,143,143)$/;"	kind:variable	line:14
+BROWN	../v0.1.py	/^BROWN      = (188,143,143)$/;"	kind:variable	line:19
+DARK_GREEN	../map_creator.py	/^DARK_GREEN = ( 60,134, 33)$/;"	kind:variable	line:18
+DARK_GREEN	../v0.1.py	/^DARK_GREEN = ( 60,134, 33)$/;"	kind:variable	line:22
+GREEN	../map_creator.py	/^GREEN      = (106,230, 87)$/;"	kind:variable	line:16
+GREEN	../v0.1.py	/^GREEN      = (106,230, 87)$/;"	kind:variable	line:21
+GREY	../map_creator.py	/^GREY       = (105,105,105)$/;"	kind:variable	line:11
+GREY	../v0.1.py	/^GREY       = (105,105,105)$/;"	kind:variable	line:15
+LIGHT_GREY	../v0.1.py	/^LIGHT_GREY = (180,184,181)$/;"	kind:variable	line:16
+ORANGE	../map_creator.py	/^ORANGE     = (255,140,  0)$/;"	kind:variable	line:12
+ORANGE	../v0.1.py	/^ORANGE     = (255,140,  0)$/;"	kind:variable	line:17
+PURPLE	../map_creator.py	/^PURPLE     = (148,  0,211)$/;"	kind:variable	line:10
+PURPLE	../v0.1.py	/^PURPLE     = (148,  0,211)$/;"	kind:variable	line:14
+RED	../map_creator.py	/^RED        = (139,  0,  0)$/;"	kind:variable	line:9
+RED	../v0.1.py	/^RED        = (139,  0,  0)$/;"	kind:variable	line:13
+SAND	../map_creator.py	/^SAND       = (230,184, 87)$/;"	kind:variable	line:15
+SAND	../v0.1.py	/^SAND       = (230,184, 87)$/;"	kind:variable	line:20
+VIOLET	../map_creator.py	/^VIOLET     = (148,  0,211)$/;"	kind:variable	line:17
+WHITE	../v0.1.py	/^WHITE      = (255,255,255)$/;"	kind:variable	line:23
+add_XP	../v0.1.py	/^def add_XP(fighters, people):$/;"	kind:function	line:1481
+add_level	../v0.1.py	/^def add_level(people):$/;"	kind:function	line:1488
+add_position	../v0.1.py	/^def add_position(entity,name,image):$/;"	kind:function	line:1509
+animation	../v0.1.py	/^animation = 0$/;"	kind:variable	line:57
+animation_duration	../v0.1.py	/^animation_duration = 150$/;"	kind:variable	line:55
+animation_start_1_time	../v0.1.py	/^animation_start_1_time = 500$/;"	kind:variable	line:77
+animation_start_2_time	../v0.1.py	/^animation_start_2_time = 900$/;"	kind:variable	line:78
+animation_start_3_time	../v0.1.py	/^animation_start_3_time = 1200$/;"	kind:variable	line:79
+animation_start_4_time	../v0.1.py	/^animation_start_4_time = 1400$/;"	kind:variable	line:80
+animation_start_5_time	../v0.1.py	/^animation_start_5_time = 1500$/;"	kind:variable	line:81
+animation_start_6_time	../v0.1.py	/^animation_start_6_time = 1550$/;"	kind:variable	line:82
+animation_start_7_time	../v0.1.py	/^animation_start_7_time = 1575$/;"	kind:variable	line:83
+attack_color	../v0.1.py	/^attack_color = BLACK$/;"	kind:variable	line:108
+auto_mode	../v0.1.py	/^auto_mode = True$/;"	kind:variable	line:73
+background_color	../map_creator.py	/^background_color = GREY$/;"	kind:variable	line:554
+background_color	../v0.1.py	/^background_color = GREY$/;"	kind:variable	line:2445
+calcul_player_position	../v0.1.py	/^def calcul_player_position():$/;"	kind:function	line:2371
+calcul_power	../v0.1.py	/^def calcul_power(attacker, defender, attack_type):$/;"	kind:function	line:1384
+camera_position	../map_creator.py	/^camera_position = [0, 0]$/;"	kind:variable	line:37
+camera_position	../v0.1.py	/^camera_position = [0, 0]$/;"	kind:variable	line:63
+change_area	../v0.1.py	/^def change_area():$/;"	kind:function	line:634
+changing_zone	../v0.1.py	/^changing_zone = 0$/;"	kind:variable	line:71
+character_count	../test_csv.py	/^        character_count = 0$/;"	kind:variable	line:9
+clock	../map_creator.py	/^clock = pygame.time.Clock()$/;"	kind:variable	line:553
+clock	../v0.1.py	/^clock = pygame.time.Clock()$/;"	kind:variable	line:2458
+collide	../map_creator.py	/^collide = []$/;"	kind:variable	line:39
+collide	../v0.1.py	/^collide = []$/;"	kind:variable	line:88
+color_current_1	../map_creator.py	/^color_current_1 = RED$/;"	kind:variable	line:51
+color_current_2	../map_creator.py	/^color_current_2 = VIOLET$/;"	kind:variable	line:52
+color_information	../map_creator.py	/^color_information = VIOLET$/;"	kind:variable	line:50
+control_color	../v0.1.py	/^control_color = PURPLE$/;"	kind:variable	line:98
+control_menu	../v0.1.py	/^control_menu = False$/;"	kind:variable	line:39
+coordinates_to_pixel	../map_creator.py	/^def coordinates_to_pixel(coord):$/;"	kind:function	line:508
+coordinates_to_pixel	../v0.1.py	/^def coordinates_to_pixel(coord):$/;"	kind:function	line:2347
+create_area	../v0.1.py	/^def create_area():$/;"	kind:function	line:361
+create_collide	../map_creator.py	/^def create_collide():$/;"	kind:function	line:122
+create_collide	../v0.1.py	/^def create_collide():$/;"	kind:function	line:417
+create_field	../map_creator.py	/^def create_field():$/;"	kind:function	line:57
+create_field	../v0.1.py	/^def create_field():$/;"	kind:function	line:184
+create_fighting_monsters	../v0.1.py	/^def create_fighting_monsters(fight_monsters):$/;"	kind:function	line:1151
+create_monster	../v0.1.py	/^def create_monster():$/;"	kind:function	line:334
+create_monster_XP	../v0.1.py	/^def create_monster_XP(monster):$/;"	kind:function	line:1355
+create_object	../map_creator.py	/^def create_object():$/;"	kind:function	line:89
+create_object	../v0.1.py	/^def create_object():$/;"	kind:function	line:389
+create_player	../v0.1.py	/^def create_player():$/;"	kind:function	line:214
+create_player_animation_sprite	../v0.1.py	/^def create_player_animation_sprite():$/;"	kind:function	line:487
+create_player_sprite	../v0.1.py	/^def create_player_sprite():$/;"	kind:function	line:473
+create_spawn_point	../map_creator.py	/^def create_spawn_point():$/;"	kind:function	line:134
+create_spawn_point	../v0.1.py	/^def create_spawn_point():$/;"	kind:function	line:429
+create_square	../map_creator.py	/^def create_square(x, y):$/;"	kind:function	line:167
+create_square	../v0.1.py	/^def create_square(x, y):$/;"	kind:function	line:463
+create_tile	../map_creator.py	/^def create_tile(tile_type, x, y):$/;"	kind:function	line:151
+create_tile	../v0.1.py	/^def create_tile(tile_type, x, y):$/;"	kind:function	line:444
+critical	../v0.1.py	/^critical = False$/;"	kind:variable	line:72
+critical_hit	../v0.1.py	/^def critical_hit(power,attacker):$/;"	kind:function	line:1400
+cross_color	../v0.1.py	/^cross_color = BLACK$/;"	kind:variable	line:104
+cross_squad_color	../v0.1.py	/^cross_squad_color = BLACK$/;"	kind:variable	line:105
+cross_stat_member_color	../v0.1.py	/^cross_stat_member_color = BLACK$/;"	kind:variable	line:107
+cross_stat_player_color	../v0.1.py	/^cross_stat_player_color = BLACK$/;"	kind:variable	line:106
+csv_reader	../test-2.py	/^    csv_reader = csv.reader(csv_file, delimiter=",")$/;"	kind:variable	line:4
+csv_reader	../test_csv.py	/^    csv_reader = csv.reader(csv_file, delimiter=",")$/;"	kind:variable	line:6
+current_tile_1	../map_creator.py	/^current_tile_1 = 0$/;"	kind:variable	line:41
+current_tile_2	../map_creator.py	/^current_tile_2 = 0$/;"	kind:variable	line:42
+define_screen_size	../map_creator.py	/^def define_screen_size(ratio):$/;"	kind:function	line:180
+define_screen_size	../v0.1.py	/^def define_screen_size(ratio):$/;"	kind:function	line:127
+define_spawn_point	../map_creator.py	/^def define_spawn_point():$/;"	kind:function	line:202
+define_spawn_point	../v0.1.py	/^def define_spawn_point():$/;"	kind:function	line:152
+define_type_tile	../map_creator.py	/^def define_type_tile(type_tile):$/;"	kind:function	line:496
+define_type_tile	../v0.1.py	/^def define_type_tile(type_tile):$/;"	kind:function	line:2359
+display_add_level	../v0.1.py	/^def display_add_level(people):$/;"	kind:function	line:2222
+display_changing_area_time	../v0.1.py	/^display_changing_area_time = 2000$/;"	kind:variable	line:75
+display_fight_animation_screen	../v0.1.py	/^def display_fight_animation_screen(attacker, defender, fighters, number_fighter, actual_fighter):$/;"	kind:function	line:2032
+display_fight_screen	../v0.1.py	/^def display_fight_screen(attacker,fighters, number_fighter, actual_fighter):$/;"	kind:function	line:1895
+display_game_menu_screen	../v0.1.py	/^def display_game_menu_screen():$/;"	kind:function	line:1602
+display_game_screen	../map_creator.py	/^def display_game_screen():$/;"	kind:function	line:266
+display_game_screen	../v0.1.py	/^def display_game_screen():$/;"	kind:function	line:1544
+display_information	../map_creator.py	/^def display_information():$/;"	kind:function	line:311
+display_inventory	../v0.1.py	/^def display_inventory():$/;"	kind:function	line:1625
+display_menu_screen	../v0.1.py	/^def display_menu_screen():$/;"	kind:function	line:1856
+display_object	../map_creator.py	/^display_object = False$/;"	kind:variable	line:48
+display_option_screen	../v0.1.py	/^def display_option_screen():$/;"	kind:function	line:1877
+display_player	../v0.1.py	/^def display_player(time):$/;"	kind:function	line:1514
+display_squad	../v0.1.py	/^def display_squad():$/;"	kind:function	line:1647
+display_start_fight	../v0.1.py	/^def display_start_fight():$/;"	kind:function	line:2241
+display_stat_member	../v0.1.py	/^def display_stat_member(number):$/;"	kind:function	line:1774
+display_stat_player	../v0.1.py	/^def display_stat_player():$/;"	kind:function	line:1694
+doing_attack	../v0.1.py	/^doing_attack = 0$/;"	kind:variable	line:68
+elements	../v0.1.py	/^def elements(attacker, defender, attack_type):$/;"	kind:function	line:1411
+enter_press	../map_creator.py	/^enter_press = 0$/;"	kind:variable	line:45
+exit_game_color	../v0.1.py	/^exit_game_color = PURPLE$/;"	kind:variable	line:100
+field	../map_creator.py	/^field = {}$/;"	kind:variable	line:34
+field	../v0.1.py	/^field = {}$/;"	kind:variable	line:59
+field_object	../map_creator.py	/^field_object = {}$/;"	kind:variable	line:35
+field_object	../v0.1.py	/^field_object = {}$/;"	kind:variable	line:60
+fight_calculator	../v0.1.py	/^def fight_calculator(attacker, defender, attack_type):$/;"	kind:function	line:1376
+fighting	../v0.1.py	/^def fighting(monsters):$/;"	kind:function	line:1162
+framerate	../map_creator.py	/^framerate = 120$/;"	kind:variable	line:32
+framerate	../v0.1.py	/^framerate = 60$/;"	kind:variable	line:54
+game	../map_creator.py	/^game = True$/;"	kind:variable	line:23
+game	../v0.1.py	/^game = False$/;"	kind:variable	line:31
+game_color	../v0.1.py	/^game_color = PURPLE$/;"	kind:variable	line:95
+game_menu	../v0.1.py	/^game_menu = False$/;"	kind:variable	line:33
+height	../map_creator.py	/^height= 0$/;"	kind:variable	line:30
+height	../v0.1.py	/^height= 0$/;"	kind:variable	line:52
+if_fight	../v0.1.py	/^def if_fight():$/;"	kind:function	line:1105
+impress	../map_creator.py	/^def impress():$/;"	kind:function	line:520
+impress	../v0.1.py	/^def impress():$/;"	kind:function	line:2395
+inventory	../v0.1.py	/^inventory = False$/;"	kind:variable	line:41
+inventory_size	../v0.1.py	/^inventory_size = 5$/;"	kind:variable	line:65
+is_always_animated	../v0.1.py	/^def is_always_animated(time):$/;"	kind:function	line:2416
+is_animated	../v0.1.py	/^is_animated = False$/;"	kind:variable	line:56
+is_collide	../v0.1.py	/^def is_collide(type_collide,position):$/;"	kind:function	line:2379
+line_count	../test-2.py	/^    line_count = 0$/;"	kind:variable	line:5
+line_count	../test_csv.py	/^    line_count = 0$/;"	kind:variable	line:7
+liste	../test-2.py	/^    liste = list(csv_reader)$/;"	kind:variable	line:6
+magical_color	../v0.1.py	/^magical_color = BLACK$/;"	kind:variable	line:111
+manage_choose_monster_keys	../v0.1.py	/^def manage_choose_monster_keys(type_key, evenement, action, m1, m2, m3):$/;"	kind:function	line:879
+manage_fight_keys	../v0.1.py	/^def manage_fight_keys(type_key, evenement):$/;"	kind:function	line:842
+manage_game_keys	../map_creator.py	/^def manage_game_keys(type_key,evement):$/;"	kind:function	line:332
+manage_game_keys	../v0.1.py	/^def manage_game_keys(key):$/;"	kind:function	line:666
+manage_game_menu_keys	../v0.1.py	/^def manage_game_menu_keys(type_key,evenement):$/;"	kind:function	line:967
+manage_inventory_keys	../v0.1.py	/^def manage_inventory_keys(type_key, evenement):$/;"	kind:function	line:781
+manage_menu_keys	../v0.1.py	/^def manage_menu_keys(type_key,evenement):$/;"	kind:function	line:752
+manage_option_keys	../v0.1.py	/^def manage_option_keys(type_key,evenement):$/;"	kind:function	line:941
+manage_player_stat_keys	../v0.1.py	/^def manage_player_stat_keys(type_key, evenement):$/;"	kind:function	line:907
+manage_squad_keys	../v0.1.py	/^def manage_squad_keys(type_key, evenement):$/;"	kind:function	line:800
+manage_stat_member_keys	../v0.1.py	/^def manage_stat_member_keys(member,type_key, evenement):$/;"	kind:function	line:924
+map_creator.py	../map_creator.py	1;"	kind:file	line:1
+max_type_tile	../map_creator.py	/^max_type_tile = 0$/;"	kind:variable	line:44
+menu	../v0.1.py	/^menu = True$/;"	kind:variable	line:29
+middle	../v0.1.py	/^middle = 0$/;"	kind:variable	line:86
+monster_1_color	../v0.1.py	/^monster_1_color = RED$/;"	kind:variable	line:113
+monster_2_color	../v0.1.py	/^monster_2_color = RED$/;"	kind:variable	line:114
+monster_3_color	../v0.1.py	/^monster_3_color = RED$/;"	kind:variable	line:115
+mouse_tile	../map_creator.py	/^def mouse_tile(position):$/;"	kind:function	line:476
+movement_down	../map_creator.py	/^def movement_down():$/;"	kind:function	line:245
+movement_down	../v0.1.py	/^def movement_down():$/;"	kind:function	line:575
+movement_left	../map_creator.py	/^def movement_left():$/;"	kind:function	line:251
+movement_left	../v0.1.py	/^def movement_left():$/;"	kind:function	line:595
+movement_right	../map_creator.py	/^def movement_right():$/;"	kind:function	line:257
+movement_right	../v0.1.py	/^def movement_right():$/;"	kind:function	line:614
+movement_up	../map_creator.py	/^def movement_up():$/;"	kind:function	line:239
+movement_up	../v0.1.py	/^def movement_up():$/;"	kind:function	line:556
+new_animation	../test_csv.py	/^def new_animation():$/;"	kind:function	line:18
+number_fighter_function	../v0.1.py	/^def number_fighter_function():$/;"	kind:function	line:1434
+object_color	../v0.1.py	/^object_color = BLACK$/;"	kind:variable	line:109
+object_display	../v0.1.py	/^object_display = []$/;"	kind:variable	line:84
+open_game	../map_creator.py	/^open_game = True$/;"	kind:variable	line:22
+open_game	../v0.1.py	/^open_game = True$/;"	kind:variable	line:27
+option	../v0.1.py	/^option = False$/;"	kind:variable	line:35
+option_color	../v0.1.py	/^option_color = PURPLE$/;"	kind:variable	line:96
+physical_color	../v0.1.py	/^physical_color = BLACK$/;"	kind:variable	line:112
+pixel_to_coordinates	../map_creator.py	/^def pixel_to_coordinates(coord_px):$/;"	kind:function	line:514
+pixel_to_coordinates	../v0.1.py	/^def pixel_to_coordinates(coord_px):$/;"	kind:function	line:2353
+player	../v0.1.py	/^player = {}$/;"	kind:variable	line:90
+player_color	../v0.1.py	/^player_color = GREEN$/;"	kind:variable	line:116
+player_fight_area	../v0.1.py	/^def player_fight_area():$/;"	kind:function	line:1098
+player_font_color	../v0.1.py	/^player_font_color = PURPLE$/;"	kind:variable	line:101
+player_position	../v0.1.py	/^player_position = [0, 0]$/;"	kind:variable	line:62
+player_stat_display	../v0.1.py	/^player_stat_display = False$/;"	kind:variable	line:45
+provisor_key	../map_creator.py	/^provisor_key = 0$/;"	kind:variable	line:47
+ratio	../map_creator.py	/^ratio = [9,16]$/;"	kind:variable	line:25
+ratio	../v0.1.py	/^ratio = [9,16]$/;"	kind:variable	line:47
+rect_collide	../v0.1.py	/^def rect_collide(rect,position):$/;"	kind:function	line:2287
+replace_field_tile	../map_creator.py	/^def replace_field_tile(tile,type_tile):$/;"	kind:function	line:439
+replace_object_tile	../map_creator.py	/^def replace_object_tile(tile,type_tile):$/;"	kind:function	line:457
+run_color	../v0.1.py	/^run_color = BLACK$/;"	kind:variable	line:110
+save_game	../v0.1.py	/^def save_game():$/;"	kind:function	line:1001
+save_game_color	../v0.1.py	/^save_game_color = PURPLE$/;"	kind:variable	line:99
+screen_resolution_color	../v0.1.py	/^screen_resolution_color = PURPLE$/;"	kind:variable	line:97
+screen_resolution_menu	../v0.1.py	/^screen_resolution_menu = False$/;"	kind:variable	line:37
+screen_size	../map_creator.py	/^screen_size = [0,0]$/;"	kind:variable	line:27
+screen_size	../v0.1.py	/^screen_size = [0,0]$/;"	kind:variable	line:49
+screen_tile_size	../map_creator.py	/^screen_tile_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(screen_size[1]))$/;"	kind:variable	line:545
+screen_tile_size	../v0.1.py	/^screen_tile_size = (pixel_to_coordinates(screen_size[0]), pixel_to_coordinates(screen_size[1]))$/;"	kind:variable	line:2448
+spawn_point	../map_creator.py	/^spawn_point = []$/;"	kind:variable	line:38
+spawn_point	../v0.1.py	/^spawn_point = []$/;"	kind:variable	line:64
+squad1_color	../v0.1.py	/^squad1_color = GREEN$/;"	kind:variable	line:117
+squad2_color	../v0.1.py	/^squad2_color = GREEN$/;"	kind:variable	line:118
+squad_color	../v0.1.py	/^squad_color = {}$/;"	kind:variable	line:91
+squad_display	../v0.1.py	/^squad_display = {}$/;"	kind:variable	line:93
+squad_font_rect	../v0.1.py	/^squad_font_rect = {}$/;"	kind:variable	line:92
+squad_menu	../v0.1.py	/^squad_menu = False$/;"	kind:variable	line:43
+start_animation_back	../v0.1.py	/^def start_animation_back(time):$/;"	kind:function	line:2330
+start_animation_front	../v0.1.py	/^def start_animation_front(time):$/;"	kind:function	line:2317
+start_animation_left	../v0.1.py	/^def start_animation_left(time):$/;"	kind:function	line:2291
+start_animation_right	../v0.1.py	/^def start_animation_right(time):$/;"	kind:function	line:2304
+start_fight	../v0.1.py	/^def start_fight():$/;"	kind:function	line:1131
+start_fight_time	../v0.1.py	/^start_fight_time = 0$/;"	kind:variable	line:76
+stat_heigth	../v0.1.py	/^stat_heigth = 12$/;"	kind:variable	line:66
+stat_member_color	../v0.1.py	/^stat_member_color = BLACK$/;"	kind:variable	line:103
+stat_player_color	../v0.1.py	/^stat_player_color = BLACK$/;"	kind:variable	line:102
+stat_squad_height	../v0.1.py	/^stat_squad_height = 13$/;"	kind:variable	line:67
+stay_at_screen	../map_creator.py	/^def stay_at_screen():$/;"	kind:function	line:221
+stay_at_screen	../v0.1.py	/^def stay_at_screen():$/;"	kind:function	line:539
+test-2.py	../test-2.py	1;"	kind:file	line:1
+test_csv.py	../test_csv.py	1;"	kind:file	line:1
+time_changing_area	../v0.1.py	/^time_changing_area = 0$/;"	kind:variable	line:74
+turn_fighter	../v0.1.py	/^def turn_fighter(speed_m1,speed_m2,speed_m3,number_fighter):$/;"	kind:function	line:1444
+v0.1.py	../v0.1.py	1;"	kind:file	line:1
+which_current_tile	../map_creator.py	/^which_current_tile = 1$/;"	kind:variable	line:46
+which_monster	../v0.1.py	/^def which_monster():$/;"	kind:function	line:1114
+which_object_display	../v0.1.py	/^def which_object_display():$/;"	kind:function	line:2433
+which_target	../v0.1.py	/^which_target = -1$/;"	kind:variable	line:70
+which_type	../map_creator.py	/^def which_type():$/;"	kind:function	line:483
+whole_divisor	../map_creator.py	/^def whole_divisor(x,n):$/;"	kind:function	line:492
+whole_divisor	../v0.1.py	/^def whole_divisor(x,n):$/;"	kind:function	line:2412
+wich_attack	../v0.1.py	/^wich_attack = 1$/;"	kind:variable	line:69
+width	../map_creator.py	/^width = 0$/;"	kind:variable	line:29
+width	../v0.1.py	/^width = 0$/;"	kind:variable	line:51
+window	../map_creator.py	/^window = pygame.display.set_mode(screen_size)$/;"	kind:variable	line:550
+window	../v0.1.py	/^window = pygame.display.set_mode(screen_size)$/;"	kind:variable	line:2450

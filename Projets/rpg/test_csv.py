@@ -115,3 +115,21 @@ def new_animation():
     add_move(animation_right, ('right_left', 80))
 
     return
+
+
+
+######
+
+Wolf,60,60,vent,30,30,30,20,20,5,5,1
+Plant,40,40,eau,30,20,20,30,30,5,5,1
+Werewolf,70,70,feu,30,30,30,30,30,5,5,2
+Spider,50,50,vent,25,25,25,25,25,4,4,1
+Bat,60,60,eau,30,35,35,25,25,7,3,1
+
+position,4972.5,-810.0,4492.5,-510.0
+area,2
+orientation,2
+inventory,1,0,0,0,0
+player,11,83,feu,200,200,50,50,50,50,20,20,Joshua
+squad,Kieran,11,83,eau,200,200,60,60,40,40,17,25,1
+squad,Said,11,83,vent,200,200,40,40,60,60,105,105,1
