@@ -1988,7 +1988,9 @@ def display_fight_screen(attacker,fighters, number_fighter, actual_fighter):
     physical_rect = pygame.Rect(screen_size[0] // 20 * 1 , screen_size[1] // 20 * 17, physical_size[0], physical_size[1])
 
 
-    window.fill(background)
+    background_image = pygame.image.load('pictures/Fight/background/battle-background-sunny-hillsx4.png').convert_alpha()
+    window.blit(background_image,(0,0))
+    
 
     if fighters[0]['HP'] > 0:
         pygame.draw.rect(window,RED,sprite_m1)
@@ -2047,6 +2049,8 @@ def display_fight_screen(attacker,fighters, number_fighter, actual_fighter):
         window.blit(physical, (screen_size[0] // 20 * 1 , screen_size[1] // 20 * 17))
 
     pygame.display.flip()
+
+    clock.tick(framerate)
     
     return
 
@@ -2178,7 +2182,8 @@ def display_fight_animation_screen(attacker, defender, fighters, number_fighter,
         use_object_rect = pygame.Rect(screen_size[0] // 20 * 9, screen_size[1] // 20 * 16, use_object_size[0], use_object_size[1])
         run_rect = pygame.Rect(screen_size[0] // 20 * 9, screen_size[1] // 20 * 18, run_size[0], run_size[1])
 
-        window.fill(background)
+        background_image = pygame.image.load('pictures/Fight/background/battle-background-sunny-hillsx4.png').convert_alpha()
+        window.blit(background_image,(0,0))
 
         if fighters[0]['HP'] > 0:
             pygame.draw.rect(window,RED,sprite_m1)
@@ -2237,6 +2242,8 @@ def display_fight_animation_screen(attacker, defender, fighters, number_fighter,
         window.blit(run, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 18))
 
         pygame.display.flip()
+
+        clock.tick(framerate)
 
     return
 
