@@ -1,0 +1,8 @@
+position,0,0,0,0
+area,0
+orientation,1
+inventory,1,0,0,0,0
+player,1,1,feu,100,100,30,30,30,30,10,10,Joshua
+squad,Kieran,1,1,eau,100,100,40,40,20,20,7,15,1
+squad,Said,1,1,vent,100,100,20,20,40,40,15,10,1
+object

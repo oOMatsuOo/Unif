@@ -1,0 +1,6 @@
+collide,0,3,4,5,9
+spawn_point,59,7
+area,0,La plage,0,0,0,0,fight,0,1,0,1,5
+area,1,La forêt enchantee,25,30,26,30,neutral
+area,2,La forêt maudite,58,32,58,33,fight,2,3,4,5,10
+area,3,La Ville,90,20,91,20,neutral

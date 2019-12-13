@@ -24,6 +24,8 @@ WHITE      = (255,255,255)
 
 ### PARAMETER ###
 
+## Initialisation de toutes les variables globales du jeux
+
 open_game = True
 
 menu = True
@@ -44,7 +46,7 @@ squad_menu = False
 
 player_stat_display = False
 
-ratio = [9,16]
+ratio = [3,4]
 
 screen_size = [0,0]
 
@@ -70,7 +72,7 @@ wich_attack = 1
 which_target = -1
 changing_zone = 0
 critical = False
-auto_mode = True
+auto_mode = False
 time_changing_area = 0
 display_changing_area_time = 2000
 start_fight_time = 0
@@ -121,21 +123,23 @@ squad2_color = GREEN
 ### FUNCTION ###
 
 
-### Screen ###
+### Screen ### Toutes les fonctions utiles à la définition automatique de la taille de l'écran
 
 
 def define_screen_size(ratio):
     global screen_size, tile_size, movement,divide_tile
 
-    different_screen_size = [426,640,768,800,848,896,960,1024,1152,1280,1366,1600,1920] 
+    different_screen_size = [426,640,768,800,848,896,960,1024,1152,1280,1366,1600,1920]  # Toutes les tailles d'écran disponible
 
-    screen_size[0] = different_screen_size[6]
+    screen_size[0] = different_screen_size[4]
     screen_size[1] = int(screen_size[0] * ratio[0] / ratio[1])
 
     tile_size = 0
     start_tile_size = 60
 
-    while tile_size == 0:
+    ## Calcul la hauteur de l'écran qui correpsont à la hauteur choisie, tout en gardant le ratio défini plus haut
+
+    while tile_size == 0: 
         if whole_divisor(screen_size[0],start_tile_size) and whole_divisor(screen_size[1],start_tile_size):
             tile_size = start_tile_size
         start_tile_size += 1
@@ -149,7 +153,7 @@ def define_screen_size(ratio):
 
     return
 
-def define_spawn_point():
+def define_spawn_point(): # Si le joueur n'a encore jamais joué, initialise sa position au spawn, défini dans les propriétés 
     global player,player_position,camera_position
 
     if player['position'][0] == 0 and player['position'][1] == 0:
@@ -181,11 +185,11 @@ def define_spawn_point():
 ### Creation ###
 
 
-def create_field():
+def create_field(): # Crée un dictionnaire field, composé d'un dictictionnaire par ligne qui compose la carte de jeux et qui contient le type de chaque case.
     global field, height, width
 
     tile = {}
-    with open("maps/map_1/maps.csv") as csv_file:
+    with open("maps/map_1/maps.csv") as csv_file: # Retrourne la taille de la carte
         csv_reader = csv.reader(csv_file, delimiter=",")
         liste_field = list(csv_reader)
         width = len(liste_field[1])
@@ -200,7 +204,7 @@ def create_field():
             tile = {}
 
             while tile_count < width:
-                tile[tile_count] = row[tile_count]
+                tile[tile_count] = row[tile_count]  # Stock le type de la case dans le dictionnaire tile, qui sera stocké dans field
                 tile_count += 1
             
             field[line_count] = tile
@@ -211,7 +215,7 @@ def create_field():
 
     return
 
-def create_player():
+def create_player(): # Crée un dictionnaire player qui contient les informations importantes du joueurs, excepté ses stat, qui sont stockées dans player_stat
     global player,height_save, player_stat,squad, player_position, camera_position
 
     player = {}
@@ -233,7 +237,7 @@ def create_player():
             tile_count = 1
             component = {}
 
-            if row[0] == 'position':
+            if row[0] == 'position': #Récupère la position sauvegardée du joueur, et la position de la camera dans la carte
                 component[0] = float(row[1])
                 component[1] = float(row[2])
                 camera_position[0] = float(row[3])
@@ -241,19 +245,19 @@ def create_player():
 
                 player['position'] = component
 
-            elif row[0] == 'area':
+            elif row[0] == 'area':  # Récupère la zone dans laquelle le joueur était
                 player['area'] = int(row[1])
 
-            elif row[0] == 'orientation':
+            elif row[0] == 'orientation':  # Récupère son orientation
                 player['orientation'] = int(row[1])
             
-            elif row[0] == 'inventory':
+            elif row[0] == 'inventory': # Récupère son orientation
                 player['inventory'] = []
                 while tile_count < inventory_size + 1:
                     player['inventory'].append(int(row[tile_count]))
                     tile_count += 1
             
-            elif row[0] == 'player':
+            elif row[0] == 'player': # Récupère toutes les stat du joueur
                 tile_count = 0
                 while tile_count < stat_heigth:
                     if tile_count == 0:
@@ -282,7 +286,7 @@ def create_player():
                         player_stat['Name'] = row[12]
                     tile_count += 1
 
-            elif row[0] == 'object':
+            elif row[0] == 'object': # Récupère l'emplacement de tous les objets que le joueurs a récupérer
                 number_object = len(row)
                 player['object'] = {}
                 count = 0
@@ -295,7 +299,7 @@ def create_player():
                     tile_count += 2
                     count += 1
 
-            elif row[0] == 'squad':
+            elif row[0] == 'squad': # Récupère les stats des autres membres de l'équipe du joueur
                 tile_count = 0
                 squad[squad_number] = {}
                 while tile_count < stat_squad_height:
@@ -330,10 +334,9 @@ def create_player():
 
             line_count += 1
     
-    print(player)
     return
 
-def create_monster():
+def create_monster(): # Crée un dictionnaire comportant toutes les stats des différents monstres
     global monster_tab
 
     monster_tab = {}
@@ -360,7 +363,7 @@ def create_monster():
 
             tile_count += 1
 
-def create_area():
+def create_area(): # Crée un dictionnaire area, comportant toutes les zones de la carte, ainsi que leurs point d'entrée/sortie
     global area
 
     area = []
@@ -388,7 +391,7 @@ def create_area():
                 area.append(area_csv)
     print(area)
 
-def create_object():
+def create_object(): # Crée un dictionnaire field_object, comportant tous les objets présents sur la map( arbres, buissons, et potions)
     global field_object
 
     object_csv = {}
@@ -416,7 +419,7 @@ def create_object():
  
     return
 
-def create_collide():
+def create_collide(): # Crée un dictionnaire comportant toutes les cases/objets avec qui il y a une collision
     global collide
 
     with open("maps/map_1/properties.csv") as csv_file:
@@ -428,7 +431,7 @@ def create_collide():
                     if not row[i] in collide and row[i] != "collide":
                         collide.append(row[i])
 
-def create_spawn_point():
+def create_spawn_point(): # Crée une variable spawn_point qui contient l'endroit de spawn, défini dans les propriétés
     global spawn_point
 
     spawn_point = {}
@@ -443,7 +446,7 @@ def create_spawn_point():
                     spawn_point[0] = int(row[1])
                     spawn_point[1] = int(row[2])
 
-def create_tile(tile_type, x, y):
+def create_tile(tile_type, x, y): # Affiche à l'écran la case / l'objet demandé, aux coordonnées renseignées en paramètres
     x_coord = coordinates_to_pixel(x)
     y_coord = coordinates_to_pixel(y)
     
@@ -462,7 +465,7 @@ def create_tile(tile_type, x, y):
     
     return
 
-def create_square(x, y):
+def create_square(x, y): # Crée un carré de la taille d'une case, aux coordonnées renseignées en paramètres
 
     p1 = (x,y)
     p2 = (x+tile_size,y)
@@ -472,7 +475,7 @@ def create_square(x, y):
 
     return(p1, p2, p3, p4)
 
-def create_player_sprite():
+def create_player_sprite(): # Crée un dictionnaire sprite_player contenant les différentes sprites du player
     global sprite_player
 
     sprite_player = {}
@@ -486,22 +489,22 @@ def create_player_sprite():
         image = pygame.transform.scale(image, (tile_size,tile_size))
         add_position(sprite_player,name_image,image)
 
-def create_player_animation_sprite():
+def create_player_animation_sprite(): # Crée 4 dictionnaires comportant les sprites des animations du joueur
     global sprite_left,sprite_right,sprite_front,sprite_back
 
-    sprite_left = {
+    sprite_left = { # Mouvement à gauche
         'next_move_moment':None,
         'choreography':[]
     }
-    sprite_right = {
+    sprite_right = { # Mouvement à droite
         'next_move_moment':None,
         'choreography':[]
     }
-    sprite_front = {
+    sprite_front = { # Mouvement vers le haut
         'next_move_moment':None,
         'choreography':[]
     }
-    sprite_back = {
+    sprite_back = { # Mouvement vers le bas
         'next_move_moment':None,
         'choreography':[]
     }
@@ -538,7 +541,7 @@ def create_player_animation_sprite():
 ### Movement ###
 
 
-def stay_at_screen():
+def stay_at_screen(): # Fonction appelée en boucle, permettant à la caméra et au joueur de rester dans les limites de la carte
     global player_position
 
     if player_position[0] <= 0:
@@ -547,54 +550,54 @@ def stay_at_screen():
     if player_position[1] >= 0:
         player_position[1] = 0
     
-    if player_position[0] >= screen_size[0] - tile_size:
+    if player_position[0] >= screen_size[0] - tile_size: # Position en X de la camera sur l'écran
         player_position[0] = screen_size[0] - tile_size
 
-    if player_position[1] <= -screen_size[1] + tile_size:
+    if player_position[1] <= -screen_size[1] + tile_size: # Position en Y de la camera sur l'écran
         player_position[1] = -screen_size[1] + tile_size
     
     return
 
-def movement_up():
+def movement_up(): # Déplacement vers le haut du joueur
 
-    if camera_position[1] == 0 and player_position[0] >= -screen_size[1] // 2:
+    if camera_position[1] == 0 and player_position[0] >= -screen_size[1] // 2: # si la camera est tout en haut mais que le joueur veut encore monter, la camera arrête de monter et le joueur se déplace
         camera_position[1] = 0
         player_position[1] += movement
 
-    elif camera_position[1] == (-((height) * tile_size) + screen_size[1]) and player_position[1] <= -screen_size[1] // 2:
+    elif camera_position[1] == (-((height) * tile_size) + screen_size[1]) and player_position[1] <= -screen_size[1] // 2: # si la camera est tout en bas mais que le joueur veut monter, la camera arrête de monter et le joueur se déplace
         player_position[1] += movement
 
     else:
         camera_position[1] += movement
     
-    if player_fight_area():
+    if player_fight_area(): # Condition qui peut potentiellement lancer un combat
             if_fight()
     
-    change_area()
+    change_area() # Détecte si il y a un changement de zone
 
     return
 
-def movement_down():
+def movement_down(): # Déplacement vers le bas du joueur
 
-    if camera_position[1] == 0 and player_position[1] >= -screen_size[1] // 2:
+    if camera_position[1] == 0 and player_position[1] >= -screen_size[1] // 2: # si la camera est tout à gauche mais que le joueur veut encore aller à gauche la camera arrête de se déplacer et le joueur se déplace
         camera_position[1] = 0
         player_position[1] -= movement
 
-    elif camera_position[1] == (-((height) * tile_size) + screen_size[1]) and player_position[1] <= screen_size[1] // 2:
+    elif camera_position[1] == (-((height) * tile_size) + screen_size[1]) and player_position[1] <= screen_size[1] // 2:# si la camera est tout à droite mais que le joueur veut aller à gauche la camera arrête de se déplacer et le joueur se déplace
         camera_position[1] = (-((height) * tile_size) + screen_size[1])
         player_position[1] -= movement
 
     else:
         camera_position[1] -= movement
 
-    if player_fight_area():
+    if player_fight_area(): # Condition qui peut potentiellement lancer un combat
             if_fight()
 
-    change_area()
+    change_area() # Détecte si il y a un changement de zone
 
     return
 
-def movement_left():
+def movement_left(): # Même principe que les autres, mais à gauche
 
     if camera_position[0] == 0 and player_position[0] <= screen_size[0] // 2:
         camera_position[0] = 0
@@ -613,7 +616,7 @@ def movement_left():
 
     return
 
-def movement_right():
+def movement_right(): # Même principe que les autres, mais à droite
 
     if camera_position[0] == 0 and player_position[0] < screen_size[0] // 2:
         camera_position[0] = 0
@@ -633,15 +636,15 @@ def movement_right():
 
     return
 
-def change_area():
+def change_area(): # Détecte si il y a un changement de zone
     global player, changing_zone, time_changing_area
 
-    if changing_zone == 1 :
+    if changing_zone == 1 : # variable qui indique si le joueur est déjà occupé à changer de zone, pour éviter la détection de s'activer plusieurs fois lors d'un même changement de zone
         changing_zone += 1
     elif changing_zone == 2:
         changing_zone = 0
    
-    if player['area'] > 0 and not changing_zone:
+    if player['area'] > 0 and not changing_zone: # Si la zone actuelle du joueur n'est pas la première et que le joueurs ne change pas de zone, on regarde si la position du joueur corespond à l'entréee de sa zone actuelle
         input_1_area_1 = (area[player['area']]['X1'],area[player['area']]['Y1'])
         input_2_area_1 = (area[player['area']]['X2'],area[player['area']]['Y2'])
         
@@ -651,7 +654,7 @@ def change_area():
                 player['area'] -= 1
                 changing_zone = 1
     
-    if player['area'] < len(area) - 1 and not changing_zone:
+    if player['area'] < len(area) - 1 and not changing_zone: # Si la zone actuelle du joueur n'est pas la dernière et que le joueurs ne change pas de zone, on regarde si la position du joueur corespond à l'entréee de la prochaine zone
         input_1_area_2 = (area[player['area'] + 1]['X1'],area[player['area'] + 1]['Y1'])
         input_2_area_2 = (area[player['area'] + 1]['X2'],area[player['area'] + 1]['Y2'])
 
@@ -660,15 +663,23 @@ def change_area():
                 time_changing_area = pygame.time.get_ticks()
                 player['area'] += 1
                 changing_zone = 1
+    end_game()
  
+def end_game(): # Fin du jeux
+    global game, endgame 
+
+    if player['area'] == len(area) - 1:
+        game = False
+        endgame = True
+
                 
 ### Action ###
 
 
-def manage_game_keys(key):
+def manage_game_keys(key): # Fonction qui gère l'entrée de touches pendant le jeux
     global player_position, camera_position, player, menu, game, game_menu, inventory, squad_menu
 
-    if key == pygame.K_LEFT or key == pygame.K_q:        
+    if key == pygame.K_LEFT or key == pygame.K_q: # Déplacement vers la gauche  
         if player['position'][0] % tile_size == 0:
             if player['position'][1] % tile_size == 0:
                 if is_not_collide(0,'left',player['position']):
@@ -681,10 +692,10 @@ def manage_game_keys(key):
         else:
             movement_left()
         
-        player['orientation'] = 4
-        start_animation_left(now)
+        player['orientation'] = 4  # change l'orientation du joueur
+        start_animation_left(now) # change l'animation du joueur
 
-    elif key == pygame.K_RIGHT or key == pygame.K_d:
+    elif key == pygame.K_RIGHT or key == pygame.K_d: # Déplacement vers la droite
         if player['position'][0] % tile_size == 0:
             if player['position'][1] % tile_size == 0:
                 if is_not_collide(0,'right',player['position']):
@@ -696,10 +707,10 @@ def manage_game_keys(key):
         else:
             movement_right()
         
-        player['orientation'] = 2
-        start_animation_right(now)
+        player['orientation'] = 2  # change l'orientation du joueur
+        start_animation_right(now) # change l'animation du joueur
         
-    elif key == pygame.K_UP or key == pygame.K_z:
+    elif key == pygame.K_UP or key == pygame.K_z: # Déplacement vers le haut
         if player['position'][1] % tile_size == 0:
             if player['position'][0] % tile_size == 0:
                 if is_not_collide(0,'up',player['position']):
@@ -712,10 +723,10 @@ def manage_game_keys(key):
         else:
             movement_up()
         
-        player['orientation'] = 3
-        start_animation_back(now)
+        player['orientation'] = 3 # change l'orientation du joueur
+        start_animation_back(now) # change l'animation du joueur
 
-    elif key == pygame.K_DOWN or key == pygame.K_s:
+    elif key == pygame.K_DOWN or key == pygame.K_s: # Déplacement vers le bas
         if player['position'][1] % tile_size == 0:
             if player['position'][0] % tile_size == 0:
                 if is_not_collide(0,'down',player['position']):
@@ -726,10 +737,10 @@ def manage_game_keys(key):
         else:
             movement_down()
         
-        player['orientation'] = 1
-        start_animation_front(now)
+        player['orientation'] = 1  # change l'orientation du joueur
+        start_animation_front(now) # change l'animation du joueur
     
-    elif key == pygame.K_RETURN:
+    elif key == pygame.K_RETURN: # Récupère un objet si il y en a un devant le joueur
         if player['orientation'] == 1:
             if field_object[-player['position'][1] // tile_size + 1][player['position'][0] // tile_size] == '9' and not (player['position'][0] // tile_size) in player['object']['X'] and not (player['position'][1] // tile_size + 1) in player['object']['Y']:
                 add_object()
@@ -743,21 +754,21 @@ def manage_game_keys(key):
             if field_object[-player['position'][1] // tile_size][player['position'][0] // tile_size - 1] == '9' and not (player['position'][0] // tile_size - 1) in player['object']['X'] and not (player['position'][1] // tile_size) in player['object']['Y']:
                 add_object()     
 
-    elif key == pygame.K_ESCAPE:
+    elif key == pygame.K_ESCAPE: # Afcihe le menu de sauvegarde et d'exit du jeux
         game_menu = True
         game = False
 
-    elif key == pygame.K_i:
+    elif key == pygame.K_i: # Affiche l'inventaire
         game = False
         inventory = True
     
-    elif key == pygame.K_u:
+    elif key == pygame.K_u: # Affiche la squad
         game = False
         squad_menu = True
 
     return
 
-def manage_menu_keys(type_key,evenement):
+def manage_menu_keys(type_key,evenement): # Fonction qui gère les touches dans le menu
     global game_color, option_color, menu, option, game, open_game, time_changing_area
 
     if type_key == -1:
@@ -786,7 +797,7 @@ def manage_menu_keys(type_key,evenement):
 
     return
 
-def manage_inventory_keys(type_key, evenement):
+def manage_inventory_keys(type_key, evenement): # Fonction qui gère les touches dans l'inventaire
     global cross_color,game,inventory
 
     if type_key == -1:
@@ -805,7 +816,7 @@ def manage_inventory_keys(type_key, evenement):
             inventory = False
             game = True
 
-def manage_squad_keys(type_key, evenement):
+def manage_squad_keys(type_key, evenement): # Fonction qui gère les touches dans le menu de la squad
     global cross_squad_color,game,squad_menu, player_font_color,player_stat_display, squad_color
 
     if type_key == -1:
@@ -847,7 +858,7 @@ def manage_squad_keys(type_key, evenement):
     
     return
 
-def manage_fight_keys(type_key, evenement):
+def manage_fight_keys(type_key, evenement): # Fonction qui gère les touches durant un combat
     global doing_attack, attack_color, object_color, run_color, magical_color, physical_color
 
     if type_key == -1:
@@ -884,7 +895,7 @@ def manage_fight_keys(type_key, evenement):
     
     return [0,0,0]
 
-def manage_choose_monster_keys(type_key, evenement, action, m1, m2, m3):
+def manage_choose_monster_keys(type_key, evenement, action, m1, m2, m3): # Fonction qui gère les touches lors du choix du monstre ennemi pendant un combat
     global which_target, monster_1_color, monster_2_color, monster_3_color
 
     if type_key == -1:
@@ -912,7 +923,7 @@ def manage_choose_monster_keys(type_key, evenement, action, m1, m2, m3):
 
     return action
 
-def manage_player_stat_keys(type_key, evenement):
+def manage_player_stat_keys(type_key, evenement): # Fonction qui gère les touches dans le menu des stats du joueur
     global cross_stat_player_color, player_stat_display, game
 
     if type_key == -1:
@@ -929,7 +940,7 @@ def manage_player_stat_keys(type_key, evenement):
             player_stat_display = False
             game = True
 
-def manage_stat_member_keys(member,type_key, evenement):
+def manage_stat_member_keys(member,type_key, evenement): # Fonction qui gère les touches dans le menu des stats des membres de la squad
     global cross_stat_member_color, game, squad_display
 
     if type_key == -1:
@@ -946,7 +957,7 @@ def manage_stat_member_keys(member,type_key, evenement):
 
     return
 
-def manage_option_keys(type_key,evenement):
+def manage_option_keys(type_key,evenement): # Fonction qui gère les touches dans les options du jeux
     global option, menu, screen_resolution_color, control_color,screen_resolution_menu,control_menu
     
     if evenement == -1:
@@ -972,7 +983,7 @@ def manage_option_keys(type_key,evenement):
     
     return
 
-def manage_game_menu_keys(type_key,evenement):
+def manage_game_menu_keys(type_key,evenement): # Fonction qui gère les touches dans le menu du jeux
     global save_game_color, exit_game_color,game_menu,game,menu
 
     if type_key == -1:
@@ -1006,7 +1017,7 @@ def manage_game_menu_keys(type_key,evenement):
 ### Save ###
 
 
-def save_game():
+def save_game():  # Fonction qui sauvegarde l'état du joueur, sa position, ses stats, les stas de la squad, ...
 
     field_list = []
     range_list = []
@@ -1111,14 +1122,14 @@ def save_game():
 ### Fight ###
 
 
-def player_fight_area():
+def player_fight_area(): # Déecte si la zone du joueur est une zone de combat
     for i in area:
         if i['Type'] == 'fight' and int(i['Number']) == player['area']:
             return True
 
     return False
 
-def if_fight():
+def if_fight(): # Faire un nombre random pour savoir si on lance un combat ou pas
     global start_fight_time
     number = rdm.randint(0,200)
 
@@ -1127,8 +1138,8 @@ def if_fight():
         display_start_fight()
         start_fight()
     
-def which_monster():
-    current_area = area[player['area']]  # Monster depends on the area
+def which_monster(): # Retourne un dictionnaire contenant des monstres qui sont dans la zone actuelle du joueur
+    current_area = area[player['area']]  # Les monstres dépendent de la zone
 
     monsters = [-1,-1,-1]
 
@@ -1144,13 +1155,13 @@ def which_monster():
 
     return (monsters)
 
-def start_fight():
+def start_fight(): # Commence le combat et initalise certaines variables
     global game
 
     game = False
 
     monsters = []
-    monsters = which_monster() # Depends on the area of the player
+    monsters = which_monster()
 
     fight_monsters = [-1,-1,-1]
     fight_monsters[0] = monsters[0]
@@ -1164,7 +1175,7 @@ def start_fight():
     
     return
         
-def create_fighting_monsters(fight_monsters):
+def create_fighting_monsters(fight_monsters): # Level up les monsters aléatoirement au niveau défini de la zone du joueur
     
     stat_monsters = {}
     i = 0
@@ -1175,7 +1186,7 @@ def create_fighting_monsters(fight_monsters):
 
     return stat_monsters
 
-def fighting(monsters):
+def fighting(monsters): # Fonction principale du combat
     global game, action, attack, doing_attack, monster_1_color, monster_2_color, monster_3_color, magical_color, physical_color, player_stat, squad, critical
 
     monster_1 = {}
@@ -1207,7 +1218,7 @@ def fighting(monsters):
             except:
                 number_monsters -= 1
 
-    while (( player_stat['HP'] > 0 ) and (monster_1['HP'] > 0 or monster_2['HP'] > 0 or monster_3['HP'] > 0)):
+    while (( player_stat['HP'] > 0 ) and (monster_1['HP'] > 0 or monster_2['HP'] > 0 or monster_3['HP'] > 0)): # Tant que le joueur a de la vie et que au moins un monstre à de la vie
         
         attack = 0
         critical = False
@@ -1222,7 +1233,7 @@ def fighting(monsters):
         action = [0,0,0]
         doing_attack = 0
 
-        while action[0] == 0 :
+        while action[0] == 0 : # Première action : choix de l'action
 
             display_fight_screen(current_fighter,fighters, number_fighter, turn[actual_turn])
 
@@ -1250,7 +1261,7 @@ def fighting(monsters):
 
                 manage_fight_keys(-1, 0)
 
-        while action[0] == 1:
+        while action[0] == 1: # Deuxième action : Choix du monstre
 
             if turn[actual_turn] < 3:
                 action[0] = 2
@@ -1311,7 +1322,7 @@ def fighting(monsters):
 
                 display_fight_screen(current_fighter,fighters, number_fighter, turn[actual_turn])
         
-        while action[0] == 2:
+        while action[0] == 2: # Animation de l'attaque
 
             monster_1_color = RED
             monster_2_color = RED
@@ -1345,7 +1356,7 @@ def fighting(monsters):
 
         pygame.time.wait(1000)
 
-    if player_stat['HP'] > 0:
+    if player_stat['HP'] > 0: # Fonction d'ajout de l'XP
         player_stat = add_XP(fighters, player_stat)
         player_stat = add_level(player_stat)
 
@@ -1368,7 +1379,7 @@ def fighting(monsters):
 
     return
 
-def create_monster_XP(monster):
+def create_monster_XP(monster): # Ajout l'XP aux stat du monstre donné
 
     end_monster = {}
     current_area = area[player['area']]
@@ -1389,7 +1400,7 @@ def create_monster_XP(monster):
 
     return end_monster
 
-def fight_calculator(attacker, defender, attack_type):
+def fight_calculator(attacker, defender, attack_type): # Calcul l'attaque de l'attaquant
 
     power = elements(attacker, defender, attack_type)
 
@@ -1397,7 +1408,7 @@ def fight_calculator(attacker, defender, attack_type):
 
     return defender
 
-def calcul_power(attacker, defender, attack_type):
+def calcul_power(attacker, defender, attack_type): # Prend en compte les types de l'attaquant et défenseur ainsi que la change de critic de l'attaquant
     if attacker['Magical attack'] < defender['Magical resistance']:
         defender['Magical resistance'] = attacker['Magical attack'] * 3 // 2
 
@@ -1413,7 +1424,7 @@ def calcul_power(attacker, defender, attack_type):
 
     return power
 
-def critical_hit(power,attacker):
+def critical_hit(power,attacker): # Calcul si le coup est un critic ou pas
     global critical
 
     chance_crit = rdm.randint(0,100)
@@ -1424,7 +1435,7 @@ def critical_hit(power,attacker):
 
     return power
 
-def elements(attacker, defender, attack_type):
+def elements(attacker, defender, attack_type): # Compare tous les elements possibles afin de savoir si l'attaquant à l'avantage, si le défenseur à l'avantage ou si c'est égalité
     if attacker['Element'] == 'feu':
         if defender['Element'] == 'feu': #égalité
             return calcul_power(attacker, defender, attack_type)
@@ -1447,7 +1458,7 @@ def elements(attacker, defender, attack_type):
         elif defender['Element'] == 'feu' :
             return calcul_power(attacker, defender, attack_type) * 2 // 3
 
-def number_fighter_function():
+def number_fighter_function(): # Retourne le nombre de combatants
     number = 4
 
     if squad[0]['Present']:
@@ -1457,7 +1468,7 @@ def number_fighter_function():
 
     return number
 
-def turn_fighter(speed_m1,speed_m2,speed_m3,number_fighter):
+def turn_fighter(speed_m1,speed_m2,speed_m3,number_fighter): # Retourne l'ordre de jeux des combatants en fonctions de leurs rapidité
     fighters = [-1,-1,-1,-1,-1,-1]
     
     speed = {}
@@ -1494,14 +1505,14 @@ def turn_fighter(speed_m1,speed_m2,speed_m3,number_fighter):
 
     return fighters
 
-def add_XP(fighters, people):
+def add_XP(fighters, people): # Ajout de l'XP à un combatant après un combat
     amount_XP = fighters[0]['XP'] + fighters[1]['XP'] + fighters[2]['XP']
 
     people['XP'] += amount_XP // 2
 
     return people
 
-def add_level(people):
+def add_level(people): # Ajout d'un level
     while (people['Level'] * 25 + 100 < people['XP']):
         people['Level'] += 1
         people['Magical attack'] += 2
@@ -1527,7 +1538,7 @@ def add_position(entity,name,image):
 
     return
 
-def display_player(time):
+def display_player(time): # Affiche le joueur en fonction de son animation et de sa position
 
     if is_animated:
         if animation == 4:
@@ -1557,7 +1568,7 @@ def display_player(time):
 
     return
 
-def display_game_screen():
+def display_game_screen():  # Affiche l'écran du jeux
     
     height_screen = screen_size[1] // tile_size
     width_screen = screen_size[0] // tile_size
@@ -1620,7 +1631,7 @@ def display_game_screen():
 
     return
 
-def display_game_menu_screen():
+def display_game_menu_screen(): # Affiche l'écran du menu 
     global save_rect, exit_game_rect
 
     game_menu_first_rect = pygame.Rect(screen_size[0] // 200 * 3,screen_size[1] // 300 * 3 ,screen_size[0]//20 * 3 + screen_size[0] // 200 * 3 ,screen_size[1]//10 * 7 + 3 * screen_size[1] // 300 * 3)
@@ -1643,7 +1654,7 @@ def display_game_menu_screen():
 
     return
 
-def display_inventory():
+def display_inventory(): # Affiche l'inventaire
     global cross_rect
 
     inventory_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10 ,screen_size[0]// 10 * 8  ,screen_size[1]// 10 * 8)
@@ -1665,7 +1676,7 @@ def display_inventory():
 
     return
     
-def display_squad():
+def display_squad(): # Affiche le menu de la squad
     global cross_squad_rect,player_font_rect,squad_font_rect,squad_color, squad_display
 
     squad_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10 ,screen_size[0]// 10 * 8  ,screen_size[1]// 10 * 8)
@@ -1712,7 +1723,7 @@ def display_squad():
     
     return
 
-def display_stat_player():
+def display_stat_player(): # Affiche les stat du joueur
     global cross_stat_player_rect
 
     stat_player_first_rect = pygame.Rect(screen_size[0] // 10,screen_size[1] // 10 ,screen_size[0]// 10 * 8  ,screen_size[1]// 10 * 8)
@@ -1792,7 +1803,7 @@ def display_stat_player():
     
     return
 
-def display_stat_member(number):
+def display_stat_member(number): # Affiche les stats d'un membre de la squad
     global cross_stat_member_rect,cross_stat_member_color
 
     squad_member = squad[number]
@@ -1874,7 +1885,7 @@ def display_stat_member(number):
     
     return
 
-def display_menu_screen():
+def display_menu_screen(): # Affiche le menu du jeux
     global game_rect, option_rect
     
     menu_font = pygame.font.SysFont("monospace", 100, True)
@@ -1895,7 +1906,7 @@ def display_menu_screen():
 
     return
 
-def display_option_screen():
+def display_option_screen(): # Affiche les options du jeux
     global screen_resolution_rect, control_rect
     
     list_font = pygame.font.SysFont("monospace", 50, True)
@@ -1913,7 +1924,7 @@ def display_option_screen():
     
     return
 
-def display_fight_screen(attacker,fighters, number_fighter, actual_fighter):
+def display_fight_screen(attacker,fighters, number_fighter, actual_fighter): # Affiche l'écran de début du combat
     global attack_rect, use_object_rect, run_rect, magical_rect, physical_rect, attack, sprite_m1, sprite_m2, sprite_m3
     
     fight_font = pygame.font.SysFont("monospace", 50, True)
@@ -2051,7 +2062,7 @@ def display_fight_screen(attacker,fighters, number_fighter, actual_fighter):
     
     return
 
-def display_fight_animation_screen(attacker, defender, fighters, number_fighter, actual_fighter):
+def display_fight_animation_screen(attacker, defender, fighters, number_fighter, actual_fighter): # Affiche l'animation du combat
     global attack_rect, use_object_rect, run_rect, magical_rect, physical_rect, attack, sprite_m1, sprite_m2, sprite_m3
 
     time_begin = pygame.time.get_ticks()
@@ -2241,7 +2252,7 @@ def display_fight_animation_screen(attacker, defender, fighters, number_fighter,
 
     return
 
-def display_add_level(people):
+def display_add_level(people): # Affiche si un joueur a prit un niveau
 
     fight_font = pygame.font.SysFont("monospace", 50, True)
     
@@ -2260,7 +2271,7 @@ def display_add_level(people):
     pygame.time.wait(1000)
     return
 
-def display_start_fight():
+def display_start_fight(): # Affiche le message anonçant des monsters et l'écran qui flash avant un combat
 
 
     while(pygame.time.get_ticks() < start_fight_time + animation_start_1_time):
@@ -2306,11 +2317,24 @@ def display_start_fight():
 
     return
 
-def rect_collide(rect,position):
+def display_endgame_screen():
+    background = BLACK
+
+    message_font = pygame.font.SysFont("monospace", 50, True)
+
+    message = message_font.render("Bravo ! Vous avez fini !", True, RED)
+    message_size = message_font.size("Bravo ! Vous avez fini !")
+
+    window.fill(background)
+    window.blit(message,(screen_size[0] // 2 - message_size[0] // 2,screen_size[1] // 2 - message_size[1] // 2 ))
+
+    pygame.display.flip()
+
+def rect_collide(rect,position): # Renvoie si deux rectangles se touchent
     
     return rect.collidepoint(position)
 
-def start_animation_left(time):
+def start_animation_left(time): # Commmence l'animation à gauche
     global is_animated, animation, sprite_left
     
     if not is_animated or animation != 4:
@@ -2323,7 +2347,7 @@ def start_animation_left(time):
         
         return
 
-def start_animation_right(time):
+def start_animation_right(time):# Commmence l'animation à droite
     global is_animated, animation, sprite_right
     
     if not is_animated or animation != 2:
@@ -2336,7 +2360,7 @@ def start_animation_right(time):
         
         return
 
-def start_animation_front(time):
+def start_animation_front(time): # Commmence l'animation en haut
     global is_animated, animation, sprite_front
     
     if not is_animated or animation != 1:
@@ -2349,7 +2373,7 @@ def start_animation_front(time):
         
         return
 
-def start_animation_back(time):
+def start_animation_back(time): # Commmence l'animation en bas
     global is_animated, animation, sprite_back
     
     if not is_animated or animation != 3:
@@ -2366,19 +2390,19 @@ def start_animation_back(time):
 ### Calcul ###!
 
 
-def coordinates_to_pixel(coord):
+def coordinates_to_pixel(coord): # Renvoie l'équivalent d'une position en taille de case, en un position en pixel
     
     coord_px = coord * tile_size
     
     return(coord_px)
 
-def pixel_to_coordinates(coord_px):
+def pixel_to_coordinates(coord_px): # Renvoie l'équivalent d'une position en pixel, en un position en taille de case
 
     coord = coord_px / tile_size
 
     return(coord)
 
-def define_type_tile(type_tile):
+def define_type_tile(type_tile): # Défini la couleur à afficher des cases
     if type_tile == 0:
         color = BLUE
     elif type_tile == 1:
@@ -2390,7 +2414,7 @@ def define_type_tile(type_tile):
 
     return(color)
 
-def calcul_player_position():
+def calcul_player_position(): # calcul la position absolue du joueur sur le terrain par rapport à sa position sur l'écran et à la position de la caméra
     global player
 
     player['position'][0] = player_position[0] + camera_position[0] 
@@ -2398,7 +2422,7 @@ def calcul_player_position():
 
     return
 
-def is_not_collide(type_collide,current_orientation,position):
+def is_not_collide(type_collide,current_orientation,position): # Détecte les collisions du joueur
     
     if type_collide == 0:
         if current_orientation == 'left':
@@ -2483,7 +2507,7 @@ def is_not_collide(type_collide,current_orientation,position):
             else:
                 return False
         
-def impress():
+def impress():  # Imprime certaines valeurs pour le débugage
     print("CAM          : " + str(camera_position))
     print("PLAYER       : " + str(player_position))
     print("Screen size  : " + str(screen_size))
@@ -2500,11 +2524,11 @@ def impress():
 
     return
 
-def whole_divisor(x,n):
+def whole_divisor(x,n): # Retourne si un nombre est un diviseur entier d'un autre
     
     return x %  n == 0
     
-def is_always_animated(time):
+def is_always_animated(time): # Retourne si le joueur est toujours en animation
     global is_animated
 
     if is_animated:
@@ -2521,7 +2545,7 @@ def is_always_animated(time):
             if sprite_right['next_move_moment'] < time:
                 is_animated = False
 
-def add_object():
+def add_object(): # Ajout d'une potion dans l'inventaire du joueur
 
     i = 0
 
@@ -2551,6 +2575,7 @@ def add_object():
 
 ### GAME ###
 
+## Fonction globale du jeux et initalisations de toutes les fonctions
 
 pygame.init()
 background_color = GREY
@@ -2581,7 +2606,7 @@ while open_game:
     now = pygame.time.get_ticks()
     is_always_animated(now)
 
-    for evenement in pygame.event.get():
+    for evenement in pygame.event.get(): # Traitement de toutes les touches en fonction de l'affichage
         if evenement.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
@@ -2626,7 +2651,7 @@ while open_game:
 
 
     if menu:
-        ### Menu
+        ### Menu : Affiche le menu
 
         window.fill(background_color)
 
@@ -2638,7 +2663,7 @@ while open_game:
         
 
     elif game:
-        ### Game
+        ### Game : Affiche le jeux et utilise toutes les fonctiones associées
         
         stay_at_screen()
 
@@ -2652,7 +2677,7 @@ while open_game:
 
 
     elif inventory:
-        ### Inventory
+        ### Inventory : Affiche l'inventaire
 
         display_inventory()
 
@@ -2662,7 +2687,7 @@ while open_game:
 
 
     elif squad_menu:
-        ### Squad team
+        ### Squad team : Affiche le menu de la squad
         display_squad()
 
         manage_squad_keys(-1,0)
@@ -2671,7 +2696,7 @@ while open_game:
 
 
     elif player_stat_display:
-        ### Player Stat Display
+        ### Player Stat Display : Affiche les stats du joueur
         
         display_stat_player()
 
@@ -2681,7 +2706,7 @@ while open_game:
 
 
     elif game_menu:
-        ### Game Menu
+        ### Game Menu : Affiche le menu du jeux
 
         display_game_menu_screen()
         
@@ -2691,7 +2716,7 @@ while open_game:
 
 
     elif option:
-        ### Option
+        ### Option : Affiche les options
 
         window.fill(background_color)
         
@@ -2703,8 +2728,8 @@ while open_game:
     
 
     elif screen_resolution_menu:
-        ### screen resolution option
-
+        ### screen resolution option ### PAS AU POINT
+ 
         window.fill(background_color)
 
         #display_screen_resolution_screen()
@@ -2717,7 +2742,7 @@ while open_game:
 
 
     elif control_menu:
-        ### control option
+        ### control option ### PAS AU POINT
 
         window.fill(background_color)
 
@@ -2728,11 +2753,14 @@ while open_game:
         menu = True
 
         pygame.display.flip()
+    
+    elif endgame:
+        display_endgame_screen()
 
 
     for row in squad_display:
         if squad_display[row]:
-            ### Display member stat
+            ### Display member stat : Affiches les stats d'un membre de la squad
 
             display_stat_member(row)
 

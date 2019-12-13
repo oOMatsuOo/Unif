@@ -1,0 +1,21 @@
+Auteurs :   Hormat-Allah Said
+            Van Muysewinkel Kieran
+
+But du jeu : 
+
+    - Arriver à la ville
+
+Utilisation du jeux : 
+
+    - Déplacement :  
+        Touches directionnelles ou ZQSD
+    - Menu In-game :
+        I : inventaire
+        U : Menu stats
+        ESCAPE : Menu sauvegarde + exit
+    
+Remarques : 
+
+    - Les options Control et Screen resolution ne sont pas implantées
+
+    - L'ajout de graphismes plus poussé faisait ramer le jeux au point de le rendre injouable, nous avons donc choisi de ne pas en mettre afin de le garder jouable
