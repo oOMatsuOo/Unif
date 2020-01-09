@@ -9,9 +9,11 @@ Utilisation du jeux :
 
     - Déplacement :  
         Touches directionnelles ou ZQSD
+
     - Menu In-game :
         I : inventaire
         U : Menu stats
+        ENTER : Ramasser un objet
         ESCAPE : Menu sauvegarde + exit
     
 Remarques : 

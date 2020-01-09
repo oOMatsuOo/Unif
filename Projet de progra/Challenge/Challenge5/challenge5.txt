@@ -1,0 +1,173 @@
+/*
+Challenge 5 : Pointeurs
+
+Rappel des consignes gÃ©nÃ©rales de soumission :
+----------------------------------------------
+
+- Vous pouvez Ã©crire des commentaires, comme vous le feriez dans un code C ;
+- Respectez scrupuleusement les consignes de soumissions pour ne pas recevoir une 
+  cote nulle ;
+- NE PAS TOUCHER AUX CARACTÃˆRES '#'. Ils sont placÃ©s aux bons endroits. 
+  Faites en sorte de ne pas les inclure dans un commentaire...
+
+Consignes spÃ©cifiques Ã  ce devoir :
+-----------------------------------
+
+Ã‰crivez juste votre rÃ©ponse, sur une ligne, entre les commentaires.
+Les Ã©noncÃ©s des 20 questions sont rappelÃ©s Ã  titre informatif. En cas d'erreur, 
+se conformer Ã  l'Ã©noncÃ©, qui seul fait foi. Si vous voulez Ã©crire Â« deux-mille Â»,
+Ã©crivez juste :
+
+2000
+
+Ã‰crivez votre rÃ©ponse en base 10.
+*/
+// 1. x
+12
+
+// Ã‰crivez la rÃ©ponse 1 ci-dessus.
+#
+// 2. *x
+204
+
+// Ã‰crivez la rÃ©ponse 2 ci-dessus.
+#
+// 3. **x
+16
+
+// Ã‰crivez la rÃ©ponse 3 ci-dessus.
+#
+// 4. ***x
+73
+
+// Ã‰crivez la rÃ©ponse 4 ci-dessus.
+#
+// 5. &x
+4
+
+// Ã‰crivez la rÃ©ponse 5 ci-dessus.
+#
+// 6. *&x
+12
+
+// Ã‰crivez la rÃ©ponse 6 ci-dessus.
+#
+// 7. &*p
+216
+
+// Ã‰crivez la rÃ©ponse 7 ci-dessus.
+#
+// 8. tab - x
+SF
+
+// Ã‰crivez la rÃ©ponse 8 ci-dessus.
+#
+// 9. tab - p
+-4
+
+// Ã‰crivez la rÃ©ponse 9 ci-dessus.
+#
+// 10. ++*p
+201
+
+// Ã‰crivez la rÃ©ponse 10 ci-dessus.
+#
+// 11. *p++
+200
+
+// Ã‰crivez la rÃ©ponse 11 ci-dessus.
+#
+// 12. *++p
+17
+
+// Ã‰crivez la rÃ©ponse 12 ci-dessus.
+#
+// 13. (*p)++
+200
+
+// Ã‰crivez la rÃ©ponse 13 ci-dessus.
+#
+// 14. p + x
+264
+
+// Ã‰crivez la rÃ©ponse 14 ci-dessus.
+#
+// 15. data + x
+85
+
+// Ã‰crivez la rÃ©ponse 15 ci-dessus.
+#
+// 16. &x + data
+273
+
+// Ã‰crivez la rÃ©ponse 16 ci-dessus.
+#
+// 17. (short *) p + data
+362
+
+// Ã‰crivez la rÃ©ponse 17 ci-dessus.
+#
+// 18. *(tab[4] - *p)
+SF
+
+// Ã‰crivez la rÃ©ponse 18 ci-dessus.
+#
+// 19. p++ + ++x
+268
+
+// Ã‰crivez la rÃ©ponse 19 ci-dessus.
+#
+// 20. *&data & x * data
+72
+
+// Ã‰crivez la rÃ©ponse 20 ci-dessus.
+#
+/*
+Corps de la mÃ©thode creer_portee()
+----------------------------------
+
+Indiquez aprÃ¨s ce commentaire votre code.
+
+Dans la suite, vous ne devez Ã©crire QUE ce qui, selon vous, devrait remplacer la
+ ligne Â« votre code ici Â» dans le squelette 
+ mentionnÃ© dans l'Ã©noncÃ©.
+
+VOUS NE DEVEZ SURTOUT PAS : 
+- Ajouter des directives de prÃ©processing (#include, #define, etc.)
+- Ã‰crire Â« Portee *cree_portee(char *nom_pere, char *nom_mere, 
+                               unsigned short nb_chiots, char *nom_fichier, 
+					                Date date_naissance){ Â» 
+  ni la '}' qui ferme celle ouverte aprÃ¨s 'cree_portee' ;
+- RedÃ©clarer nom_pere, nom_mere, nb_chiots, nom_fichier ou date_naissance. 
+  Ces variables sont DÃ‰JÃ€ dÃ©clarÃ©es. Si vous les redÃ©clarez, la compilation et 
+  l'Ã©valuation de votre code seront impossibles (et votre cote nulle).
+- Ajouter des dÃ©finitions pour les fonctions cree_chien et charger_chiots. Elles
+  sont dÃ©jÃ  dÃ©finies pour la correction et leur code ne vous est pas fourni.
+- Utiliser l'underscore (_) dans vos noms de variables.
+- Utiliser calloc ou realloc
+- Polluer la sortie standard Ã  l'aide de printf
+- Essayer de lire sur l'entrÃ©e standard Ã  l'aide de scanf
+  
+CONSEIL :
+Ouvrez ce fichier dans gedit, activez la coloration syntaxique du C, ainsi que
+la mise en Ã©vidence des parenthÃ¨ses correspondantes pour ne pas vous tromper.
+*/
+assert(nom_pere && nom_mere && nb_chiots > 0 && nom_fichier);
+
+Portee *actuelportee = malloc(sizeof(Portee));
+Chien *chiots_portee = malloc(sizeof(Chien) * nb_chiots);
+
+if ( charger_chiots(nom_fichier, chiots_portee, nb_chiots) == -1)
+    return NULL ;
+
+actuelportee -> pere = *nom_pere;
+actuelportee -> mere = *nom_mere;
+actuelportee -> chiots = chiots_portee;
+actuelportee -> nb_chiots = nb_chiots;
+actuelportee -> date_naissance = date_naissance;
+
+free(chiots_portee);
+
+return actuelportee;
+
+/* Ã‰crivez votre code ci-dessus */

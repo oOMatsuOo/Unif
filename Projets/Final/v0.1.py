@@ -46,7 +46,9 @@ squad_menu = False
 
 player_stat_display = False
 
-ratio = [3,4]
+endgame = False
+
+ratio = [9,16]
 
 screen_size = [0,0]
 
@@ -72,6 +74,7 @@ wich_attack = 1
 which_target = -1
 changing_zone = 0
 critical = False
+use_object = False
 auto_mode = False
 time_changing_area = 0
 display_changing_area_time = 2000
@@ -84,6 +87,7 @@ animation_start_5_time = 1500
 animation_start_6_time = 1550
 animation_start_7_time = 1575
 object_display = []
+potion_value = 40
 
 middle = 0
 
@@ -131,7 +135,7 @@ def define_screen_size(ratio):
 
     different_screen_size = [426,640,768,800,848,896,960,1024,1152,1280,1366,1600,1920]  # Toutes les tailles d'écran disponible
 
-    screen_size[0] = different_screen_size[4]
+    screen_size[0] = different_screen_size[6]
     screen_size[1] = int(screen_size[0] * ratio[0] / ratio[1])
 
     tile_size = 0
@@ -209,9 +213,6 @@ def create_field(): # Crée un dictionnaire field, composé d'un dictictionnaire
             
             field[line_count] = tile
             line_count += 1
-
-        print(f"Processed {line_count} lines")
-        print(f"Processed {tile_count} tiles")
 
     return
 
@@ -389,7 +390,6 @@ def create_area(): # Crée un dictionnaire area, comportant toutes les zones de 
                     area_csv['Monster max level'] = row[12]
 
                 area.append(area_csv)
-    print(area)
 
 def create_object(): # Crée un dictionnaire field_object, comportant tous les objets présents sur la map( arbres, buissons, et potions)
     global field_object
@@ -413,9 +413,6 @@ def create_object(): # Crée un dictionnaire field_object, comportant tous les o
             
             field_object[line_count] = object_csv
             line_count += 1
-
-        print(f"Processed {line_count} lines")
-        print(f"Processed {tile_count} tiles")
  
     return
 
@@ -859,7 +856,7 @@ def manage_squad_keys(type_key, evenement): # Fonction qui gère les touches dan
     return
 
 def manage_fight_keys(type_key, evenement): # Fonction qui gère les touches durant un combat
-    global doing_attack, attack_color, object_color, run_color, magical_color, physical_color
+    global doing_attack, attack_color, object_color, run_color, magical_color, physical_color, use_object
 
     if type_key == -1:
         if rect_collide(attack_rect,pygame.mouse.get_pos()):
@@ -884,7 +881,7 @@ def manage_fight_keys(type_key, evenement): # Fonction qui gère les touches dur
             doing_attack = 1
             return [0,0,0]
         elif rect_collide(use_object_rect, pygame.mouse.get_pos()):
-            print("OBJET")
+            use_object = True
         elif rect_collide(run_rect , pygame.mouse.get_pos()):
             print("RUNNNN")
         if doing_attack:
@@ -939,6 +936,22 @@ def manage_player_stat_keys(type_key, evenement): # Fonction qui gère les touch
         if rect_collide(cross_stat_player_rect ,pygame.mouse.get_pos()):
             player_stat_display = False
             game = True
+
+def manage_object_keys(type_key, evenement):
+    global player, use_object
+
+    if type_key == 2 and evenement.button == 1:
+        if 1 in player['inventory']:
+            if rect_collide(potion_rect,pygame.mouse.get_pos()):
+                for i in range(0,inventory_size):
+                    if player['inventory'][inventory_size - i - 1] == 1:
+                        player['inventory'][inventory_size - i - 1] = 0
+                        return True
+    elif type_key == 1 and evenement.key == pygame.K_ESCAPE:
+        use_object = False
+        return False
+
+    return False
 
 def manage_stat_member_keys(member,type_key, evenement): # Fonction qui gère les touches dans le menu des stats des membres de la squad
     global cross_stat_member_color, game, squad_display
@@ -1187,7 +1200,7 @@ def create_fighting_monsters(fight_monsters): # Level up les monsters aléatoire
     return stat_monsters
 
 def fighting(monsters): # Fonction principale du combat
-    global game, action, attack, doing_attack, monster_1_color, monster_2_color, monster_3_color, magical_color, physical_color, player_stat, squad, critical
+    global game, action, attack, doing_attack, monster_1_color, monster_2_color, monster_3_color, magical_color, physical_color, player_stat, squad, critical, use_object
 
     monster_1 = {}
     monster_2 = {}
@@ -1260,6 +1273,27 @@ def fighting(monsters): # Fonction principale du combat
                         action = manage_fight_keys(2, evenement)
 
                 manage_fight_keys(-1, 0)
+
+                potion = False
+
+                while use_object :
+                    display_object_screen(current_fighter,fighters, number_fighter, turn[actual_turn])
+
+                    for evenement in pygame.event.get():
+                        if evenement.type == pygame.MOUSEBUTTONDOWN:
+                            potion = manage_object_keys(2, evenement)
+                        elif evenement.type == pygame.KEYDOWN:
+                            manage_object_keys(1,evenement)
+                    
+                    if potion:
+                        use_object = False
+                        potion = False
+                        for i in range(3,6):
+                            fighters[i]['HP'] += potion_value
+
+                            if fighters[i]['HP'] > fighters[i]['HP max']:
+                                fighters[i]['HP'] = fighters[i]['HP max']
+
 
         while action[0] == 1: # Deuxième action : Choix du monstre
 
@@ -1355,6 +1389,12 @@ def fighting(monsters): # Fonction principale du combat
         physical_color = BLACK
 
         pygame.time.wait(1000)
+    
+    if player_stat['HP'] <= 0:
+        display_losegame_screen()
+        game = False
+
+        return
 
     if player_stat['HP'] > 0: # Fonction d'ajout de l'XP
         player_stat = add_XP(fighters, player_stat)
@@ -1369,7 +1409,6 @@ def fighting(monsters): # Fonction principale du combat
             squad[1] = add_level(squad[1])
 
     display_fight_screen(current_fighter,fighters, number_fighter, turn[actual_turn - 1])
-    print('fin du combat')
     pygame.time.wait(500)
 
     
@@ -2052,7 +2091,7 @@ def display_fight_screen(attacker,fighters, number_fighter, actual_fighter): # A
 
     window.blit(attack, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 14))
     window.blit(use_object, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 16))
-    window.blit(run, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 18))
+    #window.blit(run, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 18))
 
     if doing_attack :
         window.blit(magical, (screen_size[0] // 20 * 1, screen_size[1] // 20 * 15))
@@ -2246,7 +2285,7 @@ def display_fight_animation_screen(attacker, defender, fighters, number_fighter,
 
         window.blit(attack, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 14))
         window.blit(use_object, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 16))
-        window.blit(run, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 18))
+        #window.blit(run, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 18))
 
         pygame.display.flip()
 
@@ -2269,6 +2308,150 @@ def display_add_level(people): # Affiche si un joueur a prit un niveau
     
     pygame.display.flip()
     pygame.time.wait(1000)
+    return
+
+def display_object_screen(attacker,fighters, number_fighter, actual_fighter):
+    global attack_rect, use_object_rect, run_rect, magical_rect, physical_rect, attack, sprite_m1, sprite_m2, sprite_m3, potion_rect
+    
+    fight_font = pygame.font.SysFont("monospace", 50, True)
+    name_font = pygame.font.SysFont("monospace", 32, True)
+
+    background = BLACK
+
+    sprite_m1 = pygame.Rect(screen_size[0] // 20 * 6 ,screen_size[1] // 20 , screen_size[0] // 20 * 2 ,screen_size[0] // 20 * 2)
+    m1_name = name_font.render(fighters[0]['Name'], True, monster_1_color)
+    HP_max_bar_m1 = pygame.Rect(screen_size[0] // 40 * 5, screen_size[1] // 40 * 6, screen_size[0] // 9, screen_size[1] // 75)
+    HP_bar_m1 = pygame.Rect(screen_size[0] // 40 * 5, screen_size[1] // 40 * 6, screen_size[0] // 9 * fighters[0]['HP'] // fighters[0]['HP max'], screen_size[1] // 75)
+    level_m1 = name_font.render('[' + str(fighters[0]['Level']) + ']', True, monster_1_color)
+
+
+    sprite_m2 = pygame.Rect(screen_size[0] // 20 * 5 ,screen_size[1] // 20 * 5 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    m2_name = name_font.render(fighters[1]['Name'], True, monster_2_color)
+    HP_max_bar_m2 = pygame.Rect(screen_size[0] // 40 * 3, screen_size[1] // 40 * 14, screen_size[0] // 9, screen_size[1] // 75)
+    HP_bar_m2 = pygame.Rect(screen_size[0] // 40 * 3, screen_size[1] // 40 * 14, screen_size[0] // 9 * fighters[1]['HP'] // fighters[1]['HP max'], screen_size[1] // 75)
+    level_m2 = name_font.render('[' + str(fighters[1]['Level']) + ']', True, monster_2_color)
+
+
+    sprite_m3 = pygame.Rect(screen_size[0] // 20 * 4,screen_size[1] // 20 * 9 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    m3_name = name_font.render(fighters[2]['Name'], True, monster_3_color)
+    HP_max_bar_m3 = pygame.Rect(screen_size[0] // 40 * 1, screen_size[1] // 40 * 22, screen_size[0] // 9, screen_size[1] // 75)
+    HP_bar_m3 = pygame.Rect(screen_size[0] // 40 * 1, screen_size[1] // 40 * 22, screen_size[0] // 9 * fighters[2]['HP'] // fighters[2]['HP max'], screen_size[1] // 75)
+    level_m3 = name_font.render('[' + str(fighters[2]['Level']) + ']', True, monster_3_color)
+
+
+    sprite_player = pygame.Rect(screen_size[0] // 20 * 14 ,screen_size[1] // 20 * 2 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    player_name = name_font.render(fighters[3]['Name'], True, RED)
+    HP_max_bar_player = pygame.Rect(screen_size[0] // 40 * 33, screen_size[1] // 40 * 8, screen_size[0] // 9, screen_size[1] // 75)
+    HP_bar_player = pygame.Rect(screen_size[0] // 40 * 33, screen_size[1] // 40 * 8, screen_size[0] // 9 * fighters[3]['HP'] // fighters[3]['HP max'], screen_size[1] // 75)
+    level_player = name_font.render('[' + str(fighters[3]['Level']) + ']', True, RED)
+
+
+    sprite_squad1 = pygame.Rect(screen_size[0] // 20 * 13 ,screen_size[1] // 20 * 6  , screen_size[0] // 20 * 2 ,screen_size[0] // 20 * 2)
+    squad1_name = name_font.render(fighters[4]['Name'], True, RED)
+    HP_max_bar_squad1 = pygame.Rect(screen_size[0] // 40 * 31, screen_size[1] // 40 * 17, screen_size[0] // 9, screen_size[1] // 75)
+    HP_bar_squad1 = pygame.Rect(screen_size[0] // 40 * 31, screen_size[1] // 40 * 17, screen_size[0] // 9 * fighters[4]['HP'] // fighters[4]['HP max'], screen_size[1] // 75)
+    level_squad1 = name_font.render('[' + str(fighters[4]['Level']) + ']', True, RED)
+
+
+    sprite_squad2 = pygame.Rect(screen_size[0] // 20 * 12 ,screen_size[1] // 20 * 10 , screen_size[0] // 20 * 2,screen_size[0] // 20 * 2)
+    squad2_name = name_font.render(fighters[5]['Name'], True, RED)
+    HP_max_bar_squad2 = pygame.Rect(screen_size[0] // 40 * 29, screen_size[1] // 40 * 25, screen_size[0] // 9, screen_size[1] // 75)
+    HP_bar_squad2 = pygame.Rect(screen_size[0] // 40 * 29, screen_size[1] // 40 * 25, screen_size[0] // 9 * fighters[5]['HP'] // fighters[5]['HP max'], screen_size[1] // 75)
+    level_squad2 = name_font.render('[' + str(fighters[5]['Level']) + ']', True, RED)
+
+    
+    current_player = fight_font.render('Current  : ' + str(fighters[actual_fighter]['Name']),True, RED)
+
+
+    option_rect = pygame.Rect( 0 , screen_size[1] // 20 * 14, screen_size[0] // 20 * 11, screen_size[1] // 20 * 6 )
+    option_bar  = pygame.Rect(screen_size[0] // 20 * 6, screen_size[1] // 20 * 14, screen_size[0] // 100, screen_size[1] // 20 * 6)
+
+    attack = fight_font.render("Attack",True,attack_color)
+    attack_size = fight_font.size("Attack")
+    use_object = fight_font.render("Object", True, object_color)
+    use_object_size = fight_font.size("Object")
+    run = fight_font.render("Run", True, run_color)
+    run_size = fight_font.size("Run")
+
+    potion = fight_font.render("Potion", True, BLACK)
+    potion_size = fight_font.size("Potion")
+
+    magical = fight_font.render("Magical", True, magical_color)
+    magical_size = fight_font.size("Magical")
+    physical = fight_font.render("Physical", True, physical_color)
+    physical_size = fight_font.size("Physical")
+
+    attack_rect = pygame.Rect(screen_size[0] // 20 * 7, screen_size[1] // 20 * 14 ,attack_size[0], attack_size[1])
+    use_object_rect = pygame.Rect(screen_size[0] // 20 * 7, screen_size[1] // 20 * 16, use_object_size[0], use_object_size[1])
+    run_rect = pygame.Rect(screen_size[0] // 20 * 7, screen_size[1] // 20 * 18, run_size[0], run_size[1])
+    magical_rect = pygame.Rect(screen_size[0] // 20 * 1, screen_size[1] // 20 * 15, magical_size[0], magical_size[1])
+    physical_rect = pygame.Rect(screen_size[0] // 20 * 1 , screen_size[1] // 20 * 17, physical_size[0], physical_size[1])
+    potion_rect = pygame.Rect(screen_size[0] // 20 * 1, screen_size[1] // 20 * 16, potion_size[0], potion_size[1])
+
+
+    window.fill(background)
+
+    if fighters[0]['HP'] > 0:
+        pygame.draw.rect(window,RED,sprite_m1)
+        window.blit(m1_name, (screen_size[0] // 40 * 7 ,screen_size[1] // 40 * 3))
+        window.blit(level_m1, (screen_size[0] // 40 * 5 ,screen_size[1] // 40 * 3))
+        pygame.draw.rect(window,RED,HP_max_bar_m1)
+        pygame.draw.rect(window,GREEN,HP_bar_m1)
+
+    if fighters[1]['HP'] > 0:
+        pygame.draw.rect(window,RED,sprite_m2)
+        window.blit(m2_name, (screen_size[0] // 40 * 5 ,screen_size[1] // 40 * 11))
+        window.blit(level_m2, (screen_size[0] // 40 * 3 ,screen_size[1] // 40 * 11))
+        pygame.draw.rect(window,RED,HP_max_bar_m2)
+        pygame.draw.rect(window,GREEN,HP_bar_m2)
+
+    if fighters[2]['HP'] > 0:
+        pygame.draw.rect(window,RED,sprite_m3)
+        window.blit(m3_name, (screen_size[0] // 40 * 3,screen_size[1] // 40 * 19))
+        window.blit(level_m3, (screen_size[0] // 40 * 1 ,screen_size[1] // 40 * 19))
+        pygame.draw.rect(window,RED,HP_max_bar_m3)
+        pygame.draw.rect(window,GREEN,HP_bar_m3)
+
+    if fighters[3]['HP'] > 0:
+        pygame.draw.rect(window,GREEN,sprite_player)
+        window.blit(player_name, (screen_size[0] // 40 * 33 ,screen_size[1] // 40 * 5))
+        window.blit(level_player, (screen_size[0] // 40 * 38,screen_size[1] // 40 * 5))
+        pygame.draw.rect(window,RED,HP_max_bar_player)
+        pygame.draw.rect(window,GREEN,HP_bar_player)
+        
+    if fighters[4]['HP'] > 0:
+        pygame.draw.rect(window,GREEN,sprite_squad1)
+        window.blit(squad1_name, (screen_size[0] // 40 * 31 ,screen_size[1] // 40 * 14))
+        window.blit(level_squad1, (screen_size[0] // 40 * 36 ,screen_size[1] // 40 * 14))
+        pygame.draw.rect(window,RED,HP_max_bar_squad1)
+        pygame.draw.rect(window,GREEN,HP_bar_squad1)
+
+    if fighters[5]['HP'] > 0:
+        pygame.draw.rect(window,GREEN,sprite_squad2)
+        window.blit(squad2_name, (screen_size[0] // 40 * 29 ,screen_size[1] // 40 * 22))
+        window.blit(level_squad2, (screen_size[0] // 40 * 34 ,screen_size[1] // 40 * 22))
+        pygame.draw.rect(window,RED,HP_max_bar_squad2)
+        pygame.draw.rect(window,GREEN,HP_bar_squad2)
+    
+    if actual_fighter > 2:
+        window.blit(current_player, (screen_size[0] // 40 * 23, screen_size[1] // 20 * 16))
+    
+    pygame.draw.rect(window,GREY,option_rect)
+    pygame.draw.rect(window,BLACK,option_bar)
+
+    window.blit(attack, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 14))
+    window.blit(use_object, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 16))
+    #window.blit(run, (screen_size[0] // 20 * 7, screen_size[1] // 20 * 18))
+
+    if 1 in player['inventory']:
+        window.blit(potion,(screen_size[0] // 20 * 1 , screen_size[1] // 20 * 16))
+
+    if doing_attack :
+        window.blit(magical, (screen_size[0] // 20 * 1, screen_size[1] // 20 * 15))
+        window.blit(physical, (screen_size[0] // 20 * 1 , screen_size[1] // 20 * 17))
+
+    pygame.display.flip()
+    
     return
 
 def display_start_fight(): # Affiche le message anonçant des monsters et l'écran qui flash avant un combat
@@ -2324,6 +2507,19 @@ def display_endgame_screen():
 
     message = message_font.render("Bravo ! Vous avez fini !", True, RED)
     message_size = message_font.size("Bravo ! Vous avez fini !")
+
+    window.fill(background)
+    window.blit(message,(screen_size[0] // 2 - message_size[0] // 2,screen_size[1] // 2 - message_size[1] // 2 ))
+
+    pygame.display.flip()
+
+def display_losegame_screen():
+    background = BLACK
+
+    message_font = pygame.font.SysFont("monospace", 50, True)
+
+    message = message_font.render("Vous avez perdu !", True, RED)
+    message_size = message_font.size("Vous avez perdu !")
 
     window.fill(background)
     window.blit(message,(screen_size[0] // 2 - message_size[0] // 2,screen_size[1] // 2 - message_size[1] // 2 ))
@@ -2552,10 +2748,8 @@ def add_object(): # Ajout d'une potion dans l'inventaire du joueur
     while i < inventory_size:
         if player['inventory'][i] == 0:
             player['inventory'][i] = 1
-            print('You found a potion !')
             i = inventory_size + 1
         elif i == inventory_size - 1:
-            print('Full inventory')
             return
         i += 1
 
