@@ -75,10 +75,15 @@ int write_pnm(PNM *image, char* filename);
  * 
  * @return:
  *      0 Succès
- *      -1 Extension non reconnue
+ *      -1 Extension renseignée non reconnue
+ *      -2 Extension renseignée différente de celle du fichier
+ *      -3 Extension du fichier non reconnue
  */
 
-int test_extension(char extensionname);
+int test_extension(char extension[4], char nom_fichier[40]);
+
+
+
 
 #endif // __PNM__
 

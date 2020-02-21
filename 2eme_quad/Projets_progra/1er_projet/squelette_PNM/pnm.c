@@ -15,6 +15,19 @@
 
 #include "pnm.h"
 
+#define MAX_CHAR 20
+
+/**
+ * Définition de la structure de la taille d'un fichier PNM
+ * 
+ */
+
+typedef struct taille{
+
+   int colonnes;
+   int lignes;
+
+}Taille;
 
 /**
  * Définition du type opaque PNM
@@ -22,7 +35,9 @@
  */
 struct PNM_t {
 
-   /* Insérez ici les champs de la structure PNM */
+   int formatage;
+   Taille taille_fichier;
+   int** fichier_pnm;
 
 };
 
@@ -44,6 +59,39 @@ int load_pnm(PNM **image, char* filename) {
 int write_pnm(PNM *image, char* filename) {
 
    /* Insérez le code ici */
+
+   return 0;
+}
+
+int test_extension(char extension[4], char nom_fichier[40]){
+
+   char *extension_fichier;
+   extension_fichier = strchr(nom_fichier, '.');
+
+   // Test de l'extension renseignée
+
+   if(extension == NULL || (strcmp(extension,"PBM") != 0 && strcmp(extension,"PGM") != 0 && strcmp(extension,"PPM") != 0)){
+      return -1;
+   };
+
+   // Test de l'extension du nom du fichier
+
+   if(nom_fichier == NULL || (strcmp(extension_fichier,".pbm") != 0 && strcmp(extension_fichier,".pgm") != 0 && strcmp(extension_fichier,".ppm") != 0)){
+      return -3;
+   };
+
+   // Test de correspondance entre l'extension renseignée et celle du nom du fichier
+
+   if(strcmp(extension,"PBM") == 0 && strcmp(extension_fichier, ".pbm") != 0){
+      printf("%s \n", "hello");
+      return -2;
+   }
+   else if(strcmp(extension,"PGM") == 0 && strcmp(extension_fichier, ".pgm") != 0){
+      return -2;
+   }
+   else if(strcmp(extension,"PPM") == 0 && strcmp(extension_fichier, ".ppm") != 0){
+      return -2;
+   }
 
    return 0;
 }

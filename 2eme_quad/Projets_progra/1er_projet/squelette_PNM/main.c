@@ -23,7 +23,31 @@ int main(int argc, char *argv[]) {
 
    char *optstring = "";
 
-   test_argv(argv[1])
+   char extension[4];
+   char nom_fichier[40];
+
+   strcpy(extension, argv[2]);
+   strcpy(nom_fichier, argv[3]);
+
+   printf("%s \n", extension);
+   printf("%s \n", nom_fichier);
+
+   int test_extension_retour;
+
+   test_extension_retour = test_extension(extension,nom_fichier);
+
+   if (test_extension_retour == -3){
+      printf("%s \n", "Mauvaise extension du fichier renseigné.");
+   }
+   else if(test_extension_retour == -1){
+      printf("%s \n", "Mauvaise extension renseignée.");
+   }
+   else if(test_extension_retour == -2){
+      printf("%s \n", "L'extension du fichier est différente de celle renseignée.");
+   }
+   else{
+      printf("%s \n","Le formatage est bon.");
+   }
 
    return 0;
 }
