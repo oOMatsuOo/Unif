@@ -35,8 +35,9 @@ struct taille{
  */
 struct PNM_t {
 
-   int formatage;
+   char formatage[3];
    Taille taille_fichier;
+   int taille_max_pixel;
    int** fichier_pnm;
 
 };
@@ -48,6 +49,9 @@ int load_pnm(PNM **image, char* filename) {
    if(image == NULL || filename == NULL){
       return -2;
    }
+
+   PNM image_charge;
+   image = &image_charge;
 
    char *extension_fichier;
    extension_fichier = strchr(filename, '.');
@@ -61,17 +65,32 @@ int load_pnm(PNM **image, char* filename) {
    }
 
    int compteur = 0;
-   char format[3];
-   Taille taille_fichier;
-   int taille_max_pixel = 1;
 
    // Format dans le fichier
    while(compteur == 0){
       char provisoir[3];
-      fgets(provisoir,2,fichier);
-      printf("%s", provisoir);
-      compteur = 1;
+      fgets(provisoir,3,fichier);
+      if(provisoir[0] == 'P'){
+         strcpy(image_charge.formatage,provisoir);
+         compteur = 1;
+      }
    }
+
+   compteur = 0;
+   //Taille de l'image
+   while(compteur < 1 ){
+      int colonnes = 0, lignes = 0;
+      char taille[100];
+      fgets(taille, 100, fichier);
+      if(taille[0] != '\n' && taille[0] != '#'){
+         printf("%s \n", taille);
+         compteur = 1;
+      }
+   }
+
+
+
+   printf("%s  -> final \n", image_charge.formatage);
 
 
 
@@ -96,7 +115,7 @@ int write_pnm(PNM *image, char* filename) {
    return 0;
 }
 
-int test_extension(char extension[4], char nom_fichier[40]){
+int test_extension(char* extension, char* nom_fichier){
 
    char *extension_fichier;
    extension_fichier = strchr(nom_fichier, '.');
@@ -128,4 +147,3 @@ int test_extension(char extension[4], char nom_fichier[40]){
 
    return 0;
 }
-

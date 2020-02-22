@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 
    int test_extension_retour;
 
-   test_extension_retour = test_extension(extension,nom_fichier);
+   test_extension_retour = test_extension(&extension,&nom_fichier);
 
    if (test_extension_retour == -3){
       printf("%s \n", "Mauvaise extension du fichier renseigné.");
@@ -51,10 +51,9 @@ int main(int argc, char *argv[]) {
       printf("%s \n","Le formatage est bon.");
    }
 
-   PNM fichier_image;
+   PNM* image;
 
-   load_pnm(&fichier_image,nom_fichier);
+   printf("%d \n",load_pnm(&image,nom_fichier));
 
    return 0;
 }
-
