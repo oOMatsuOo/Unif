@@ -20,6 +20,7 @@
  * Déclaration du type opaque PNM
  *
  */
+typedef struct taille Taille;
 typedef struct PNM_t PNM;
 
 

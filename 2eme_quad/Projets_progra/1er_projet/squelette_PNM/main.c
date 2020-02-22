@@ -26,11 +26,13 @@ int main(int argc, char *argv[]) {
    char extension[4];
    char nom_fichier[40];
 
-   strcpy(extension, argv[2]);
-   strcpy(nom_fichier, argv[3]);
+   if (argv[2] != NULL){
+      strcpy(extension, argv[2]);
+   }
 
-   printf("%s \n", extension);
-   printf("%s \n", nom_fichier);
+   if (argv[3] != NULL){
+      strcpy(nom_fichier, argv[3]);
+   }
 
    int test_extension_retour;
 
@@ -48,6 +50,10 @@ int main(int argc, char *argv[]) {
    else{
       printf("%s \n","Le formatage est bon.");
    }
+
+   PNM fichier_image;
+
+   load_pnm(&fichier_image,nom_fichier);
 
    return 0;
 }

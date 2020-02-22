@@ -15,19 +15,19 @@
 
 #include "pnm.h"
 
-#define MAX_CHAR 20
+#define MAX_CHAR 50
 
 /**
  * Définition de la structure de la taille d'un fichier PNM
  * 
  */
 
-typedef struct taille{
+struct taille{
 
    int colonnes;
    int lignes;
 
-}Taille;
+};
 
 /**
  * Définition du type opaque PNM
@@ -43,6 +43,37 @@ struct PNM_t {
 
 
 int load_pnm(PNM **image, char* filename) {
+   // Vérification des préconditions
+
+   if(image == NULL || filename == NULL){
+      return -2;
+   }
+
+   char *extension_fichier;
+   extension_fichier = strchr(filename, '.');
+
+   FILE* fichier = fopen(filename, "r");
+
+   //Vérification de la bonne ouverture du fichier
+
+   if(fichier == NULL){
+      return -1;
+   }
+
+   int compteur = 0;
+   char format[3];
+   Taille taille_fichier;
+   int taille_max_pixel = 1;
+
+   // Format dans le fichier
+   while(compteur == 0){
+      char provisoir[3];
+      fgets(provisoir,2,fichier);
+      printf("%s", provisoir);
+      compteur = 1;
+   }
+
+
 
    /* Insérez le code ici */
    /**
@@ -52,6 +83,8 @@ int load_pnm(PNM **image, char* filename) {
     * 
     * Terminer avec fclose int fclose(FILE* pointeurSurFichier);=)
     */
+
+   fclose(fichier);
 
    return 0;
 }
