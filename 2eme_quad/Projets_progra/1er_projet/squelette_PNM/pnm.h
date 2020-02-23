@@ -81,9 +81,82 @@ int write_pnm(PNM *image, char* filename);
  *      -3 Extension du fichier non reconnue
  */
 
-int test_extension(char extension[4], char nom_fichier[40]);
+int test_extension(char* extension, char* nom_fichier);
 
+/**
+ * Lire une ligne d'un fichier
+ * 
+ * Retourne un pointeur sur une liste de char, contenant la ligne lue
+ * 
+ * @param adresse du pointeur dans lequel stocker l'adresse de la liste et adresse du fichier à lire
+ * 
+ * @pre: pointeur != NULL et fichier != NULL
+ * @post: pointeur pointe sur un tableau de char
+ * 
+ * @return:
+ *      0 Succès
+ *      -1 Mauvais pointeur
+ *      -2 Problème lors de la lecture du fichier
+ */
 
+int lire_ligne(char* ligne, FILE* filehandle);
+
+/**
+ * Remplis le format d'un fichier PNM
+ * 
+ * Remplis le champs formatage de l'image_charge
+ * 
+ * @param adresse de la ligne contenant les données et adresse de la structure PNM de l'image_charge
+ * 
+ * @pre: ligne != NUL et image_charge != NULL
+ * @post: image_charge.formatage à été remplis avec les bonnes donnée de la ligne
+ * 
+ * @return:
+ *      0 Succès
+ *      -1 Mauvais pointeur
+ *      -2 Problème lors de la lecture de la ligne
+ * 
+ */
+
+int creer_formatage(char* ligne, PNM* image_charge);
+
+/**
+ * Remplis la taille d'un fichier PNM
+ * 
+ * Remplis le champs taille de l'image_charge
+ * 
+ * @param adresse de la ligne contenant les données et adresse de la structure PNM de l'image_charge
+ * 
+ * @pre: ligne != NUL et image_charge != NULL
+ * @post: image_charge.taille à été remplis avec les bonnes donnée de la ligne
+ * 
+ * @return:
+ *      0 Succès
+ *      -1 Mauvais pointeur
+ *      -2 Problème lors de la lecture de la ligne
+ * 
+ */
+
+int creer_taille(char* ligne, PNM* image_charge);
+
+/**
+ * Remplis la taille_max d'un pixel d'un fichier PNM
+ * 
+ * Remplis le champs taille_max_pixel de l'image_charge
+ * 
+ * @param adresse de la ligne contenant les données et adresse de la structure PNM de l'image_charge
+ * 
+ * @pre: ligne != NUL et image_charge != NULL
+ * @post: image_charge.taille_max_pixel à été remplis avec les bonnes donnée de la ligne
+ * 
+ * @return:
+ *      0 Succès
+ *      -1 Mauvais pointeur
+ *      -2 Problème lors de la lecture de la ligne
+ * 
+ */
+
+int creer_taille_max(char* ligne, PNM* image_charge);
 
 
 #endif // __PNM__
