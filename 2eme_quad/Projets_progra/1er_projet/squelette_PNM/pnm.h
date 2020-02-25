@@ -20,8 +20,11 @@
  * Déclaration du type opaque PNM
  *
  */
-typedef struct taille Taille;
 typedef struct PNM_t PNM;
+typedef struct PBM_pixel PBM;
+typedef struct PPM_pixel PPM;
+typedef struct PGM_pixel PGM;
+typedef struct taille Taille;
 
 
 /**
@@ -99,7 +102,7 @@ int test_extension(char* extension, char* nom_fichier);
  *      -2 Problème lors de la lecture du fichier
  */
 
-int lire_ligne(char* ligne, FILE* filehandle);
+int lire_ligne(char** ligne_s_p, FILE* filehandle);
 
 /**
  * Remplis le format d'un fichier PNM
@@ -118,7 +121,7 @@ int lire_ligne(char* ligne, FILE* filehandle);
  * 
  */
 
-int creer_formatage(char* ligne, PNM* image_charge);
+int creer_formatage(char* ligne_s, PNM* image_charge);
 
 /**
  * Remplis la taille d'un fichier PNM
@@ -134,10 +137,11 @@ int creer_formatage(char* ligne, PNM* image_charge);
  *      0 Succès
  *      -1 Mauvais pointeur
  *      -2 Problème lors de la lecture de la ligne
+ *      -3 Mauvais formatage du fichier
  * 
  */
 
-int creer_taille(char* ligne, PNM* image_charge);
+int creer_taille(char* ligne_s, PNM* image_charge);
 
 /**
  * Remplis la taille_max d'un pixel d'un fichier PNM
@@ -156,7 +160,7 @@ int creer_taille(char* ligne, PNM* image_charge);
  * 
  */
 
-int creer_taille_max(char* ligne, PNM* image_charge);
+int creer_taille_max(char* ligne_s, PNM* image_charge);
 
 
 #endif // __PNM__

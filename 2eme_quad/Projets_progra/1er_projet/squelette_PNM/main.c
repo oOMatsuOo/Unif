@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
       printf("%s \n", "L'extension du fichier est différente de celle renseignée.");
    }
    else{
-      printf("%s \n","Le formatage est bon.");
+      printf("%s \n","Le formatage des arguments est bon.");
    }
 
    PNM* image;
