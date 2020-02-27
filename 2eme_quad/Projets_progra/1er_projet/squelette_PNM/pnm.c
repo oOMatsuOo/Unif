@@ -10,6 +10,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -75,7 +76,7 @@ int load_pnm(PNM **image, char* filename) {
    }
 
    PNM image_charge;
-   image = &image_charge;
+   *image = &image_charge;
 
    char *extension_fichier;
    extension_fichier = strchr(filename, '.');
@@ -94,13 +95,14 @@ int load_pnm(PNM **image, char* filename) {
 
    while(status < 3){
       lire_ligne(&ligne_s,fichier);
+      printf("%s \n", ligne_s);
       if((ligne_s[0] != '#') == 1){
          if(status == 0){
-            if(creer_formatage(ligne_s,&image_charge) != 0){
+            if(creer_formatage(ligne_s, &image_charge) != 0){
                printf("%s \n", "Erreur lors de l'enregistrement du formatage renseigné dans le fichier.");
                return -3;
             }
-            if(test_formatage(&image_charge,extension_fichier) != 0){
+            if((test_formatage(&image_charge,extension_fichier)) != 0){
                printf("%s \n", "Format du fichier différent du format renseigné dans le fichier.");
                return -3;
             }
@@ -110,13 +112,16 @@ int load_pnm(PNM **image, char* filename) {
                printf("%s \n", "Erreur lors de l'enregistrement de la taille de l'image renseignée dans le fichier.");
                return -3;
             }
-            if(image_charge.formatage == 'P1')
-               status += 1;
+            if(image_charge.formatage == 1)
+               status = 3;
          }
          else if(status == 2){
             if(creer_taille_max(ligne_s,&image_charge) != 0){
                printf("%s \n", "Erreur lors de l'enregistrement de la taille maximale d'un pixel renseignée dans le fichier.");
                return -3;
+            }
+            if(image_charge.formatage == 1){
+               image_charge.valeur_max_pixel = -1;
             }
             if(verification_taille_max(&image_charge) != 0){
                printf("%s \n","Taille maximale renseignée dans le fichier à une mauvaise valeur.");
@@ -131,7 +136,7 @@ int load_pnm(PNM **image, char* filename) {
    printf("%d , %d -> Taille \n", image_charge.taille_fichier.colonnes,image_charge.taille_fichier.lignes);
    printf("%d      -> Valeur Max \n", image_charge.valeur_max_pixel);
 
-   if(enregistrement_data(&image_charge,&fichier) != 0){
+   if(enregistrement_data(&image_charge,fichier) != 0){
       printf("%s \n", "Problème lors de la lecture des données.");
       return -3;
    }
@@ -189,6 +194,7 @@ int lire_ligne(char** ligne_s_p, FILE* filehandle){
    if (fgets(*ligne_s_p,4000,filehandle)){
       return -2;
    }
+   printf("%s \n", *ligne_s_p);
 
    return 0;
 }
@@ -204,14 +210,13 @@ int creer_formatage(char* ligne_s, PNM* image_charge){
    if(format < 1 || format > 3)
       return -3;
    image_charge->formatage = format;
-   
-   if(format == 1)
+   if(format == 1){
       image_charge->struct_pixels_p = malloc(sizeof(PBM));
+   }
    else if(format == 2)
       image_charge->struct_pixels_p = malloc(sizeof(PGM));
    else
       image_charge->struct_pixels_p = malloc(sizeof(PPM));
-   
 
    return 0;
 }
@@ -228,12 +233,14 @@ int creer_taille(char* ligne_s, PNM* image_charge){
    image_charge->taille_fichier.colonnes = colonnes;
    image_charge->taille_fichier.lignes = lignes;
    
-   if(image_charge->formatage == 1)
+   if(image_charge->formatage == 1){
       ((PBM*)image_charge->struct_pixels_p)->pixels = malloc(sizeof(unsigned char) * lignes * colonnes);
+      printf("%c \n",((PBM*)image_charge->struct_pixels_p)->pixels[0][0]);
+   }
    else if(image_charge->formatage == 2)
       ((PGM*)image_charge->struct_pixels_p)->pixels = malloc(sizeof(unsigned char) * lignes * colonnes);
    else
-      ((PPM*)image_charge->struct_pixels_p)->pixels = malloc(sizeof(unsigned short) * lignes * colonnes);
+      ((PPM*)image_charge->struct_pixels_p)->pixels = malloc(sizeof(unsigned short) * lignes * colonnes * 3);
 
    return 0;
 }
@@ -294,21 +301,42 @@ int enregistrement_data(PNM* image_charge,FILE* fichier){
    int format = image_charge->formatage;
 
    int i = 0, j = 0, lignes, colonnes;
+   char char_actuel[3];
    lignes = image_charge->taille_fichier.lignes;
    colonnes = image_charge->taille_fichier.colonnes;
 
-   // if(format == 1){
-   //    PBM* tableau; 
-   // }
+   if (format == 1 || format == 2){
+      for(i=0;i<colonnes;i++){
+         for(j=0;j<lignes;j++){
+            unsigned char pixel = pixel_PBM_PGM(fichier);
+            printf("%c \n",pixel);
+            printf("%d %d \n",i,j);
+            printf("%c \n",(unsigned char)((PBM*)image_charge->struct_pixels_p)->pixels[i][j]);
+            ((PBM*)image_charge->struct_pixels_p)->pixels[i][j] = pixel;
+            printf("%c \n",pixel);
+         }
+      }
 
+   }
+   else if(format == 3){
+      for(i=0;i<colonnes;i++){
+         for(j=0;j<lignes;j++){
+            i = colonnes;
+            j = lignes;
+         }
+      }
+   }
 
-   // if (format == 1 || format == 2){
-   //    for 
-
-   // }
-   // else if(format == 3{
-      
-   // }
-   
    return 0;
+}
+
+unsigned char pixel_PBM_PGM(FILE* fichier){
+   unsigned char pixel;
+   int valeur_retour;
+   pixel = fgetc(fichier);
+   // if(pixel == EOF){
+   //    return -1;
+   // }
+
+   return pixel;
 }

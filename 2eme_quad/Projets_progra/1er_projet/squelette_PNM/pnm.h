@@ -123,6 +123,14 @@ int lire_ligne(char** ligne_s_p, FILE* filehandle);
 
 int creer_formatage(char* ligne_s, PNM* image_charge);
 
+int test_formatage(PNM* image_charge, char* extension);
+
+unsigned char pixel_PBM_PGM(FILE* fichier);
+
+int enregistrement_data(PNM* image_charge,FILE* fichier);
+
+int verification_taille_max(PNM* image_charge);
+
 /**
  * Remplis la taille d'un fichier PNM
  * 
