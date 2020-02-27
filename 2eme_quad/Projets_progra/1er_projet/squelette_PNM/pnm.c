@@ -46,7 +46,9 @@ struct PNM_t {
 // Structure des pixels PPM
 struct PPM_pixel{
 
-   short unsigned int*** pixels;
+   short unsigned int* R;
+   short unsigned int* G;
+   short unsigned int* B;
    // Seulement si limté à 65536 valeurs, là ou la sepc officielle limite à 256 valeurs https://en.wikipedia.org/wiki/Netpbm
 
 };
@@ -54,7 +56,7 @@ struct PPM_pixel{
 //  Structure des pixels PGM
 struct PGM_pixel{
 
-   unsigned char** pixels;
+   unsigned char* pixels;
    // Seulement si limté à 256 valeurs, là ou la sepc officielle limite à 65536 valeurs https://en.wikipedia.org/wiki/Netpbm
 
 };
@@ -62,7 +64,7 @@ struct PGM_pixel{
 //  Structure des pixels PBM
 struct PBM_pixel{
 
-   unsigned char** pixels;
+   unsigned char* pixels;
    // 8 bits pour stocker 1 bit -> sous-optimal mais type binaire n'existe pas 
 
 };
@@ -95,7 +97,6 @@ int load_pnm(PNM **image, char* filename) {
 
    while(status < 3){
       lire_ligne(&ligne_s,fichier);
-      printf("%s \n", ligne_s);
       if((ligne_s[0] != '#') == 1){
          if(status == 0){
             if(creer_formatage(ligne_s, &image_charge) != 0){
@@ -149,7 +150,8 @@ int load_pnm(PNM **image, char* filename) {
 
 int write_pnm(PNM *image, char* filename) {
 
-   /* Insérez le code ici */
+   if(image == NULL || filename == NULL)
+      return -1;
 
    return 0;
 }
@@ -234,13 +236,19 @@ int creer_taille(char* ligne_s, PNM* image_charge){
    image_charge->taille_fichier.lignes = lignes;
    
    if(image_charge->formatage == 1){
-      ((PBM*)image_charge->struct_pixels_p)->pixels = malloc(sizeof(unsigned char) * lignes * colonnes);
-      printf("%c \n",((PBM*)image_charge->struct_pixels_p)->pixels[0][0]);
+      PBM* sp = (PBM*)image_charge->struct_pixels_p;
+      sp->pixels = malloc(colonnes*lignes*sizeof(unsigned char));
    }
-   else if(image_charge->formatage == 2)
-      ((PGM*)image_charge->struct_pixels_p)->pixels = malloc(sizeof(unsigned char) * lignes * colonnes);
-   else
-      ((PPM*)image_charge->struct_pixels_p)->pixels = malloc(sizeof(unsigned short) * lignes * colonnes * 3);
+   else if(image_charge->formatage == 2){
+      PGM* sp = (PGM*)image_charge->struct_pixels_p;
+      sp->pixels = malloc(sizeof(unsigned char) * lignes * colonnes);
+   }
+   else{
+      PPM* sp = (PPM*)image_charge->struct_pixels_p;
+      sp->R = malloc(sizeof(short unsigned int) * lignes * colonnes);
+      sp->G = malloc(sizeof(short unsigned int) * lignes * colonnes);
+      sp->B = malloc(sizeof(short unsigned int) * lignes * colonnes);
+   }
 
    return 0;
 }
@@ -300,20 +308,27 @@ int enregistrement_data(PNM* image_charge,FILE* fichier){
    
    int format = image_charge->formatage;
 
-   int i = 0, j = 0, lignes, colonnes;
-   char char_actuel[3];
+   int i = 0, j = 0, lignes, colonnes, offset = 0;
    lignes = image_charge->taille_fichier.lignes;
    colonnes = image_charge->taille_fichier.colonnes;
 
    if (format == 1 || format == 2){
-      for(i=0;i<colonnes;i++){
-         for(j=0;j<lignes;j++){
+      for(i=0;i<lignes;i++){
+         for(j=0;j<colonnes;j++){
             unsigned char pixel = pixel_PBM_PGM(fichier);
-            printf("%c \n",pixel);
-            printf("%d %d \n",i,j);
-            printf("%c \n",(unsigned char)((PBM*)image_charge->struct_pixels_p)->pixels[i][j]);
-            ((PBM*)image_charge->struct_pixels_p)->pixels[i][j] = pixel;
-            printf("%c \n",pixel);
+            if(pixel != (unsigned char)-1){
+               if(image_charge->formatage == 1){
+                  PBM* sp = (PBM*)image_charge->struct_pixels_p;
+                  sp->pixels[offset] = pixel;
+               }
+               else if(image_charge->formatage == 2){
+                  PGM* sp = (PGM*)image_charge->struct_pixels_p;
+                  sp->pixels[offset] = pixel;
+               }
+               offset += 1;
+            }else{
+               return -3;
+            }
          }
       }
 
@@ -321,22 +336,53 @@ int enregistrement_data(PNM* image_charge,FILE* fichier){
    else if(format == 3){
       for(i=0;i<colonnes;i++){
          for(j=0;j<lignes;j++){
-            i = colonnes;
-            j = lignes;
+            short unsigned int pixel = pixel_PPM(fichier);
+            if(pixel != (short unsigned int)-1){
+               PPM* sp = (PPM*)image_charge->struct_pixels_p;
+               sp->R[offset] = pixel;
+
+            }else{
+               return -3;
+            }
+
+            pixel = pixel_PPM(fichier);
+            if(pixel != (short unsigned int)-1){
+               PPM* sp = (PPM*)image_charge->struct_pixels_p;
+               sp->G[offset] = pixel;
+            }else{
+               return -3;
+            }
+
+            pixel = pixel_PPM(fichier);
+            if(pixel != (short unsigned int)-1){
+               PPM* sp = (PPM*)image_charge->struct_pixels_p;
+               sp->B[offset] = pixel;
+            }else{
+               return -3;
+            }
+
+            offset += 1;
          }
       }
    }
+   printf("%d \n",offset);
+   printf("%d \n",(colonnes * lignes));
 
    return 0;
 }
 
 unsigned char pixel_PBM_PGM(FILE* fichier){
-   unsigned char pixel;
-   int valeur_retour;
-   pixel = fgetc(fichier);
-   // if(pixel == EOF){
-   //    return -1;
-   // }
+   unsigned int pixel_u;
+   if(fscanf(fichier,"%u ",&pixel_u) !=1)
+      return (unsigned char)-1;
 
-   return pixel;
+   return (unsigned char) pixel_u;
+}
+
+short unsigned int pixel_PPM(FILE* fichier){
+   unsigned int pixel_u;
+   if(fscanf(fichier,"%u ", &pixel_u) != 1)
+      return (short unsigned int)-1;
+   
+   return (short unsigned int)pixel_u;
 }

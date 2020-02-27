@@ -170,6 +170,7 @@ int creer_taille(char* ligne_s, PNM* image_charge);
 
 int creer_taille_max(char* ligne_s, PNM* image_charge);
 
+short unsigned int pixel_PPM(FILE* fichier);
 
 #endif // __PNM__
 

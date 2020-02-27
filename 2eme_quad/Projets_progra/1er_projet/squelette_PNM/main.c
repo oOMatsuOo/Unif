@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <unistd.h>
 #include <ctype.h>
@@ -36,7 +37,7 @@ int main(int argc, char *argv[]) {
 
    int test_extension_retour;
 
-   test_extension_retour = test_extension(&extension,&nom_fichier);
+   test_extension_retour = test_extension(&extension[0],&nom_fichier[0]);
 
    if (test_extension_retour == -3){
       printf("%s \n", "Mauvaise extension du fichier renseigné.");
