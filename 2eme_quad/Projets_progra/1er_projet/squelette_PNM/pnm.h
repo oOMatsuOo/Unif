@@ -125,8 +125,6 @@ int creer_formatage(char* ligne_s, PNM* image_charge);
 
 int test_formatage(PNM* image_charge, char* extension);
 
-unsigned char pixel_PBM_PGM(FILE* fichier);
-
 int enregistrement_data(PNM* image_charge,FILE* fichier);
 
 int verification_taille_max(PNM* image_charge);
@@ -170,7 +168,13 @@ int creer_taille(char* ligne_s, PNM* image_charge);
 
 int creer_taille_max(char* ligne_s, PNM* image_charge);
 
-short unsigned int pixel_PPM(FILE* fichier);
+int pixel_PPM(FILE* fichier);
+
+int pixel_PBM_PGM(FILE* fichier);
+
+int write_header(PNM *image,FILE *fichier);
+
+int write_data(PNM *image,FILE *fichier);
 
 #endif // __PNM__
 

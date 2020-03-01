@@ -19,11 +19,12 @@
 
 #include "pnm.h"
 
+#define USAGE printf("%s \n","Usage : ./pnm -f type_fichier nom_fichier_input nom_fichier_output");
 
 int main(int argc, char *argv[]) {
 
    char *optstring = "f:";
-   char *extension, nom_fichier[40];
+   char *extension, *nom_fichier, *nom_fichier_write;
    int opt;
 
    while((opt = getopt(argc,argv,optstring)) != -1){
@@ -31,6 +32,7 @@ int main(int argc, char *argv[]) {
          case 'f':
             if((strcmp(optarg,"PBM") != 0) && (strcmp(optarg,"PPM") != 0) && (strcmp(optarg,"PGM") != 0)){
                printf("%s \n", "Mauvais format renseigné.");
+               USAGE
                return -1;
             }
             else{
@@ -38,20 +40,20 @@ int main(int argc, char *argv[]) {
             }
             break;
          default:
-            printf("%s \n","Usage : ./pnm -f type_fichier nom_fichier");
+            USAGE
             return -1;
       }
    }
 
-   if((argc - optind )!= 1){
+   if((argc - optind )!= 2){
       printf("%s \n","Nombre incorrect d'arguments.");
-      printf("%s \n","Usage : ./pnm -f type_fichier nom_fichier");
+      USAGE
       return -1;
    }
 
-   if (argv[3] != NULL){
-      strcpy(nom_fichier, argv[3]);
-   }
+   nom_fichier = strdup(argv[optind]);
+
+   nom_fichier_write = strdup(argv[optind + 1]);
 
    test_extension(&extension[0],&nom_fichier[0]);
 
@@ -59,7 +61,7 @@ int main(int argc, char *argv[]) {
 
    printf("%d \n",load_pnm(&image,nom_fichier));
 
-   printf("%d \n",write_pnm(image,nom_fichier));
+   printf("%d \n",write_pnm(image,nom_fichier_write));
 
    return 0;
 }
