@@ -368,7 +368,7 @@ int enregistrement_data(PNM* image_charge,FILE* fichier){
 
 unsigned char pixel_PBM_PGM(FILE* fichier){
    unsigned int pixel_u;
-   if(fscanf(fichier,"%u ",&pixel_u) !=1)
+   if(fscanf(fichier,"%u%*[ \n]",&pixel_u) !=1)
       return (unsigned char)-1;
 
    return (unsigned char) pixel_u;
