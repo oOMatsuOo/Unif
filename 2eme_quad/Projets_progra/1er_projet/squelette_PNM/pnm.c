@@ -156,37 +156,32 @@ int write_pnm(PNM *image, char* filename) {
    return 0;
 }
 
-int test_extension(char* extension, char* nom_fichier){
+void test_extension(char* format, char* nom_fichier){
 
    char *extension_fichier;
    extension_fichier = strchr(nom_fichier, '.');
 
-   // Test de l'extension renseignée
-
-   if(extension == NULL || (strcmp(extension,"PBM") != 0 && strcmp(extension,"PGM") != 0 && strcmp(extension,"PPM") != 0)){
-      return -1;
-   };
-
    // Test de l'extension du nom du fichier
 
    if(nom_fichier == NULL || (strcmp(extension_fichier,".pbm") != 0 && strcmp(extension_fichier,".pgm") != 0 && strcmp(extension_fichier,".ppm") != 0)){
-      return -3;
+      printf("%s \n", "Mauvaise extension du fichier renseigné.");
+      return;
    };
 
    // Test de correspondance entre l'extension renseignée et celle du nom du fichier
 
-   if(strcmp(extension,"PBM") == 0 && strcmp(extension_fichier, ".pbm") != 0){
+   if(strcmp(format,"PBM") == 0 && strcmp(extension_fichier, ".pbm") != 0){
       printf("%s \n", "hello");
-      return -2;
+      return;
    }
-   else if(strcmp(extension,"PGM") == 0 && strcmp(extension_fichier, ".pgm") != 0){
-      return -2;
+   else if(strcmp(format,"PGM") == 0 && strcmp(extension_fichier, ".pgm") != 0){
+      return;
    }
-   else if(strcmp(extension,"PPM") == 0 && strcmp(extension_fichier, ".ppm") != 0){
-      return -2;
+   else if(strcmp(format,"PPM") == 0 && strcmp(extension_fichier, ".ppm") != 0){
+      return;
    }
 
-   return 0;
+   return;
 }
 
 int lire_ligne(char** ligne_s_p, FILE* filehandle){

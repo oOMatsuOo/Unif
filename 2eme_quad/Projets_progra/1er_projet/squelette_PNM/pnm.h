@@ -84,7 +84,7 @@ int write_pnm(PNM *image, char* filename);
  *      -3 Extension du fichier non reconnue
  */
 
-int test_extension(char* extension, char* nom_fichier);
+void test_extension(char* format, char* nom_fichier);
 
 /**
  * Lire une ligne d'un fichier
@@ -134,7 +134,7 @@ int verification_taille_max(PNM* image_charge);
 /**
  * Remplis la taille d'un fichier PNM
  * 
- * Remplis le champs taille de l'image_charge
+ * Remplis le champs taille 
  * 
  * @param adresse de la ligne contenant les données et adresse de la structure PNM de l'image_charge
  * 

@@ -22,39 +22,44 @@
 
 int main(int argc, char *argv[]) {
 
-   char *optstring = "";
+   char *optstring = "f:";
+   char *extension, nom_fichier[40];
+   int opt;
 
-   char extension[4];
-   char nom_fichier[40];
+   while((opt = getopt(argc,argv,optstring)) != -1){
+      switch (opt){
+         case 'f':
+            if((strcmp(optarg,"PBM") != 0) && (strcmp(optarg,"PPM") != 0) && (strcmp(optarg,"PGM") != 0)){
+               printf("%s \n", "Mauvais format renseigné.");
+               return -1;
+            }
+            else{
+               extension = strdup(optarg);
+            }
+            break;
+         default:
+            printf("%s \n","Usage : ./pnm -f type_fichier nom_fichier");
+            return -1;
+      }
+   }
 
-   if (argv[2] != NULL){
-      strcpy(extension, argv[2]);
+   if((argc - optind )!= 1){
+      printf("%s \n","Nombre incorrect d'arguments.");
+      printf("%s \n","Usage : ./pnm -f type_fichier nom_fichier");
+      return -1;
    }
 
    if (argv[3] != NULL){
       strcpy(nom_fichier, argv[3]);
    }
 
-   int test_extension_retour;
-
-   test_extension_retour = test_extension(&extension[0],&nom_fichier[0]);
-
-   if (test_extension_retour == -3){
-      printf("%s \n", "Mauvaise extension du fichier renseigné.");
-   }
-   else if(test_extension_retour == -1){
-      printf("%s \n", "Mauvaise extension renseignée.");
-   }
-   else if(test_extension_retour == -2){
-      printf("%s \n", "L'extension du fichier est différente de celle renseignée.");
-   }
-   else{
-      printf("%s \n","Le formatage des arguments est bon.");
-   }
+   test_extension(&extension[0],&nom_fichier[0]);
 
    PNM* image;
 
    printf("%d \n",load_pnm(&image,nom_fichier));
+
+   printf("%d \n",write_pnm(image,nom_fichier));
 
    return 0;
 }
