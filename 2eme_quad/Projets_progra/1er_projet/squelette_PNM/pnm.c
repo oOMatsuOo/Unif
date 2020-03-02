@@ -233,7 +233,9 @@ int load_data(PNM* image,FILE* fichier){
    if (format == 1 || format == 2){
       for(i=0;i<lignes;i++){
          for(j=0;j<colonnes;j++){
-            skip_commentaires(fichier);
+            if(skip_commentaires(fichier) < 0){
+               return -1;
+            }
             int pixel = scan_pixel(fichier);
             if(test_pixel(pixel,image) != 0){
                return -4;
@@ -313,7 +315,6 @@ int load_header(PNM* image,FILE* fichier,int extension_fichier){
    }
 
    if(extension_fichier != nombre_magique){
-      printf("%d \n",extension_fichier);
       printf("Le nombre magique ne correspond pas au format du fichier \n");
       return -4;
    }
@@ -407,8 +408,13 @@ int skip_commentaires(FILE* fichier){
    do {
       int ch = fgetc(fichier);
       if(ch < 0){
-         printf("Problème lors de la lecture du premier caractère de la ligne \n");
-         return -1;
+         if(ch == EOF){
+            printf("Fin prématurée du fichier\n");
+            return -1;
+         }else{
+            printf("Problème lors de la lecture du premier caractère de la ligne \n");
+            return -1;
+         }
       }
       if((char)ch == '#'){
          if(fscanf(fichier,"%*[^\n]%*[\n]") < 0){
