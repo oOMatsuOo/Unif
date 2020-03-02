@@ -349,7 +349,7 @@ int load_formatage(PNM* image,FILE* fichier){
       return -1;
    }
 
-   if((fscanf(fichier, "P%d %*[ \n]",&image->formatage)) != 1){
+   if((fscanf(fichier, "P%d %*[\n]",&image->formatage)) != 1){
       return -1;
    }
 
@@ -362,7 +362,7 @@ int load_taille_image(PNM* image,FILE* fichier){
       return -1;
    }
 
-   if(fscanf(fichier,"%d%*[ ]%d%*[ \n]",&image->taille_fichier.colonnes,&image->taille_fichier.lignes) != 2){
+   if(fscanf(fichier,"%d %d %*[\n]",&image->taille_fichier.colonnes,&image->taille_fichier.lignes) != 2){
       return -1;
    }
 
@@ -394,7 +394,7 @@ int load_taille_pixel_max(PNM* image,FILE* fichier){
       return -1;
    }
 
-   if(fscanf(fichier,"%d%*[ \n]",&image->valeur_max_pixel) != 1){
+   if(fscanf(fichier,"%d %*[\n]",&image->valeur_max_pixel) != 1){
       return -1;
    }
 
@@ -415,7 +415,7 @@ int skip_commentaires(FILE* fichier){
          return -1;
       }
       if((char)ch == '#'){
-         if(fscanf(fichier,"%*[^\n]\n") < 0){
+         if(fscanf(fichier,"%*[^\n]%*[\n]") < 0){
             printf("Problème lors de la lecture d'une ligne de commentaire");
             return -2;
          };
