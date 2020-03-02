@@ -1,3 +1,4 @@
-*.o
-pnm
+/*.o
+/pnm
+/output.*
 
