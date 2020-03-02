@@ -24,7 +24,7 @@
 int main(int argc, char *argv[]) {
 
    char *optstring = "f:";
-   char *extension, *nom_fichier, *nom_fichier_write;
+   char *extension, *nom_fichier, *nom_fichier_write = 0;
    int opt;
 
    while((opt = getopt(argc,argv,optstring)) != -1){
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
       }
    }
 
-   if((argc - optind )!= 2){
+   if((argc - optind )!= 1){
       printf("Nombre incorrect d'arguments. \n");
       USAGE
       return -1;
@@ -53,18 +53,24 @@ int main(int argc, char *argv[]) {
 
    nom_fichier = strdup(argv[optind]);
 
-   nom_fichier_write = strdup(argv[optind + 1]);
-
-   test_extension(&extension[0],&nom_fichier[0]);
+   if(test_extension(&extension[0],&nom_fichier[0]) != 0){
+      return -1;
+   };
 
    PNM* image;
 
    if(load_pnm(&image,nom_fichier) < 0){
       printf("Problème lors de la lecture du fichier \n");
       return -1;
+   } 
+
+   if(nom_fichier_retour(image,&nom_fichier_write) != 0){
+      printf("Problème lors de la création du nom du fichier en output\n");
+      return -1;
    }
 
-   if(write_pnm(image,nom_fichier_write) <0){
+
+   if(write_pnm(image, nom_fichier_write) <0){
       printf("Problème lors de l'écriture du fichier \n");
       return -2;
    };

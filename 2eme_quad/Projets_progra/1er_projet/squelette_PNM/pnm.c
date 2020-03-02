@@ -18,6 +18,30 @@
 
 #define MAX_CHAR 50
 
+int verification_taille_max(PNM* image);
+
+int load_data(PNM* image,FILE* fichier);
+
+int scan_pixel(FILE* fichier);
+
+int load_header(PNM* image,FILE* fichier,int extension_fichier);
+
+int load_formatage(PNM* image,FILE* fichier);
+
+int load_taille_image(PNM* image,FILE* fichier);
+
+int load_taille_pixel_max(PNM* image,FILE* fichier);
+
+int skip_commentaires(FILE* fichier);
+
+int test_pixel(int pixel,PNM* image);
+
+int write_header(PNM *image,FILE *fichier);
+
+int write_data(PNM *image,FILE *fichier);
+
+int nom_fichier_retour(PNM* image,char** output);
+
 /**
  * Définition de la structure de la taille d'un fichier PNM
  * 
@@ -81,6 +105,11 @@ int load_pnm(PNM **image, char* filename) {
 
    char *extension_fichier;
    extension_fichier = strchr(filename, '.');
+
+   while(extension_fichier[1] == '/'){
+      extension_fichier = strchr(&extension_fichier[2],'.');
+   }
+
    int format_attendu;
 
    if(strcmp(extension_fichier,".pbm") == 0){
@@ -102,17 +131,11 @@ int load_pnm(PNM **image, char* filename) {
    }
 
    // Analyse de l'en-tête
-   int status = 0;
-   char* ligne_s;
 
    if(load_header(*image,fichier,format_attendu) <0){
       printf("Problème lors de l'enregistrement du header \n");
       return -3;
    }
-
-   printf("%d      -> Format \n", (*image)->formatage);
-   printf("%d , %d -> Taille \n", (*image)->taille_fichier.colonnes, (*image)->taille_fichier.lignes);
-   printf("%d      -> Valeur Max \n", (*image)->valeur_max_pixel);
 
    if(load_data(*image,fichier) != 0){
       printf("%s \n", "Problème lors de la lecture des données.");
@@ -146,111 +169,36 @@ int write_pnm(PNM *image, char* filename) {
    return 0;
 }
 
-void test_extension(char* format, char* nom_fichier){
+int test_extension(char* format, char* nom_fichier){
 
    char *extension_fichier;
    extension_fichier = strchr(nom_fichier, '.');
+   if(extension_fichier[1] == '/'){
+      extension_fichier = strchr(&extension_fichier[2],'.');
+   }
+   if(extension_fichier == NULL || format == NULL){
+      printf("Mauvais arguments\n");
+      return -1;
+   }
 
    // Test de l'extension du nom du fichier
 
    if(nom_fichier == NULL || (strcmp(extension_fichier,".pbm") != 0 && strcmp(extension_fichier,".pgm") != 0 && strcmp(extension_fichier,".ppm") != 0)){
-      printf("%s \n", "Mauvaise extension du fichier renseigné.");
-      return;
+      printf("%s \n", "Mauvaise extension du fichier renseignée. \n");
+      return -2;
    };
 
    // Test de correspondance entre l'extension renseignée et celle du nom du fichier
 
    if(strcmp(format,"PBM") == 0 && strcmp(extension_fichier, ".pbm") != 0){
-      printf("%s \n", "hello");
-      return;
+      return 0;
    }
    else if(strcmp(format,"PGM") == 0 && strcmp(extension_fichier, ".pgm") != 0){
-      return;
+      return 0;
    }
    else if(strcmp(format,"PPM") == 0 && strcmp(extension_fichier, ".ppm") != 0){
-      return;
+      return 0;
    }
-
-   return;
-}
-
-int lire_ligne(char** ligne_s_p, FILE* filehandle){
-   if (ligne_s_p == NULL || filehandle == NULL)
-      return -1;
-   *ligne_s_p = malloc(sizeof(char)*4000);
-   if (fgets(*ligne_s_p,4000,filehandle)){
-      return -2;
-   }
-   printf("%s \n", *ligne_s_p);
-
-   return 0;
-}
-
-int creer_formatage(char* ligne_s, PNM* image){
-   if(ligne_s == NULL || image == NULL)
-      return -1;
-   
-   int format;
-
-   if(sscanf(ligne_s,"P%d",&format) != 1)
-      return -2;
-   if(format < 1 || format > 3)
-      return -3;
-   image->formatage = format;
-   if(format == 1){
-      image->struct_pixels_p = malloc(sizeof(PBM));
-   }
-   else if(format == 2)
-      image->struct_pixels_p = malloc(sizeof(PGM));
-   else
-      image->struct_pixels_p = malloc(sizeof(PPM));
-
-   return 0;
-}
-
-int creer_taille(char* ligne_s, PNM* image){
-   if(ligne_s == NULL || image == NULL)
-      return -1;
-
-   int colonnes ,lignes;
-
-   if(sscanf(ligne_s, "%d %d",&colonnes,&lignes) != 2)
-      return -2;
-
-   image->taille_fichier.colonnes = colonnes;
-   image->taille_fichier.lignes = lignes;
-   
-   if(image->formatage == 1){
-      PBM* sp = (PBM*)image->struct_pixels_p;
-      sp->pixels = malloc(colonnes*lignes*sizeof(unsigned char));
-   }
-   else if(image->formatage == 2){
-      PGM* sp = (PGM*)image->struct_pixels_p;
-      sp->pixels = malloc(sizeof(unsigned char) * lignes * colonnes);
-   }
-   else{
-      PPM* sp = (PPM*)image->struct_pixels_p;
-      sp->R = malloc(sizeof(short unsigned int) * lignes * colonnes);
-      sp->G = malloc(sizeof(short unsigned int) * lignes * colonnes);
-      sp->B = malloc(sizeof(short unsigned int) * lignes * colonnes);
-   }
-
-   return 0;
-}
-
-int creer_taille_max(char* ligne_s, PNM* image){
-   if(ligne_s == NULL || image == NULL)
-      return -1;
-
-   int taille_max;
-   
-   if(sscanf(ligne_s,"%d",&taille_max) != 1)
-      return -2;
-
-   if(taille_max < 0)
-      return -3;
-   else
-      image->valeur_max_pixel = taille_max;
 
    return 0;
 }
@@ -285,7 +233,11 @@ int load_data(PNM* image,FILE* fichier){
    if (format == 1 || format == 2){
       for(i=0;i<lignes;i++){
          for(j=0;j<colonnes;j++){
+            skip_commentaires(fichier);
             int pixel = scan_pixel(fichier);
+            if(test_pixel(pixel,image) != 0){
+               return -4;
+            }
             if(pixel != -1){
                if(image->formatage == 1){
                   PBM* sp = (PBM*)image->struct_pixels_p;
@@ -365,6 +317,7 @@ int load_header(PNM* image,FILE* fichier,int extension_fichier){
    }
 
    if(extension_fichier != nombre_magique){
+      printf("%d \n",extension_fichier);
       printf("Le nombre magique ne correspond pas au format du fichier \n");
       return -4;
    }
@@ -396,7 +349,7 @@ int load_formatage(PNM* image,FILE* fichier){
       return -1;
    }
 
-   if((fscanf(fichier, "P%d%*[ \n]",&image->formatage)) != 1){
+   if((fscanf(fichier, "P%d %*[ \n]",&image->formatage)) != 1){
       return -1;
    }
 
@@ -445,6 +398,11 @@ int load_taille_pixel_max(PNM* image,FILE* fichier){
       return -1;
    }
 
+   if(verification_taille_max(image) != 0){
+      printf("La taille maximale n'est pas autorisée");
+      return -1;
+   }
+
    return 0;
 }
 
@@ -471,6 +429,29 @@ int skip_commentaires(FILE* fichier){
       }
    } while (comment_flag);
 
+   return 0;
+}
+
+int test_pixel(int pixel,PNM* image){
+
+   int format = image->formatage, taille_max = image->valeur_max_pixel;
+
+   if(format == 1 && pixel > 1){
+      printf("%d\n",pixel);
+      printf("Un pixel a une valeur suppérieure à la valeur max.\n");
+      return -1;
+   }
+   else if(format != 1 && pixel > taille_max){
+      printf("Un pixel a une valeur suppérieure à la valeur max.\n");
+      return -1;
+   }
+
+   if(pixel < 0){
+      printf("Un pixel a une valeur négative.\n");
+      return -2;
+   }
+
+   
    return 0;
 }
 
@@ -516,6 +497,24 @@ int write_data(PNM *image,FILE *fichier){
          }
          fprintf(fichier,"\n");
       }
+   }
+
+   return 0;
+}
+
+int nom_fichier_retour(PNM* image,char** output){
+   if(image == NULL){
+      return -1;
+   }
+
+   if(image->formatage == 1){
+      *output = "output.pbm";
+   }
+   else if(image->formatage == 2){
+      *output = "output.pgm";
+   }
+   else if(image->formatage == 3){
+      *output = "output.ppm";
    }
 
    return 0;

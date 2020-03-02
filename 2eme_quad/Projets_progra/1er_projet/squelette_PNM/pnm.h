@@ -72,116 +72,37 @@ int write_pnm(PNM *image, char* filename);
  * 
  * Vérifie si le nom de l'extension est bien un nom attendu
  * 
- * @param extensionname le nom de l'extension passée en paramètre du main
+ * @param nom_fichier nom du fichier passé en paramètre
+ * @param format format du fichier à vérifier
  * 
- * @pre: extensionname != NULL
- * @post: extensionname appartient à {pbm; pgm, ppm}
- * 
- * @return:
- *      0 Succès
- *      -1 Extension renseignée non reconnue
- *      -2 Extension renseignée différente de celle du fichier
- *      -3 Extension du fichier non reconnue
- */
-
-void test_extension(char* format, char* nom_fichier);
-
-/**
- * Lire une ligne d'un fichier
- * 
- * Retourne un pointeur sur une liste de char, contenant la ligne lue
- * 
- * @param adresse du pointeur dans lequel stocker l'adresse de la liste et adresse du fichier à lire
- * 
- * @pre: pointeur != NULL et fichier != NULL
- * @post: pointeur pointe sur un tableau de char
+ * @pre: nom_fichier != NULL && format != NULL
+ * @post: retourne 0 si le format renseigné est le même que celui du fichier
  * 
  * @return:
  *      0 Succès
- *      -1 Mauvais pointeur
- *      -2 Problème lors de la lecture du fichier
+ *      -1 Mauvais arguments
+ *      -2 Mauvaise extension du fichier renseignée
  */
 
-int lire_ligne(char** ligne_s_p, FILE* filehandle);
+int test_extension(char* format, char* nom_fichier);
 
 /**
- * Remplis le format d'un fichier PNM
+ * nom_fichier_retour
  * 
- * Remplis le champs formatage de l'image
+ * Stocke le nom du fichier output en fonction du format du fichier
  * 
- * @param adresse de la ligne contenant les données et adresse de la structure PNM de l'image
+ * @param  image  Pointeur vers une structure PNM
+ * @param  output pointeur vers un pointeur de char, destiné à recevoir le nom du fichier output
  * 
- * @pre: ligne != NUL et image != NULL
- * @post: image.formatage à été remplis avec les bonnes donnée de la ligne
+ * @pre: image != NULL && format != NULL
+ * @post: le non nom du fichier output est renseingé dans l'output
  * 
  * @return:
  *      0 Succès
- *      -1 Mauvais pointeur
- *      -2 Problème lors de la lecture de la ligne
- * 
+ *      -1 Mauvais arguments
  */
 
-/**
-TODO
- */
-int load_data(PNM* image,FILE* fichier);
-
-int verification_taille_max(PNM* image);
-
-/**
- * Remplis la taille d'un fichier PNM
- * 
- * Remplis le champs taille 
- * 
- * @param adresse de la ligne contenant les données et adresse de la structure PNM de l'image
- * 
- * @pre: ligne != NUL et image != NULL
- * @post: image.taille à été remplis avec les bonnes donnée de la ligne
- * 
- * @return:
- *      0 Succès
- *      -1 Mauvais pointeur
- *      -2 Problème lors de la lecture de la ligne
- *      -3 Mauvais formatage du fichier
- * 
- */
-
-int creer_taille(char* ligne_s, PNM* image);
-
-/**
- * Remplis la taille_max d'un pixel d'un fichier PNM
- * 
- * Remplis le champs taille_max_pixel de l'image
- * 
- * @param adresse de la ligne contenant les données et adresse de la structure PNM de l'image
- * 
- * @pre: ligne != NUL et image != NULL
- * @post: image.taille_max_pixel à été remplis avec les bonnes donnée de la ligne
- * 
- * @return:
- *      0 Succès
- *      -1 Mauvais pointeur
- *      -2 Problème lors de la lecture de la ligne
- * 
- */
-
-int creer_taille_max(char* ligne_s, PNM* image);
-
-int scan_pixel(FILE* fichier);
-
-int load_header(PNM* image,FILE* fichier,int extension_fichier);
-
-int load_formatage(PNM* image,FILE* fichier);
-
-int load_taille_image(PNM* image,FILE* fichier);
-
-int load_taille_pixel_max(PNM* image,FILE* fichier);
-
-int skip_commentaires(FILE* fichier);
-
-int write_header(PNM *image,FILE *fichier);
-
-int write_data(PNM *image,FILE *fichier);
+int nom_fichier_retour(PNM* image,char** output);
 
 #endif // __PNM__
 
