@@ -238,19 +238,15 @@ int load_data(PNM* image,FILE* fichier){
             if(test_pixel(pixel,image) != 0){
                return -4;
             }
-            if(pixel != -1){
-               if(image->formatage == 1){
-                  PBM* sp = (PBM*)image->struct_pixels_p;
-                  sp->pixels[offset] = (unsigned char)pixel;
-               }
-               else if(image->formatage == 2){
-                  PGM* sp = (PGM*)image->struct_pixels_p;
-                  sp->pixels[offset] = (unsigned char)pixel;
-               }
-               offset += 1;
-            }else{
-               return -3;
+            if(image->formatage == 1){
+               PBM* sp = (PBM*)image->struct_pixels_p;
+               sp->pixels[offset] = (unsigned char)pixel;
             }
+            else if(image->formatage == 2){
+               PGM* sp = (PGM*)image->struct_pixels_p;
+               sp->pixels[offset] = (unsigned char)pixel;
+            }
+            offset += 1;
          }
       }
 
@@ -399,7 +395,7 @@ int load_taille_pixel_max(PNM* image,FILE* fichier){
    }
 
    if(verification_taille_max(image) != 0){
-      printf("La taille maximale n'est pas autorisée");
+      printf("La taille maximale n'est pas autorisée \n");
       return -1;
    }
 
@@ -411,7 +407,7 @@ int skip_commentaires(FILE* fichier){
    do {
       int ch = fgetc(fichier);
       if(ch < 0){
-         printf("Problème lors de la lecture du premier caractère de la ligne");
+         printf("Problème lors de la lecture du premier caractère de la ligne \n");
          return -1;
       }
       if((char)ch == '#'){
@@ -437,7 +433,6 @@ int test_pixel(int pixel,PNM* image){
    int format = image->formatage, taille_max = image->valeur_max_pixel;
 
    if(format == 1 && pixel > 1){
-      printf("%d\n",pixel);
       printf("Un pixel a une valeur suppérieure à la valeur max.\n");
       return -1;
    }
@@ -447,7 +442,7 @@ int test_pixel(int pixel,PNM* image){
    }
 
    if(pixel < 0){
-      printf("Un pixel a une valeur négative.\n");
+      printf("Erreur système lors de la lecture d'un pixel\n");
       return -2;
    }
 
