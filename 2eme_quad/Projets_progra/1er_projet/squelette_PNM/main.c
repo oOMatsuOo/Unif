@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
    }
 
    if((argc - optind )!= 2){
-      printf("%s \n","Nombre incorrect d'arguments.");
+      printf("Nombre incorrect d'arguments. \n");
       USAGE
       return -1;
    }
@@ -59,9 +59,15 @@ int main(int argc, char *argv[]) {
 
    PNM* image;
 
-   printf("%d \n",load_pnm(&image,nom_fichier));
+   if(load_pnm(&image,nom_fichier) < 0){
+      printf("Problème lors de la lecture du fichier \n");
+      return -1;
+   }
 
-   printf("%d \n",write_pnm(image,nom_fichier_write));
+   if(write_pnm(image,nom_fichier_write) <0){
+      printf("Problème lors de l'écriture du fichier \n");
+      return -2;
+   };
 
    return 0;
 }

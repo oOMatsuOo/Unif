@@ -107,12 +107,12 @@ int lire_ligne(char** ligne_s_p, FILE* filehandle);
 /**
  * Remplis le format d'un fichier PNM
  * 
- * Remplis le champs formatage de l'image_charge
+ * Remplis le champs formatage de l'image
  * 
- * @param adresse de la ligne contenant les données et adresse de la structure PNM de l'image_charge
+ * @param adresse de la ligne contenant les données et adresse de la structure PNM de l'image
  * 
- * @pre: ligne != NUL et image_charge != NULL
- * @post: image_charge.formatage à été remplis avec les bonnes donnée de la ligne
+ * @pre: ligne != NUL et image != NULL
+ * @post: image.formatage à été remplis avec les bonnes donnée de la ligne
  * 
  * @return:
  *      0 Succès
@@ -121,23 +121,22 @@ int lire_ligne(char** ligne_s_p, FILE* filehandle);
  * 
  */
 
-int creer_formatage(char* ligne_s, PNM* image_charge);
+/**
+TODO
+ */
+int load_data(PNM* image,FILE* fichier);
 
-int test_formatage(PNM* image_charge, char* extension);
-
-int enregistrement_data(PNM* image_charge,FILE* fichier);
-
-int verification_taille_max(PNM* image_charge);
+int verification_taille_max(PNM* image);
 
 /**
  * Remplis la taille d'un fichier PNM
  * 
  * Remplis le champs taille 
  * 
- * @param adresse de la ligne contenant les données et adresse de la structure PNM de l'image_charge
+ * @param adresse de la ligne contenant les données et adresse de la structure PNM de l'image
  * 
- * @pre: ligne != NUL et image_charge != NULL
- * @post: image_charge.taille à été remplis avec les bonnes donnée de la ligne
+ * @pre: ligne != NUL et image != NULL
+ * @post: image.taille à été remplis avec les bonnes donnée de la ligne
  * 
  * @return:
  *      0 Succès
@@ -147,17 +146,17 @@ int verification_taille_max(PNM* image_charge);
  * 
  */
 
-int creer_taille(char* ligne_s, PNM* image_charge);
+int creer_taille(char* ligne_s, PNM* image);
 
 /**
  * Remplis la taille_max d'un pixel d'un fichier PNM
  * 
- * Remplis le champs taille_max_pixel de l'image_charge
+ * Remplis le champs taille_max_pixel de l'image
  * 
- * @param adresse de la ligne contenant les données et adresse de la structure PNM de l'image_charge
+ * @param adresse de la ligne contenant les données et adresse de la structure PNM de l'image
  * 
- * @pre: ligne != NUL et image_charge != NULL
- * @post: image_charge.taille_max_pixel à été remplis avec les bonnes donnée de la ligne
+ * @pre: ligne != NUL et image != NULL
+ * @post: image.taille_max_pixel à été remplis avec les bonnes donnée de la ligne
  * 
  * @return:
  *      0 Succès
@@ -166,11 +165,19 @@ int creer_taille(char* ligne_s, PNM* image_charge);
  * 
  */
 
-int creer_taille_max(char* ligne_s, PNM* image_charge);
+int creer_taille_max(char* ligne_s, PNM* image);
 
-int pixel_PPM(FILE* fichier);
+int scan_pixel(FILE* fichier);
 
-int pixel_PBM_PGM(FILE* fichier);
+int load_header(PNM* image,FILE* fichier,int extension_fichier);
+
+int load_formatage(PNM* image,FILE* fichier);
+
+int load_taille_image(PNM* image,FILE* fichier);
+
+int load_taille_pixel_max(PNM* image,FILE* fichier);
+
+int skip_commentaires(FILE* fichier);
 
 int write_header(PNM *image,FILE *fichier);
 
